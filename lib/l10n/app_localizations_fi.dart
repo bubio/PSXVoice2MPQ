@@ -89,8 +89,10 @@ class AppLocalizationsFi extends AppLocalizations {
   String get complete => 'Valmis!';
 
   @override
-  String get errorSmpqNotFound =>
-      'smpq-komentoa ei löydy. Asenna StormLib-työkalut.';
+  String get buildFailed => 'Rakennus epäonnistui';
+
+  @override
+  String get errorSmpqNotFound => 'smpq-komentoa ei löydy.';
 
   @override
   String get errorNoStreamFiles =>

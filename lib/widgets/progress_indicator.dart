@@ -15,33 +15,35 @@ class BuildProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final hasError = progress.error != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          progress.currentStep,
+          hasError ? l10n.buildFailed : progress.currentStep,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
+            color: hasError ? theme.colorScheme.error : null,
           ),
         ),
         const SizedBox(height: 8),
         DiabloProgressBar(
-          value: progress.percentage > 0 ? progress.percentage : null,
+          value: hasError ? 0.0 : (progress.percentage > 0 ? progress.percentage : null),
         ),
         const SizedBox(height: 8),
-        if (progress.currentFile.isNotEmpty)
+        if (!hasError && progress.currentFile.isNotEmpty)
           Text(
             l10n.processing(progress.currentFile),
             style: theme.textTheme.bodySmall,
           ),
-        if (progress.totalFiles > 0)
+        if (!hasError && progress.totalFiles > 0)
           Text(
             l10n.filesProgress(progress.processedFiles, progress.totalFiles),
             style: theme.textTheme.bodySmall,
           ),
-        if (progress.error != null) ...[
-          const SizedBox(height: 16),
+        if (hasError) ...[
+          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(

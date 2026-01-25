@@ -23,7 +23,8 @@
   "creatingMpq": "{streamName} MPQ loomine...",
   "cleaningUp": "Puhastamine...",
   "complete": "Valmis!",
-  "errorSmpqNotFound": "smpq käsku ei leitud. Palun installige StormLib tööriistad.",
+  "buildFailed": "Ehitamine ebaõnnestus",
+  "errorSmpqNotFound": "smpq käsku ei leitud.",
   "errorNoStreamFiles": "Valitud kaustast ei leitud STREAM*.DIR faile."
 ,
   "convertingToMp3": "WAV teisendamine MP3-ks failist {streamName}..."

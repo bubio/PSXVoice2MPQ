@@ -23,7 +23,8 @@
   "creatingMpq": "Luodaan MPQ {streamName}...",
   "cleaningUp": "Siivotaan...",
   "complete": "Valmis!",
-  "errorSmpqNotFound": "smpq-komentoa ei löydy. Asenna StormLib-työkalut.",
+  "buildFailed": "Rakennus epäonnistui",
+  "errorSmpqNotFound": "smpq-komentoa ei löydy.",
   "errorNoStreamFiles": "STREAM*.DIR-tiedostoja ei löytynyt valitusta kansiosta."
 ,
   "convertingToMp3": "Muunnetaan WAV MP3:ksi kohteesta {streamName}..."

@@ -88,8 +88,10 @@ class AppLocalizationsCs extends AppLocalizations {
   String get complete => 'Hotovo!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Příkaz smpq nebyl nalezen. Nainstalujte nástroje StormLib.';
+  String get buildFailed => 'Sestavení selhalo';
+
+  @override
+  String get errorSmpqNotFound => 'Příkaz smpq nebyl nalezen.';
 
   @override
   String get errorNoStreamFiles =>

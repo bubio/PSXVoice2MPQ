@@ -88,8 +88,10 @@ class AppLocalizationsHr extends AppLocalizations {
   String get complete => 'Završeno!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Naredba smpq nije pronađena. Instalirajte alate StormLib.';
+  String get buildFailed => 'Izgradnja nije uspjela';
+
+  @override
+  String get errorSmpqNotFound => 'Naredba smpq nije pronađena.';
 
   @override
   String get errorNoStreamFiles =>

@@ -23,7 +23,8 @@
   "creatingMpq": "Стварэнне MPQ для {streamName}...",
   "cleaningUp": "Ачыстка...",
   "complete": "Гатова!",
-  "errorSmpqNotFound": "Каманда smpq не знойдзена. Калі ласка, усталюйце інструменты StormLib.",
+  "buildFailed": "Збой зборкі",
+  "errorSmpqNotFound": "Каманда smpq не знойдзена.",
   "errorNoStreamFiles": "Файлы STREAM*.DIR не знойдзены ў выбранай папцы."
 ,
   "convertingToMp3": "Канвертацыя WAV у MP3 з {streamName}..."

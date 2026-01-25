@@ -23,7 +23,8 @@
   "creatingMpq": "Δημιουργία MPQ για {streamName}...",
   "cleaningUp": "Καθαρισμός...",
   "complete": "Ολοκληρώθηκε!",
-  "errorSmpqNotFound": "Η εντολή smpq δεν βρέθηκε. Εγκαταστήστε τα εργαλεία StormLib.",
+  "buildFailed": "Η κατασκευή απέτυχε",
+  "errorSmpqNotFound": "Η εντολή smpq δεν βρέθηκε.",
   "errorNoStreamFiles": "Δεν βρέθηκαν αρχεία STREAM*.DIR στον επιλεγμένο φάκελο."
 ,
   "convertingToMp3": "Μετατροπή WAV σε MP3 από {streamName}..."

@@ -23,7 +23,8 @@
   "creatingMpq": "{streamName}의 MPQ 생성 중...",
   "cleaningUp": "정리 중...",
   "complete": "완료!",
-  "errorSmpqNotFound": "smpq 명령을 찾을 수 없습니다. StormLib 도구를 설치하세요.",
+  "buildFailed": "빌드 실패",
+  "errorSmpqNotFound": "smpq 명령을 찾을 수 없습니다.",
   "errorNoStreamFiles": "선택한 폴더에서 STREAM*.DIR 파일을 찾을 수 없습니다."
 ,
   "convertingToMp3": "{streamName}의 WAV를 MP3로 변환 중..."

@@ -23,7 +23,8 @@
   "creatingMpq": "{streamName}のMPQを作成中...",
   "cleaningUp": "クリーンアップ中...",
   "complete": "完了！",
-  "errorSmpqNotFound": "smpqコマンドが見つかりません。StormLibツールをインストールしてください。",
+  "buildFailed": "ビルド失敗",
+  "errorSmpqNotFound": "smpqコマンドが見つかりません。",
   "errorNoStreamFiles": "選択したフォルダにSTREAM*.DIRファイルが見つかりません。"
 ,
   "convertingToMp3": "{streamName} の WAV を MP3 に変換中..."

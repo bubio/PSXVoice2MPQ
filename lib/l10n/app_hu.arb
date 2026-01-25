@@ -23,7 +23,8 @@
   "creatingMpq": "MPQ létrehozása {streamName} számára...",
   "cleaningUp": "Takarítás...",
   "complete": "Kész!",
-  "errorSmpqNotFound": "Az smpq parancs nem található. Telepítse a StormLib eszközöket.",
+  "buildFailed": "A build sikertelen",
+  "errorSmpqNotFound": "Az smpq parancs nem található.",
   "errorNoStreamFiles": "Nem található STREAM*.DIR fájl a kiválasztott mappában."
 ,
   "convertingToMp3": "WAV konvertálása MP3-ra: {streamName}..."

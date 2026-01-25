@@ -178,7 +178,7 @@ class MpqBuilderService {
         currentStepNum++;
 
         // Convert WAV to MP3 if lame is available
-        if (useMp3 && lamePath != null) {
+        if (useMp3) {
           yield progress = progress.copyWith(
             currentStep: l10n.convertingToMp3(streamName),
             percentage: currentStepNum / totalSteps,

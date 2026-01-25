@@ -23,7 +23,8 @@
   "creatingMpq": "Opretter MPQ til {streamName}...",
   "cleaningUp": "Rydder op...",
   "complete": "Færdig!",
-  "errorSmpqNotFound": "smpq-kommandoen blev ikke fundet. Installer venligst StormLib-værktøjer.",
+  "buildFailed": "Build mislykkedes",
+  "errorSmpqNotFound": "smpq-kommandoen blev ikke fundet.",
   "errorNoStreamFiles": "Ingen STREAM*.DIR-filer fundet i den valgte mappe."
 ,
   "convertingToMp3": "Konverterer WAV til MP3 fra {streamName}..."

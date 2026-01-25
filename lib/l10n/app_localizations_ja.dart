@@ -88,7 +88,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get complete => '完了！';
 
   @override
-  String get errorSmpqNotFound => 'smpqコマンドが見つかりません。StormLibツールをインストールしてください。';
+  String get buildFailed => 'ビルド失敗';
+
+  @override
+  String get errorSmpqNotFound => 'smpqコマンドが見つかりません。';
 
   @override
   String get errorNoStreamFiles => '選択したフォルダにSTREAM*.DIRファイルが見つかりません。';

@@ -23,7 +23,8 @@
   "creatingMpq": "建立 {streamName} 的 MPQ...",
   "cleaningUp": "清理中...",
   "complete": "完成！",
-  "errorSmpqNotFound": "找不到 smpq 指令。請安裝 StormLib 工具。",
+  "buildFailed": "建置失敗",
+  "errorSmpqNotFound": "找不到 smpq 指令。",
   "errorNoStreamFiles": "在所選資料夾中找不到 STREAM*.DIR 檔案。"
 ,
   "convertingToMp3": "正在將 {streamName} 的 WAV 轉換為 MP3..."

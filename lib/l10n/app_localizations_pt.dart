@@ -90,8 +90,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get complete => 'Concluído!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Comando smpq não encontrado. Instale as ferramentas StormLib.';
+  String get buildFailed => 'Falha na compilação';
+
+  @override
+  String get errorSmpqNotFound => 'Comando smpq não encontrado.';
 
   @override
   String get errorNoStreamFiles =>
@@ -189,8 +191,10 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get complete => 'Concluído!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Comando smpq não encontrado. Instale as ferramentas StormLib.';
+  String get buildFailed => 'Falha na compilação';
+
+  @override
+  String get errorSmpqNotFound => 'Comando smpq não encontrado.';
 
   @override
   String get errorNoStreamFiles =>

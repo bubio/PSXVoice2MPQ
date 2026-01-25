@@ -88,8 +88,10 @@ class AppLocalizationsBe extends AppLocalizations {
   String get complete => 'Гатова!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Каманда smpq не знойдзена. Калі ласка, усталюйце інструменты StormLib.';
+  String get buildFailed => 'Збой зборкі';
+
+  @override
+  String get errorSmpqNotFound => 'Каманда smpq не знойдзена.';
 
   @override
   String get errorNoStreamFiles =>

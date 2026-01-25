@@ -90,8 +90,10 @@ class AppLocalizationsHu extends AppLocalizations {
   String get complete => 'Kész!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Az smpq parancs nem található. Telepítse a StormLib eszközöket.';
+  String get buildFailed => 'A build sikertelen';
+
+  @override
+  String get errorSmpqNotFound => 'Az smpq parancs nem található.';
 
   @override
   String get errorNoStreamFiles =>

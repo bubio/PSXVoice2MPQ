@@ -89,8 +89,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get complete => 'Tamamlandı!';
 
   @override
-  String get errorSmpqNotFound =>
-      'smpq komutu bulunamadı. Lütfen StormLib araçlarını yükleyin.';
+  String get buildFailed => 'Derleme başarısız';
+
+  @override
+  String get errorSmpqNotFound => 'smpq komutu bulunamadı.';
 
   @override
   String get errorNoStreamFiles =>

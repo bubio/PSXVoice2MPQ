@@ -91,8 +91,10 @@ class AppLocalizationsRo extends AppLocalizations {
   String get complete => 'Finalizat!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Comanda smpq nu a fost găsită. Instalați instrumentele StormLib.';
+  String get buildFailed => 'Construcție eșuată';
+
+  @override
+  String get errorSmpqNotFound => 'Comanda smpq nu a fost găsită.';
 
   @override
   String get errorNoStreamFiles =>

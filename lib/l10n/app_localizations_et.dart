@@ -89,8 +89,10 @@ class AppLocalizationsEt extends AppLocalizations {
   String get complete => 'Valmis!';
 
   @override
-  String get errorSmpqNotFound =>
-      'smpq käsku ei leitud. Palun installige StormLib tööriistad.';
+  String get buildFailed => 'Ehitamine ebaõnnestus';
+
+  @override
+  String get errorSmpqNotFound => 'smpq käsku ei leitud.';
 
   @override
   String get errorNoStreamFiles =>

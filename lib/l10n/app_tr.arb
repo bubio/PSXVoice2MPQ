@@ -23,7 +23,8 @@
   "creatingMpq": "{streamName} için MPQ oluşturuluyor...",
   "cleaningUp": "Temizleniyor...",
   "complete": "Tamamlandı!",
-  "errorSmpqNotFound": "smpq komutu bulunamadı. Lütfen StormLib araçlarını yükleyin.",
+  "buildFailed": "Derleme başarısız",
+  "errorSmpqNotFound": "smpq komutu bulunamadı.",
   "errorNoStreamFiles": "Seçilen klasörde STREAM*.DIR dosyası bulunamadı."
 ,
   "convertingToMp3": "{streamName} WAV dosyalarını MP3'e dönüştürülüyor..."

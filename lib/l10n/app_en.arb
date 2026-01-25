@@ -126,7 +126,11 @@
   "@complete": {
     "description": "Completion message"
   },
-  "errorSmpqNotFound": "smpq command not found. Please install StormLib tools.",
+  "buildFailed": "Build Failed",
+  "@buildFailed": {
+    "description": "Message shown when build fails"
+  },
+  "errorSmpqNotFound": "smpq command not found.",
   "@errorSmpqNotFound": {
     "description": "Error when smpq is not found"
   },

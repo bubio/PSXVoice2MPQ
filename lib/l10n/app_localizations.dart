@@ -283,10 +283,16 @@ abstract class AppLocalizations {
   /// **'Complete!'**
   String get complete;
 
+  /// Message shown when build fails
+  ///
+  /// In en, this message translates to:
+  /// **'Build Failed'**
+  String get buildFailed;
+
   /// Error when smpq is not found
   ///
   /// In en, this message translates to:
-  /// **'smpq command not found. Please install StormLib tools.'**
+  /// **'smpq command not found.'**
   String get errorSmpqNotFound;
 
   /// Error when no stream files are found

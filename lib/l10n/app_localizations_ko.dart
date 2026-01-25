@@ -88,7 +88,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get complete => '완료!';
 
   @override
-  String get errorSmpqNotFound => 'smpq 명령을 찾을 수 없습니다. StormLib 도구를 설치하세요.';
+  String get buildFailed => '빌드 실패';
+
+  @override
+  String get errorSmpqNotFound => 'smpq 명령을 찾을 수 없습니다.';
 
   @override
   String get errorNoStreamFiles => '선택한 폴더에서 STREAM*.DIR 파일을 찾을 수 없습니다.';

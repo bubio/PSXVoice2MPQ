@@ -90,8 +90,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get complete => 'Completato!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Comando smpq non trovato. Installa gli strumenti StormLib.';
+  String get buildFailed => 'Build fallita';
+
+  @override
+  String get errorSmpqNotFound => 'Comando smpq non trovato.';
 
   @override
   String get errorNoStreamFiles =>

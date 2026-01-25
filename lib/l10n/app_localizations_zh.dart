@@ -88,7 +88,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get complete => '完成！';
 
   @override
-  String get errorSmpqNotFound => '找不到 smpq 命令。请安装 StormLib 工具。';
+  String get buildFailed => '构建失败';
+
+  @override
+  String get errorSmpqNotFound => '找不到 smpq 命令。';
 
   @override
   String get errorNoStreamFiles => '在所选文件夹中找不到 STREAM*.DIR 文件。';
@@ -183,7 +186,10 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get complete => '完成！';
 
   @override
-  String get errorSmpqNotFound => '找不到 smpq 命令。请安装 StormLib 工具。';
+  String get buildFailed => '构建失败';
+
+  @override
+  String get errorSmpqNotFound => '找不到 smpq 命令。';
 
   @override
   String get errorNoStreamFiles => '在所选文件夹中找不到 STREAM*.DIR 文件。';
@@ -278,7 +284,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get complete => '完成！';
 
   @override
-  String get errorSmpqNotFound => '找不到 smpq 指令。請安裝 StormLib 工具。';
+  String get buildFailed => '建置失敗';
+
+  @override
+  String get errorSmpqNotFound => '找不到 smpq 指令。';
 
   @override
   String get errorNoStreamFiles => '在所選資料夾中找不到 STREAM*.DIR 檔案。';

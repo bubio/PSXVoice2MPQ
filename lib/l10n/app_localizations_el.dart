@@ -90,8 +90,10 @@ class AppLocalizationsEl extends AppLocalizations {
   String get complete => 'Ολοκληρώθηκε!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Η εντολή smpq δεν βρέθηκε. Εγκαταστήστε τα εργαλεία StormLib.';
+  String get buildFailed => 'Η κατασκευή απέτυχε';
+
+  @override
+  String get errorSmpqNotFound => 'Η εντολή smpq δεν βρέθηκε.';
 
   @override
   String get errorNoStreamFiles =>

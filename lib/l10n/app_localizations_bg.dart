@@ -88,8 +88,10 @@ class AppLocalizationsBg extends AppLocalizations {
   String get complete => 'Готово!';
 
   @override
-  String get errorSmpqNotFound =>
-      'Командата smpq не е намерена. Моля, инсталирайте инструментите StormLib.';
+  String get buildFailed => 'Грешка при изграждане';
+
+  @override
+  String get errorSmpqNotFound => 'Командата smpq не е намерена.';
 
   @override
   String get errorNoStreamFiles =>
