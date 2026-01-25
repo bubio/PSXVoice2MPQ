@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../l10n/app_localizations.dart';
@@ -7,7 +8,14 @@ import '../services/mpq_builder_service.dart';
 import '../widgets/progress_indicator.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Locale? currentLocale;
+  final ValueChanged<Locale?> onLocaleChanged;
+
+  const HomeScreen({
+    super.key,
+    required this.currentLocale,
+    required this.onLocaleChanged,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -22,10 +30,57 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final MpqBuilderService _builderService = MpqBuilderService();
 
+  // Language display names
+  static const Map<String, String> _languageNames = {
+    'system': 'System Default',
+    'en': 'English',
+    'ja': '日本語',
+    'ko': '한국어',
+    'zh_CN': '简体中文',
+    'zh_TW': '繁體中文',
+    'de': 'Deutsch',
+    'fr': 'Français',
+    'es': 'Español',
+    'it': 'Italiano',
+    'pt_BR': 'Português (Brasil)',
+    'ru': 'Русский',
+    'uk': 'Українська',
+    'pl': 'Polski',
+    'cs': 'Čeština',
+    'hu': 'Magyar',
+    'ro': 'Română',
+    'bg': 'Български',
+    'hr': 'Hrvatski',
+    'sv': 'Svenska',
+    'da': 'Dansk',
+    'fi': 'Suomi',
+    'et': 'Eesti',
+    'el': 'Ελληνικά',
+    'tr': 'Türkçe',
+    'be': 'Беларуская',
+  };
+
   @override
   void dispose() {
     _buildSubscription?.cancel();
     super.dispose();
+  }
+
+  String _getLocaleKey(Locale? locale) {
+    if (locale == null) return 'system';
+    if (locale.countryCode != null) {
+      return '${locale.languageCode}_${locale.countryCode}';
+    }
+    return locale.languageCode;
+  }
+
+  Locale? _parseLocaleKey(String key) {
+    if (key == 'system') return null;
+    final parts = key.split('_');
+    if (parts.length == 2) {
+      return Locale(parts[0], parts[1]);
+    }
+    return Locale(parts[0]);
   }
 
   Future<void> _selectAssetsFolder() async {
@@ -91,11 +146,52 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final currentKey = _getLocaleKey(widget.currentLocale);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.appTitle),
         backgroundColor: theme.colorScheme.inversePrimary,
+        actions: [
+          // Debug Language Selector (only in debug mode)
+          if (kDebugMode)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.language),
+              tooltip: 'Debug: Change Language',
+              initialValue: currentKey,
+              onSelected: (String key) {
+                widget.onLocaleChanged(_parseLocaleKey(key));
+              },
+              itemBuilder: (BuildContext context) {
+                return _languageNames.entries.map((entry) {
+                  final isSelected = entry.key == currentKey;
+                  return PopupMenuItem<String>(
+                    value: entry.key,
+                    child: Row(
+                      children: [
+                        if (isSelected)
+                          const Icon(Icons.check, size: 18)
+                        else
+                          const SizedBox(width: 18),
+                        const SizedBox(width: 8),
+                        Text(entry.value),
+                        if (entry.key != 'system') ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            '(${entry.key})',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.outline,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
