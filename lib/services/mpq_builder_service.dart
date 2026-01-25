@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
+import '../l10n/app_localizations.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../models/build_progress.dart';
@@ -12,8 +13,8 @@ class MpqBuilderService {
   final BinaryExtractor _binaryExtractor = BinaryExtractor();
   final ProcessRunner _processRunner = ProcessRunner();
 
-  Stream<BuildProgress> build(String ps1AssetsPath, String outputPath) async* {
-    var progress = const BuildProgress(currentStep: 'Initializing...');
+  Stream<BuildProgress> build(String ps1AssetsPath, String outputPath, AppLocalizations l10n) async* {
+    var progress = BuildProgress(currentStep: l10n.initializing);
 
     try {
       // Step 1: Check for smpq
@@ -21,7 +22,7 @@ class MpqBuilderService {
       final smpqPath = await _processRunner.findSmpq();
       if (smpqPath == null) {
         yield progress.copyWith(
-          error: 'smpq command not found. Please install StormLib tools.',
+          error: l10n.errorSmpqNotFound,
           isComplete: true,
         );
         return;
@@ -29,7 +30,7 @@ class MpqBuilderService {
       yield progress = progress.addLog('smpq found at: $smpqPath');
 
       // Step 2: Extract binaries
-      yield progress = progress.copyWith(currentStep: 'Extracting binaries...');
+      yield progress = progress.copyWith(currentStep: l10n.extractingBinaries);
       yield progress = progress.addLog('Extracting bundled binaries...');
       await _binaryExtractor.extractBinaries();
       final dstreamPath = await _binaryExtractor.getDstreamPath();
@@ -43,7 +44,7 @@ class MpqBuilderService {
       yield progress = progress.addLog('Work directory: ${workDir.path}');
 
       // Step 4: Find STREAM*.DIR files
-      yield progress = progress.copyWith(currentStep: 'Finding stream files...');
+      yield progress = progress.copyWith(currentStep: l10n.findingStreamFiles);
       final assetsDir = Directory(ps1AssetsPath);
       final streamDirs = await assetsDir
           .list()
@@ -53,7 +54,7 @@ class MpqBuilderService {
 
       if (streamDirs.isEmpty) {
         yield progress.copyWith(
-          error: 'No STREAM*.DIR files found in the selected folder.',
+          error: l10n.errorNoStreamFiles,
           isComplete: true,
         );
         return;
@@ -75,7 +76,7 @@ class MpqBuilderService {
 
         // Run dstream
         yield progress = progress.copyWith(
-          currentStep: 'Extracting $streamName...',
+          currentStep: l10n.extractingStream(streamName),
           currentFile: streamDir.path,
           percentage: currentStepNum / totalSteps,
         );
@@ -101,7 +102,7 @@ class MpqBuilderService {
 
         // Convert VAG to WAV
         yield progress = progress.copyWith(
-          currentStep: 'Converting VAG files from $streamName...',
+          currentStep: l10n.convertingVagFiles(streamName),
           percentage: currentStepNum / totalSteps,
         );
 
@@ -134,7 +135,7 @@ class MpqBuilderService {
 
         // Load map file and organize files
         yield progress = progress.copyWith(
-          currentStep: 'Creating MPQ for $streamName...',
+          currentStep: l10n.creatingMpq(streamName),
           percentage: currentStepNum / totalSteps,
         );
 
@@ -203,11 +204,11 @@ class MpqBuilderService {
       }
 
       // Cleanup
-      yield progress = progress.copyWith(currentStep: 'Cleaning up...');
+      yield progress = progress.copyWith(currentStep: l10n.cleaningUp);
       await workDir.delete(recursive: true);
 
       yield progress.copyWith(
-        currentStep: 'Complete!',
+        currentStep: l10n.complete,
         percentage: 1.0,
         isComplete: true,
       ).addLog('Build complete!');

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'screens/home_screen.dart';
 
 class PsxMpqConverterApp extends StatelessWidget {
@@ -9,6 +10,8 @@ class PsxMpqConverterApp extends StatelessWidget {
     return MaterialApp(
       title: 'PSX MPQ Converter',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.indigo,

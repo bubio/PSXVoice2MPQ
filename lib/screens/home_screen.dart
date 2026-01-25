@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
 import '../services/mpq_builder_service.dart';
 import '../widgets/progress_indicator.dart';
@@ -28,8 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _selectAssetsFolder() async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Select ps1_assets folder',
+      dialogTitle: l10n.selectInputFolder,
     );
     if (result != null) {
       setState(() {
@@ -39,8 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _selectOutputFolder() async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Select output folder for MPQ files',
+      dialogTitle: l10n.selectOutputFolder,
     );
     if (result != null) {
       setState(() {
@@ -52,13 +55,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _startBuild() async {
     if (_selectedAssetsPath == null || _selectedOutputPath == null) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isBuilding = true;
-      _progress = const BuildProgress(currentStep: 'Starting...');
+      _progress = BuildProgress(currentStep: l10n.starting);
     });
 
     _buildSubscription = _builderService
-        .build(_selectedAssetsPath!, _selectedOutputPath!)
+        .build(_selectedAssetsPath!, _selectedOutputPath!, l10n)
         .listen(
       (progress) {
         setState(() {
@@ -85,10 +90,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PSX MPQ Converter'),
+        title: Text(l10n.appTitle),
         backgroundColor: theme.colorScheme.inversePrimary,
       ),
       body: Padding(
@@ -98,16 +104,18 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _buildFolderSelector(
               theme: theme,
-              label: 'Input Folder',
+              label: l10n.inputFolder,
               path: _selectedAssetsPath,
               onBrowse: _isBuilding ? null : _selectAssetsFolder,
+              l10n: l10n,
             ),
             const SizedBox(height: 12),
             _buildFolderSelector(
               theme: theme,
-              label: 'Output Folder',
+              label: l10n.outputFolder,
               path: _selectedOutputPath,
               onBrowse: _isBuilding ? null : _selectOutputFolder,
+              l10n: l10n,
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
@@ -126,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     )
                   : const Icon(Icons.build, size: 18),
-              label: Text(_isBuilding ? 'Building...' : 'Build MPQ'),
+              label: Text(_isBuilding ? l10n.building : l10n.buildMpq),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
@@ -151,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Click Build to start',
+                        l10n.clickBuildToStart,
                         style: TextStyle(
                           color: theme.colorScheme.outline,
                         ),
@@ -171,6 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String label,
     required String? path,
     required VoidCallback? onBrowse,
+    required AppLocalizations l10n,
   }) {
     return Row(
       children: [
@@ -189,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              path ?? 'Not selected',
+              path ?? l10n.notSelected,
               style: TextStyle(
                 fontSize: 12,
                 color: path != null
@@ -208,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 12),
             ),
-            child: const Text('Browse', style: TextStyle(fontSize: 12)),
+            child: Text(l10n.browse, style: const TextStyle(fontSize: 12)),
           ),
         ),
       ],

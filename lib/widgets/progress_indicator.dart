@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
 
 class BuildProgressIndicator extends StatelessWidget {
@@ -12,6 +13,7 @@ class BuildProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,12 +32,12 @@ class BuildProgressIndicator extends StatelessWidget {
         const SizedBox(height: 8),
         if (progress.currentFile.isNotEmpty)
           Text(
-            'Processing: ${progress.currentFile}',
+            l10n.processing(progress.currentFile),
             style: theme.textTheme.bodySmall,
           ),
         if (progress.totalFiles > 0)
           Text(
-            '${progress.processedFiles} / ${progress.totalFiles} files',
+            l10n.filesProgress(progress.processedFiles, progress.totalFiles),
             style: theme.textTheme.bodySmall,
           ),
         if (progress.error != null) ...[
