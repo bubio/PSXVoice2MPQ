@@ -170,6 +170,11 @@ class MpqBuilderService {
               'Warning: Failed to convert ${p.basename(vagFile.path)}',
             );
           }
+
+          // Update progress after processing
+          yield progress = progress.copyWith(
+            processedFiles: i + 1,
+          );
         }
 
         yield progress = progress.addLog(
@@ -221,6 +226,11 @@ class MpqBuilderService {
                 'Warning: Failed to convert ${p.basename(wavFile.path)} to MP3',
               );
             }
+
+            // Update progress after processing
+            yield progress = progress.copyWith(
+              processedFiles: i + 1,
+            );
           }
 
           yield progress = progress.addLog(
