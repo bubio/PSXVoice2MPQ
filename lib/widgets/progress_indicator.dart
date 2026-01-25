@@ -88,19 +88,33 @@ class _LogViewerState extends State<LogViewer> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    // Scroll to bottom on initial build if there are logs
+    if (widget.logs.isNotEmpty) {
+      _scrollToBottom();
+    }
+  }
+
+  @override
   void didUpdateWidget(LogViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.logs.length != oldWidget.logs.length) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+    if (widget.logs.length > oldWidget.logs.length) {
+      _scrollToBottom();
     }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients &&
+          _scrollController.position.hasContentDimensions) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
@@ -127,8 +141,9 @@ class _LogViewerState extends State<LogViewer> {
         itemCount: widget.logs.length,
         itemBuilder: (context, index) {
           return Padding(
+            key: ValueKey(index),
             padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Text(
+            child: SelectableText(
               widget.logs[index],
               style: TextStyle(
                 fontFamily: 'monospace',

@@ -37,6 +37,13 @@ class AppLocalizationsHu extends AppLocalizations {
   String get notSelected => 'Nincs kiválasztva';
 
   @override
+  String get inputFolderHint =>
+      'STREAM*.DIR/BIN fájlokat tartalmazó mappa a PS1 lemezről';
+
+  @override
+  String get outputFolderHint => 'Célmappa a generált MPQ fájlokhoz';
+
+  @override
   String get clickBuildToStart => 'Kattintson a Létrehozás gombra a kezdéshez';
 
   @override
@@ -89,4 +96,9 @@ class AppLocalizationsHu extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Nem található STREAM*.DIR fájl a kiválasztott mappában.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'WAV konvertálása MP3-ra: $streamName...';
+  }
 }

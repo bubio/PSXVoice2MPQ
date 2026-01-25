@@ -9,6 +9,8 @@
   "building": "Loomine...",
   "browse": "Sirvi",
   "notSelected": "Pole valitud",
+  "inputFolderHint": "PS1 plaadilt STREAM*.DIR/BIN faile sisaldav kaust",
+  "outputFolderHint": "Loodud MPQ failide sihtkaust",
   "clickBuildToStart": "Alustamiseks klõpsake nuppu Loo",
   "starting": "Käivitamine...",
   "processing": "Töötlemine: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Valmis!",
   "errorSmpqNotFound": "smpq käsku ei leitud. Palun installige StormLib tööriistad.",
   "errorNoStreamFiles": "Valitud kaustast ei leitud STREAM*.DIR faile."
+,
+  "convertingToMp3": "WAV teisendamine MP3-ks failist {streamName}..."
 }

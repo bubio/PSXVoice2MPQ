@@ -9,6 +9,8 @@
   "building": "Skapar...",
   "browse": "Bläddra",
   "notSelected": "Inte vald",
+  "inputFolderHint": "Mapp med STREAM*.DIR/BIN-filer från PS1-skiva",
+  "outputFolderHint": "Målmapp för genererade MPQ-filer",
   "clickBuildToStart": "Klicka på Skapa för att börja",
   "starting": "Startar...",
   "processing": "Bearbetar: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Klart!",
   "errorSmpqNotFound": "smpq-kommandot hittades inte. Installera StormLib-verktyg.",
   "errorNoStreamFiles": "Inga STREAM*.DIR-filer hittades i den valda mappen."
+,
+  "convertingToMp3": "Konverterar WAV till MP3 från {streamName}..."
 }

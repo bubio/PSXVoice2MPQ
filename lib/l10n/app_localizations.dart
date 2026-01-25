@@ -199,6 +199,18 @@ abstract class AppLocalizations {
   /// **'Not selected'**
   String get notSelected;
 
+  /// Hint text for input folder
+  ///
+  /// In en, this message translates to:
+  /// **'Folder containing STREAM*.DIR/BIN files from PS1 disc'**
+  String get inputFolderHint;
+
+  /// Hint text for output folder
+  ///
+  /// In en, this message translates to:
+  /// **'Destination folder for generated MPQ files'**
+  String get outputFolderHint;
+
   /// Initial help message
   ///
   /// In en, this message translates to:
@@ -282,6 +294,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No STREAM*.DIR files found in the selected folder.'**
   String get errorNoStreamFiles;
+
+  /// Converting WAV to MP3 step
+  ///
+  /// In en, this message translates to:
+  /// **'Converting WAV to MP3 from {streamName}...'**
+  String convertingToMp3(String streamName);
 }
 
 class _AppLocalizationsDelegate

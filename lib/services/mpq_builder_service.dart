@@ -13,7 +13,20 @@ class MpqBuilderService {
   final BinaryExtractor _binaryExtractor = BinaryExtractor();
   final ProcessRunner _processRunner = ProcessRunner();
 
-  Stream<BuildProgress> build(String ps1AssetsPath, String outputPath, AppLocalizations l10n) async* {
+  // Stream number to language code mapping
+  static const Map<String, String> _streamToLang = {
+    '1': 'en',
+    '2': 'fr',
+    '3': 'de',
+    '4': 'sv',
+    '5': 'ja',
+  };
+
+  Stream<BuildProgress> build(
+    String ps1AssetsPath,
+    String outputPath,
+    AppLocalizations l10n,
+  ) async* {
     var progress = BuildProgress(currentStep: l10n.initializing);
 
     try {
@@ -29,6 +42,15 @@ class MpqBuilderService {
       }
       yield progress = progress.addLog('smpq found at: $smpqPath');
 
+      // Check for lame (optional MP3 encoding)
+      final lamePath = await _processRunner.findLame();
+      final useMp3 = lamePath != null;
+      if (useMp3) {
+        yield progress = progress.addLog('lame found at: $lamePath - MP3 encoding enabled');
+      } else {
+        yield progress = progress.addLog('lame not found - using WAV format');
+      }
+
       // Step 2: Extract binaries
       yield progress = progress.copyWith(currentStep: l10n.extractingBinaries);
       yield progress = progress.addLog('Extracting bundled binaries...');
@@ -39,7 +61,12 @@ class MpqBuilderService {
 
       // Step 3: Create temp directory
       final tempDir = await getTemporaryDirectory();
-      final workDir = Directory(p.join(tempDir.path, 'psx_mpq_work_${DateTime.now().millisecondsSinceEpoch}'));
+      final workDir = Directory(
+        p.join(
+          tempDir.path,
+          'psx_mpq_work_${DateTime.now().millisecondsSinceEpoch}',
+        ),
+      );
       await workDir.create(recursive: true);
       yield progress = progress.addLog('Work directory: ${workDir.path}');
 
@@ -60,7 +87,9 @@ class MpqBuilderService {
         return;
       }
 
-      yield progress = progress.addLog('Found ${streamDirs.length} stream file(s).');
+      yield progress = progress.addLog(
+        'Found ${streamDirs.length} stream file(s).',
+      );
 
       // Step 5: Process each STREAM*.DIR
       int totalSteps = streamDirs.length * 3; // dstream + vag2wav + mpq
@@ -71,7 +100,9 @@ class MpqBuilderService {
         final streamBin = streamDir.path.replaceAll('.DIR', '.BIN');
 
         // Create stream work directory
-        final streamWorkDir = Directory(p.join(workDir.path, '$streamName.DIR'));
+        final streamWorkDir = Directory(
+          p.join(workDir.path, '$streamName.DIR'),
+        );
         await streamWorkDir.create(recursive: true);
 
         // Run dstream
@@ -82,14 +113,15 @@ class MpqBuilderService {
         );
         yield progress = progress.addLog('Running dstream on $streamName...');
 
-        final dstreamResult = await _processRunner.run(
-          dstreamPath,
-          [streamDir.path, streamBin],
-          workingDirectory: streamWorkDir.path,
-        );
+        final dstreamResult = await _processRunner.run(dstreamPath, [
+          streamDir.path,
+          streamBin,
+        ], workingDirectory: streamWorkDir.path);
 
         if (!dstreamResult.isSuccess) {
-          yield progress = progress.addLog('dstream warning: ${dstreamResult.stderr}');
+          yield progress = progress.addLog(
+            'dstream warning: ${dstreamResult.stderr}',
+          );
         }
 
         // Count extracted files
@@ -97,7 +129,9 @@ class MpqBuilderService {
             .list()
             .where((e) => e is File)
             .toList();
-        yield progress = progress.addLog('Extracted ${extractedFiles.length} files from $streamName.');
+        yield progress = progress.addLog(
+          'Extracted ${extractedFiles.length} files from $streamName.',
+        );
         currentStepNum++;
 
         // Convert VAG to WAV
@@ -112,11 +146,14 @@ class MpqBuilderService {
             .cast<File>()
             .toList();
 
-        yield progress = progress.addLog('Found ${vagFiles.length} VAG files to convert.');
+        yield progress = progress.addLog(
+          'Found ${vagFiles.length} VAG files to convert.',
+        );
 
         for (int i = 0; i < vagFiles.length; i++) {
           final vagFile = vagFiles[i];
-          final wavPath = '${vagFile.path.substring(0, vagFile.path.length - 4)}.WAV';
+          final wavPath =
+              '${vagFile.path.substring(0, vagFile.path.length - 4)}.WAV';
 
           yield progress = progress.copyWith(
             currentFile: p.basename(vagFile.path),
@@ -124,14 +161,72 @@ class MpqBuilderService {
             processedFiles: i,
           );
 
-          final result = await _processRunner.run(vag2wavPath, [vagFile.path, wavPath]);
+          final result = await _processRunner.run(vag2wavPath, [
+            vagFile.path,
+            wavPath,
+          ]);
           if (!result.isSuccess) {
-            yield progress = progress.addLog('Warning: Failed to convert ${p.basename(vagFile.path)}');
+            yield progress = progress.addLog(
+              'Warning: Failed to convert ${p.basename(vagFile.path)}',
+            );
           }
         }
 
-        yield progress = progress.addLog('Converted ${vagFiles.length} VAG files.');
+        yield progress = progress.addLog(
+          'Converted ${vagFiles.length} VAG files to WAV.',
+        );
         currentStepNum++;
+
+        // Convert WAV to MP3 if lame is available
+        if (useMp3 && lamePath != null) {
+          yield progress = progress.copyWith(
+            currentStep: l10n.convertingToMp3(streamName),
+            percentage: currentStepNum / totalSteps,
+          );
+
+          final wavFiles = await streamWorkDir
+              .list()
+              .where((e) => e is File && e.path.toUpperCase().endsWith('.WAV'))
+              .cast<File>()
+              .toList();
+
+          yield progress = progress.addLog(
+            'Converting ${wavFiles.length} WAV files to MP3...',
+          );
+
+          for (int i = 0; i < wavFiles.length; i++) {
+            final wavFile = wavFiles[i];
+            final mp3Path =
+                '${wavFile.path.substring(0, wavFile.path.length - 4)}.mp3';
+
+            yield progress = progress.copyWith(
+              currentFile: p.basename(wavFile.path),
+              totalFiles: wavFiles.length,
+              processedFiles: i,
+            );
+
+            final result = await _processRunner.run(lamePath, [
+              '--quiet',
+              '-V',
+              '2',
+              wavFile.path,
+              mp3Path,
+            ]);
+
+            if (result.isSuccess) {
+              // Delete the WAV file after successful conversion
+              await wavFile.delete();
+            } else {
+              yield progress = progress.addLog(
+                'Warning: Failed to convert ${p.basename(wavFile.path)} to MP3',
+              );
+            }
+          }
+
+          yield progress = progress.addLog(
+            'Converted ${wavFiles.length} WAV files to MP3.',
+          );
+        }
 
         // Load map file and organize files
         yield progress = progress.copyWith(
@@ -146,9 +241,13 @@ class MpqBuilderService {
         try {
           final mapData = await rootBundle.loadString(mapAssetPath);
           mappings = _parseMappings(mapData);
-          yield progress = progress.addLog('Loaded ${mappings.length} mappings from stream$streamNum.map');
+          yield progress = progress.addLog(
+            'Loaded ${mappings.length} mappings from stream$streamNum.map',
+          );
         } catch (e) {
-          yield progress = progress.addLog('Warning: Could not load map file: $e');
+          yield progress = progress.addLog(
+            'Warning: Could not load map file: $e',
+          );
           mappings = [];
         }
 
@@ -158,19 +257,38 @@ class MpqBuilderService {
 
         int mappedFiles = 0;
         for (final mapping in mappings) {
-          final sourceFile = File(p.join(streamWorkDir.path, mapping.sourceFile));
+          var sourceFileName = mapping.sourceFile;
+          var destPath = mapping.destinationPath;
+
+          // If using MP3 and source is a WAV file, try MP3 version first
+          if (useMp3 && sourceFileName.toUpperCase().endsWith('.WAV')) {
+            final mp3SourceName =
+                '${sourceFileName.substring(0, sourceFileName.length - 4)}.mp3';
+            final mp3File = File(p.join(streamWorkDir.path, mp3SourceName));
+            if (await mp3File.exists()) {
+              sourceFileName = mp3SourceName;
+              if (destPath.toUpperCase().endsWith('.WAV')) {
+                destPath = '${destPath.substring(0, destPath.length - 4)}.mp3';
+              }
+            }
+          }
+
+          final sourceFile = File(p.join(streamWorkDir.path, sourceFileName));
           if (await sourceFile.exists()) {
-            final destPath = p.join(mpqDir.path, mapping.destinationPath);
-            await Directory(p.dirname(destPath)).create(recursive: true);
-            await sourceFile.copy(destPath);
+            final fullDestPath = p.join(mpqDir.path, destPath);
+            await Directory(p.dirname(fullDestPath)).create(recursive: true);
+            await sourceFile.copy(fullDestPath);
             mappedFiles++;
           }
         }
 
-        yield progress = progress.addLog('Mapped $mappedFiles files according to mapping.');
+        yield progress = progress.addLog(
+          'Mapped $mappedFiles files according to mapping.',
+        );
 
         // Create MPQ archive
-        final mpqPath = p.join(outputPath, 'stream$streamNum.mpq');
+        final langCode = _streamToLang[streamNum] ?? 'stream$streamNum';
+        final mpqPath = p.join(outputPath, '$langCode.mpq');
         final mpqFile = File(mpqPath);
         if (await mpqFile.exists()) {
           await mpqFile.delete();
@@ -179,24 +297,37 @@ class MpqBuilderService {
         yield progress = progress.addLog('Creating MPQ archive: $mpqPath');
 
         // Create new MPQ
-        var result = await _processRunner.run(smpqPath, ['-M', '1', '-C', 'none', '-c', mpqPath]);
+        var result = await _processRunner.run(smpqPath, [
+          '-M',
+          '1',
+          '-C',
+          'none',
+          '-c',
+          mpqPath,
+        ]);
         if (!result.isSuccess) {
-          yield progress = progress.addLog('Error creating MPQ: ${result.stderr}');
+          yield progress = progress.addLog(
+            'Error creating MPQ: ${result.stderr}',
+          );
           currentStepNum++;
           continue;
         }
 
         // Add files to MPQ
         final filesToAdd = await _listFilesRecursive(mpqDir);
-        yield progress = progress.addLog('Adding ${filesToAdd.length} files to MPQ...');
+        yield progress = progress.addLog(
+          'Adding ${filesToAdd.length} files to MPQ...',
+        );
 
         for (final file in filesToAdd) {
           final relativePath = p.relative(file.path, from: mpqDir.path);
-          result = await _processRunner.run(
-            smpqPath,
-            ['-a', '-C', 'none', mpqPath, relativePath],
-            workingDirectory: mpqDir.path,
-          );
+          result = await _processRunner.run(smpqPath, [
+            '-a',
+            '-C',
+            'none',
+            mpqPath,
+            relativePath,
+          ], workingDirectory: mpqDir.path);
         }
 
         yield progress = progress.addLog('MPQ created: $mpqPath');
@@ -207,11 +338,13 @@ class MpqBuilderService {
       yield progress = progress.copyWith(currentStep: l10n.cleaningUp);
       await workDir.delete(recursive: true);
 
-      yield progress.copyWith(
-        currentStep: l10n.complete,
-        percentage: 1.0,
-        isComplete: true,
-      ).addLog('Build complete!');
+      yield progress
+          .copyWith(
+            currentStep: l10n.complete,
+            percentage: 1.0,
+            isComplete: true,
+          )
+          .addLog('Build complete!');
     } catch (e, stackTrace) {
       yield progress.copyWith(
         error: 'Error: $e\n$stackTrace',
@@ -232,10 +365,9 @@ class MpqBuilderService {
       if (trimmed.isEmpty) continue;
       final parts = trimmed.split(RegExp(r'\s+'));
       if (parts.length >= 2) {
-        mappings.add(StreamMapping(
-          sourceFile: parts[0],
-          destinationPath: parts[1],
-        ));
+        mappings.add(
+          StreamMapping(sourceFile: parts[0], destinationPath: parts[1]),
+        );
       }
     }
     return mappings;

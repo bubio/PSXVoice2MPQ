@@ -9,6 +9,8 @@
   "building": "Stvaranje...",
   "browse": "Pregledaj",
   "notSelected": "Nije odabrano",
+  "inputFolderHint": "Mapa s datotekama STREAM*.DIR/BIN s PS1 diska",
+  "outputFolderHint": "Odredišna mapa za generirane MPQ datoteke",
   "clickBuildToStart": "Kliknite Stvori za početak",
   "starting": "Pokretanje...",
   "processing": "Obrada: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Završeno!",
   "errorSmpqNotFound": "Naredba smpq nije pronađena. Instalirajte alate StormLib.",
   "errorNoStreamFiles": "Nisu pronađene STREAM*.DIR datoteke u odabranoj mapi."
+,
+  "convertingToMp3": "Pretvaranje WAV u MP3 iz {streamName}..."
 }

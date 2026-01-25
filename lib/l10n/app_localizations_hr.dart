@@ -36,6 +36,12 @@ class AppLocalizationsHr extends AppLocalizations {
   String get notSelected => 'Nije odabrano';
 
   @override
+  String get inputFolderHint => 'Mapa s datotekama STREAM*.DIR/BIN s PS1 diska';
+
+  @override
+  String get outputFolderHint => 'Odredišna mapa za generirane MPQ datoteke';
+
+  @override
   String get clickBuildToStart => 'Kliknite Stvori za početak';
 
   @override
@@ -88,4 +94,9 @@ class AppLocalizationsHr extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Nisu pronađene STREAM*.DIR datoteke u odabranoj mapi.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Pretvaranje WAV u MP3 iz $streamName...';
+  }
 }

@@ -9,6 +9,8 @@
   "building": "Létrehozás...",
   "browse": "Tallózás",
   "notSelected": "Nincs kiválasztva",
+  "inputFolderHint": "STREAM*.DIR/BIN fájlokat tartalmazó mappa a PS1 lemezről",
+  "outputFolderHint": "Célmappa a generált MPQ fájlokhoz",
   "clickBuildToStart": "Kattintson a Létrehozás gombra a kezdéshez",
   "starting": "Indítás...",
   "processing": "Feldolgozás: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Kész!",
   "errorSmpqNotFound": "Az smpq parancs nem található. Telepítse a StormLib eszközöket.",
   "errorNoStreamFiles": "Nem található STREAM*.DIR fájl a kiválasztott mappában."
+,
+  "convertingToMp3": "WAV konvertálása MP3-ra: {streamName}..."
 }

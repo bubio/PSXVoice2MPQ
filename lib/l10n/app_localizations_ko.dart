@@ -36,6 +36,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get notSelected => '선택되지 않음';
 
   @override
+  String get inputFolderHint => 'PS1 디스크의 STREAM*.DIR/BIN 파일이 있는 폴더';
+
+  @override
+  String get outputFolderHint => '생성된 MPQ 파일을 저장할 폴더';
+
+  @override
   String get clickBuildToStart => '빌드를 클릭하여 시작';
 
   @override
@@ -86,4 +92,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get errorNoStreamFiles => '선택한 폴더에서 STREAM*.DIR 파일을 찾을 수 없습니다.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return '$streamName의 WAV를 MP3로 변환 중...';
+  }
 }

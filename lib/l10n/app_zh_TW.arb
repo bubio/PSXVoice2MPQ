@@ -9,6 +9,8 @@
   "building": "建構中...",
   "browse": "瀏覽",
   "notSelected": "未選擇",
+  "inputFolderHint": "包含PS1光碟STREAM*.DIR/BIN檔案的資料夾",
+  "outputFolderHint": "生成的MPQ檔案儲存目錄",
   "clickBuildToStart": "點擊建構開始",
   "starting": "啟動中...",
   "processing": "處理中: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "完成！",
   "errorSmpqNotFound": "找不到 smpq 指令。請安裝 StormLib 工具。",
   "errorNoStreamFiles": "在所選資料夾中找不到 STREAM*.DIR 檔案。"
+,
+  "convertingToMp3": "正在將 {streamName} 的 WAV 轉換為 MP3..."
 }

@@ -9,6 +9,8 @@
   "building": "构建中...",
   "browse": "浏览",
   "notSelected": "未选择",
+  "inputFolderHint": "包含PS1光盘STREAM*.DIR/BIN文件的文件夹",
+  "outputFolderHint": "生成的MPQ文件保存目录",
   "clickBuildToStart": "点击构建开始",
   "starting": "启动中...",
   "processing": "处理中: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "完成！",
   "errorSmpqNotFound": "找不到 smpq 命令。请安装 StormLib 工具。",
   "errorNoStreamFiles": "在所选文件夹中找不到 STREAM*.DIR 文件。"
+,
+  "convertingToMp3": "正在将 {streamName} 的 WAV 转换为 MP3..."
 }

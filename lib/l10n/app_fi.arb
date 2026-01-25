@@ -9,6 +9,8 @@
   "building": "Luodaan...",
   "browse": "Selaa",
   "notSelected": "Ei valittu",
+  "inputFolderHint": "Kansio, joka sisältää STREAM*.DIR/BIN-tiedostot PS1-levyltä",
+  "outputFolderHint": "Kohdekansio luoduille MPQ-tiedostoille",
   "clickBuildToStart": "Aloita napsauttamalla Luo",
   "starting": "Käynnistetään...",
   "processing": "Käsitellään: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Valmis!",
   "errorSmpqNotFound": "smpq-komentoa ei löydy. Asenna StormLib-työkalut.",
   "errorNoStreamFiles": "STREAM*.DIR-tiedostoja ei löytynyt valitusta kansiosta."
+,
+  "convertingToMp3": "Muunnetaan WAV MP3:ksi kohteesta {streamName}..."
 }

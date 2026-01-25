@@ -9,6 +9,8 @@
   "building": "Vytváření...",
   "browse": "Procházet",
   "notSelected": "Nevybráno",
+  "inputFolderHint": "Složka se soubory STREAM*.DIR/BIN z PS1 disku",
+  "outputFolderHint": "Cílová složka pro vygenerované MPQ soubory",
   "clickBuildToStart": "Klikněte na Vytvořit pro zahájení",
   "starting": "Spouštění...",
   "processing": "Zpracování: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Hotovo!",
   "errorSmpqNotFound": "Příkaz smpq nebyl nalezen. Nainstalujte nástroje StormLib.",
   "errorNoStreamFiles": "Ve vybrané složce nebyly nalezeny žádné soubory STREAM*.DIR."
+,
+  "convertingToMp3": "Převod WAV na MP3 z {streamName}..."
 }

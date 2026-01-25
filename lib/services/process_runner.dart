@@ -61,4 +61,16 @@ class ProcessRunner {
       return false;
     }
   }
+
+  Future<String?> findLame() async {
+    try {
+      final result = await Process.run('which', ['lame']);
+      if (result.exitCode == 0) {
+        return result.stdout.toString().trim();
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return null;
+  }
 }

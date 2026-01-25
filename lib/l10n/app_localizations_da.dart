@@ -36,6 +36,12 @@ class AppLocalizationsDa extends AppLocalizations {
   String get notSelected => 'Ikke valgt';
 
   @override
+  String get inputFolderHint => 'Mappe med STREAM*.DIR/BIN-filer fra PS1-disc';
+
+  @override
+  String get outputFolderHint => 'Destinationsmappe til genererede MPQ-filer';
+
+  @override
   String get clickBuildToStart => 'Klik på Opret for at starte';
 
   @override
@@ -88,4 +94,9 @@ class AppLocalizationsDa extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Ingen STREAM*.DIR-filer fundet i den valgte mappe.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Konverterer WAV til MP3 fra $streamName...';
+  }
 }

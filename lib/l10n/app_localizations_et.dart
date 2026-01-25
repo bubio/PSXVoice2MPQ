@@ -36,6 +36,13 @@ class AppLocalizationsEt extends AppLocalizations {
   String get notSelected => 'Pole valitud';
 
   @override
+  String get inputFolderHint =>
+      'PS1 plaadilt STREAM*.DIR/BIN faile sisaldav kaust';
+
+  @override
+  String get outputFolderHint => 'Loodud MPQ failide sihtkaust';
+
+  @override
   String get clickBuildToStart => 'Alustamiseks klõpsake nuppu Loo';
 
   @override
@@ -88,4 +95,9 @@ class AppLocalizationsEt extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Valitud kaustast ei leitud STREAM*.DIR faile.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'WAV teisendamine MP3-ks failist $streamName...';
+  }
 }

@@ -9,6 +9,8 @@
   "building": "Tworzenie...",
   "browse": "Przeglądaj",
   "notSelected": "Nie wybrano",
+  "inputFolderHint": "Folder z plikami STREAM*.DIR/BIN z płyty PS1",
+  "outputFolderHint": "Folder docelowy dla wygenerowanych plików MPQ",
   "clickBuildToStart": "Kliknij Utwórz, aby rozpocząć",
   "starting": "Uruchamianie...",
   "processing": "Przetwarzanie: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Ukończono!",
   "errorSmpqNotFound": "Nie znaleziono polecenia smpq. Zainstaluj narzędzia StormLib.",
   "errorNoStreamFiles": "Nie znaleziono plików STREAM*.DIR w wybranym folderze."
+,
+  "convertingToMp3": "Konwersja WAV do MP3 z {streamName}..."
 }

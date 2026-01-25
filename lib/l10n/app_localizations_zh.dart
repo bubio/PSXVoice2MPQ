@@ -36,6 +36,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notSelected => '未选择';
 
   @override
+  String get inputFolderHint => '包含PS1光盘STREAM*.DIR/BIN文件的文件夹';
+
+  @override
+  String get outputFolderHint => '生成的MPQ文件保存目录';
+
+  @override
   String get clickBuildToStart => '点击构建开始';
 
   @override
@@ -86,6 +92,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorNoStreamFiles => '在所选文件夹中找不到 STREAM*.DIR 文件。';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return '正在将 $streamName 的 WAV 转换为 MP3...';
+  }
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -120,6 +131,12 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get notSelected => '未选择';
 
   @override
+  String get inputFolderHint => '包含PS1光盘STREAM*.DIR/BIN文件的文件夹';
+
+  @override
+  String get outputFolderHint => '生成的MPQ文件保存目录';
+
+  @override
   String get clickBuildToStart => '点击构建开始';
 
   @override
@@ -170,6 +187,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get errorNoStreamFiles => '在所选文件夹中找不到 STREAM*.DIR 文件。';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return '正在将 $streamName 的 WAV 转换为 MP3...';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -202,6 +224,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get notSelected => '未選擇';
+
+  @override
+  String get inputFolderHint => '包含PS1光碟STREAM*.DIR/BIN檔案的資料夾';
+
+  @override
+  String get outputFolderHint => '生成的MPQ檔案儲存目錄';
 
   @override
   String get clickBuildToStart => '點擊建構開始';
@@ -254,4 +282,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get errorNoStreamFiles => '在所選資料夾中找不到 STREAM*.DIR 檔案。';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return '正在將 $streamName 的 WAV 轉換為 MP3...';
+  }
 }

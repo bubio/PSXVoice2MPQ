@@ -36,6 +36,14 @@ class AppLocalizationsEl extends AppLocalizations {
   String get notSelected => 'Δεν έχει επιλεγεί';
 
   @override
+  String get inputFolderHint =>
+      'Φάκελος με αρχεία STREAM*.DIR/BIN από δίσκο PS1';
+
+  @override
+  String get outputFolderHint =>
+      'Φάκελος προορισμού για τα δημιουργημένα αρχεία MPQ';
+
+  @override
   String get clickBuildToStart => 'Κάντε κλικ στο Δημιουργία για να ξεκινήσετε';
 
   @override
@@ -88,4 +96,9 @@ class AppLocalizationsEl extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Δεν βρέθηκαν αρχεία STREAM*.DIR στον επιλεγμένο φάκελο.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Μετατροπή WAV σε MP3 από $streamName...';
+  }
 }

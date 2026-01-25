@@ -36,6 +36,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notSelected => 'Не выбрано';
 
   @override
+  String get inputFolderHint => 'Папка с файлами STREAM*.DIR/BIN с диска PS1';
+
+  @override
+  String get outputFolderHint => 'Папка для сохранения MPQ файлов';
+
+  @override
   String get clickBuildToStart => 'Нажмите Создать для начала';
 
   @override
@@ -88,4 +94,9 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Файлы STREAM*.DIR не найдены в выбранной папке.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Конвертация WAV в MP3 из $streamName...';
+  }
 }

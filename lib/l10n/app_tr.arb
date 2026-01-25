@@ -9,6 +9,8 @@
   "building": "Oluşturuluyor...",
   "browse": "Gözat",
   "notSelected": "Seçilmedi",
+  "inputFolderHint": "PS1 diskinden STREAM*.DIR/BIN dosyalarını içeren klasör",
+  "outputFolderHint": "Oluşturulan MPQ dosyaları için hedef klasör",
   "clickBuildToStart": "Başlamak için Oluştur'a tıklayın",
   "starting": "Başlatılıyor...",
   "processing": "İşleniyor: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Tamamlandı!",
   "errorSmpqNotFound": "smpq komutu bulunamadı. Lütfen StormLib araçlarını yükleyin.",
   "errorNoStreamFiles": "Seçilen klasörde STREAM*.DIR dosyası bulunamadı."
+,
+  "convertingToMp3": "{streamName} WAV dosyalarını MP3'e dönüştürülüyor..."
 }

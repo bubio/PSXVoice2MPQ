@@ -9,6 +9,8 @@
   "building": "Създаване...",
   "browse": "Преглед",
   "notSelected": "Не е избрано",
+  "inputFolderHint": "Папка с файлове STREAM*.DIR/BIN от PS1 диск",
+  "outputFolderHint": "Папка за генерираните MPQ файлове",
   "clickBuildToStart": "Щракнете Създай за начало",
   "starting": "Стартиране...",
   "processing": "Обработка: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "Готово!",
   "errorSmpqNotFound": "Командата smpq не е намерена. Моля, инсталирайте инструментите StormLib.",
   "errorNoStreamFiles": "Не са намерени файлове STREAM*.DIR в избраната папка."
+,
+  "convertingToMp3": "Конвертиране на WAV в MP3 от {streamName}..."
 }

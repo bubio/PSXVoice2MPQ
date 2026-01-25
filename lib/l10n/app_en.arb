@@ -36,6 +36,14 @@
   "@notSelected": {
     "description": "Placeholder when no folder is selected"
   },
+  "inputFolderHint": "Folder containing STREAM*.DIR/BIN files from PS1 disc",
+  "@inputFolderHint": {
+    "description": "Hint text for input folder"
+  },
+  "outputFolderHint": "Destination folder for generated MPQ files",
+  "@outputFolderHint": {
+    "description": "Hint text for output folder"
+  },
   "clickBuildToStart": "Click Build to start",
   "@clickBuildToStart": {
     "description": "Initial help message"
@@ -125,5 +133,15 @@
   "errorNoStreamFiles": "No STREAM*.DIR files found in the selected folder.",
   "@errorNoStreamFiles": {
     "description": "Error when no stream files are found"
+  },
+  "convertingToMp3": "Converting WAV to MP3 from {streamName}...",
+  "@convertingToMp3": {
+    "description": "Converting WAV to MP3 step",
+    "placeholders": {
+      "streamName": {
+        "type": "String",
+        "example": "STREAM1"
+      }
+    }
   }
 }

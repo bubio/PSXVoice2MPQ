@@ -36,6 +36,13 @@ class AppLocalizationsFi extends AppLocalizations {
   String get notSelected => 'Ei valittu';
 
   @override
+  String get inputFolderHint =>
+      'Kansio, joka sisältää STREAM*.DIR/BIN-tiedostot PS1-levyltä';
+
+  @override
+  String get outputFolderHint => 'Kohdekansio luoduille MPQ-tiedostoille';
+
+  @override
   String get clickBuildToStart => 'Aloita napsauttamalla Luo';
 
   @override
@@ -88,4 +95,9 @@ class AppLocalizationsFi extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'STREAM*.DIR-tiedostoja ei löytynyt valitusta kansiosta.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Muunnetaan WAV MP3:ksi kohteesta $streamName...';
+  }
 }

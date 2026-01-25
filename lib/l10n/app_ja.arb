@@ -9,6 +9,8 @@
   "building": "ビルド中...",
   "browse": "参照",
   "notSelected": "未選択",
+  "inputFolderHint": "PS1ディスクのSTREAM*.DIR/BINファイルがあるフォルダ",
+  "outputFolderHint": "生成されたMPQファイルの保存先フォルダ",
   "clickBuildToStart": "ビルドをクリックして開始",
   "starting": "開始中...",
   "processing": "処理中: {fileName}",
@@ -23,4 +25,6 @@
   "complete": "完了！",
   "errorSmpqNotFound": "smpqコマンドが見つかりません。StormLibツールをインストールしてください。",
   "errorNoStreamFiles": "選択したフォルダにSTREAM*.DIRファイルが見つかりません。"
+,
+  "convertingToMp3": "{streamName} の WAV を MP3 に変換中..."
 }

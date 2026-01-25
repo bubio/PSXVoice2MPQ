@@ -36,6 +36,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get notSelected => 'Nicht ausgewählt';
 
   @override
+  String get inputFolderHint =>
+      'Ordner mit STREAM*.DIR/BIN-Dateien von PS1-Disc';
+
+  @override
+  String get outputFolderHint => 'Zielordner für generierte MPQ-Dateien';
+
+  @override
   String get clickBuildToStart => 'Klicken Sie auf Erstellen, um zu beginnen';
 
   @override
@@ -88,4 +95,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Keine STREAM*.DIR-Dateien im ausgewählten Ordner gefunden.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Konvertiere WAV zu MP3 von $streamName...';
+  }
 }

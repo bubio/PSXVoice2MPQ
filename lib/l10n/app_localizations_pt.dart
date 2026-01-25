@@ -37,6 +37,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notSelected => 'Não selecionado';
 
   @override
+  String get inputFolderHint =>
+      'Pasta com arquivos STREAM*.DIR/BIN do disco PS1';
+
+  @override
+  String get outputFolderHint => 'Pasta de destino para arquivos MPQ gerados';
+
+  @override
   String get clickBuildToStart => 'Clique em Criar para começar';
 
   @override
@@ -89,6 +96,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Nenhum arquivo STREAM*.DIR encontrado na pasta selecionada.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Convertendo WAV para MP3 de $streamName...';
+  }
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -124,6 +136,13 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   String get notSelected => 'Não selecionado';
 
   @override
+  String get inputFolderHint =>
+      'Pasta com arquivos STREAM*.DIR/BIN do disco PS1';
+
+  @override
+  String get outputFolderHint => 'Pasta de destino para arquivos MPQ gerados';
+
+  @override
   String get clickBuildToStart => 'Clique em Criar para começar';
 
   @override
@@ -176,4 +195,9 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get errorNoStreamFiles =>
       'Nenhum arquivo STREAM*.DIR encontrado na pasta selecionada.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Convertendo WAV para MP3 de $streamName...';
+  }
 }

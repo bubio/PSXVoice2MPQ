@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as p;
 import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
 import '../services/mpq_builder_service.dart';
@@ -22,9 +24,38 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? _selectedAssetsPath = '/Users/seiji/dev/psx-tools/ps1_assets';
-  String? _selectedOutputPath = '/Users/seiji/dev/sandbox';
+  String? _selectedAssetsPath = kDebugMode
+      ? '/Users/seiji/dev/psx-tools/ps1_assets'
+      : null;
+  String? _selectedOutputPath = _getDefaultOutputPath();
   bool _isBuilding = false;
+
+  static String? _getDefaultOutputPath() {
+    if (Platform.isMacOS) {
+      final home = Platform.environment['HOME'];
+      if (home != null) {
+        return p.join(
+          home,
+          'Library',
+          'Application Support',
+          'diasurgical',
+          'devilution',
+        );
+      }
+    } else if (Platform.isWindows) {
+      final appData = Platform.environment['APPDATA'];
+      if (appData != null) {
+        return p.join(appData, 'diasurgical', 'devilution');
+      }
+    } else if (Platform.isLinux) {
+      final home = Platform.environment['HOME'];
+      if (home != null) {
+        return p.join(home, '.local', 'share', 'diasurgical', 'devilution');
+      }
+    }
+    return null;
+  }
+
   BuildProgress? _progress;
   StreamSubscription<BuildProgress>? _buildSubscription;
 
@@ -209,6 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildFolderSelector(
               theme: theme,
               label: l10n.inputFolder,
+              hint: l10n.inputFolderHint,
               path: _selectedAssetsPath,
               onBrowse: _isBuilding ? null : _selectAssetsFolder,
               l10n: l10n,
@@ -217,6 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildFolderSelector(
               theme: theme,
               label: l10n.outputFolder,
+              hint: l10n.outputFolderHint,
               path: _selectedOutputPath,
               onBrowse: _isBuilding ? null : _selectOutputFolder,
               l10n: l10n,
@@ -248,7 +281,12 @@ class _HomeScreenState extends State<HomeScreen> {
             if (_progress != null) ...[
               BuildProgressIndicator(progress: _progress!),
               const SizedBox(height: 12),
-              Expanded(child: LogViewer(logs: _progress!.logs)),
+              Expanded(
+                child: LogViewer(
+                  key: ValueKey(_progress!.logs.length),
+                  logs: _progress!.logs,
+                ),
+              ),
             ] else
               Expanded(
                 child: Center(
@@ -278,44 +316,57 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildFolderSelector({
     required ThemeData theme,
     required String label,
+    required String hint,
     required String? path,
     required VoidCallback? onBrowse,
     required AppLocalizations l10n,
   }) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 100,
-          child: Text(label, style: theme.textTheme.bodyMedium),
-        ),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(6),
+        Row(
+          children: [
+            SizedBox(
+              width: 100,
+              child: Text(label, style: theme.textTheme.bodyMedium),
             ),
-            child: Text(
-              path ?? l10n.notSelected,
-              style: TextStyle(
-                fontSize: 12,
-                color: path != null
-                    ? theme.colorScheme.onSurface
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  path ?? l10n.notSelected,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: path != null
+                        ? theme.colorScheme.onSurface
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
+            const SizedBox(width: 8),
+            SizedBox(
+              height: 32,
+              child: FilledButton(
+                onPressed: onBrowse,
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                child: Text(l10n.browse, style: const TextStyle(fontSize: 12)),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 8),
-        SizedBox(
-          height: 32,
-          child: FilledButton(
-            onPressed: onBrowse,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-            child: Text(l10n.browse, style: const TextStyle(fontSize: 12)),
+        Padding(
+          padding: const EdgeInsets.only(left: 100, top: 4),
+          child: Text(
+            hint,
+            style: TextStyle(fontSize: 11, color: theme.colorScheme.outline),
           ),
         ),
       ],

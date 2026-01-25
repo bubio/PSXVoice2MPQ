@@ -37,6 +37,14 @@ class AppLocalizationsRo extends AppLocalizations {
   String get notSelected => 'Neselectat';
 
   @override
+  String get inputFolderHint =>
+      'Folder cu fișiere STREAM*.DIR/BIN de pe discul PS1';
+
+  @override
+  String get outputFolderHint =>
+      'Folder destinație pentru fișierele MPQ generate';
+
+  @override
   String get clickBuildToStart => 'Faceți clic pe Creează pentru a începe';
 
   @override
@@ -89,4 +97,9 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Nu s-au găsit fișiere STREAM*.DIR în dosarul selectat.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Conversie WAV în MP3 din $streamName...';
+  }
 }

@@ -36,6 +36,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get notSelected => 'Nevybráno';
 
   @override
+  String get inputFolderHint => 'Složka se soubory STREAM*.DIR/BIN z PS1 disku';
+
+  @override
+  String get outputFolderHint => 'Cílová složka pro vygenerované MPQ soubory';
+
+  @override
   String get clickBuildToStart => 'Klikněte na Vytvořit pro zahájení';
 
   @override
@@ -88,4 +94,9 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get errorNoStreamFiles =>
       'Ve vybrané složce nebyly nalezeny žádné soubory STREAM*.DIR.';
+
+  @override
+  String convertingToMp3(String streamName) {
+    return 'Převod WAV na MP3 z $streamName...';
+  }
 }
