@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
 import '../services/mpq_builder_service.dart';
+import '../widgets/diablo_button.dart';
 import '../widgets/progress_indicator.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,11 +25,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? _selectedAssetsPath = kDebugMode
-      ? '/Users/seiji/dev/psx-tools/ps1_assets'
-      : null;
-  String? _selectedOutputPath = _getDefaultOutputPath();
+  late final TextEditingController _assetsPathController;
+  late final TextEditingController _outputPathController;
   bool _isBuilding = false;
+
+  static String? _getDefaultAssetsPath() {
+    return kDebugMode ? '/Users/seiji/dev/psx-tools/ps1_assets' : null;
+  }
 
   static String? _getDefaultOutputPath() {
     if (Platform.isMacOS) {
@@ -92,7 +95,20 @@ class _HomeScreenState extends State<HomeScreen> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    _assetsPathController = TextEditingController(
+      text: _getDefaultAssetsPath(),
+    );
+    _outputPathController = TextEditingController(
+      text: _getDefaultOutputPath(),
+    );
+  }
+
+  @override
   void dispose() {
+    _assetsPathController.dispose();
+    _outputPathController.dispose();
     _buildSubscription?.cancel();
     super.dispose();
   }
@@ -120,9 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
       dialogTitle: l10n.selectInputFolder,
     );
     if (result != null) {
-      setState(() {
-        _selectedAssetsPath = result;
-      });
+      _assetsPathController.text = result;
     }
   }
 
@@ -132,14 +146,14 @@ class _HomeScreenState extends State<HomeScreen> {
       dialogTitle: l10n.selectOutputFolder,
     );
     if (result != null) {
-      setState(() {
-        _selectedOutputPath = result;
-      });
+      _outputPathController.text = result;
     }
   }
 
   Future<void> _startBuild() async {
-    if (_selectedAssetsPath == null || _selectedOutputPath == null) return;
+    final assetsPath = _assetsPathController.text.trim();
+    final outputPath = _outputPathController.text.trim();
+    if (assetsPath.isEmpty || outputPath.isEmpty) return;
 
     final l10n = AppLocalizations.of(context)!;
 
@@ -149,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     _buildSubscription = _builderService
-        .build(_selectedAssetsPath!, _selectedOutputPath!, l10n)
+        .build(assetsPath, outputPath, l10n)
         .listen(
           (progress) {
             setState(() {
@@ -241,41 +255,54 @@ class _HomeScreenState extends State<HomeScreen> {
               theme: theme,
               label: l10n.inputFolder,
               hint: l10n.inputFolderHint,
-              path: _selectedAssetsPath,
+              controller: _assetsPathController,
               onBrowse: _isBuilding ? null : _selectAssetsFolder,
-              l10n: l10n,
+              enabled: !_isBuilding,
             ),
             const SizedBox(height: 12),
             _buildFolderSelector(
               theme: theme,
               label: l10n.outputFolder,
               hint: l10n.outputFolderHint,
-              path: _selectedOutputPath,
+              controller: _outputPathController,
               onBrowse: _isBuilding ? null : _selectOutputFolder,
-              l10n: l10n,
+              enabled: !_isBuilding,
             ),
             const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed:
-                  (_selectedAssetsPath != null &&
-                      _selectedOutputPath != null &&
-                      !_isBuilding)
-                  ? _startBuild
-                  : null,
-              icon: _isBuilding
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.build, size: 18),
-              label: Text(_isBuilding ? l10n.building : l10n.buildMpq),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
+            ListenableBuilder(
+              listenable: Listenable.merge([
+                _assetsPathController,
+                _outputPathController,
+              ]),
+              builder: (context, _) {
+                final canBuild =
+                    _assetsPathController.text.trim().isNotEmpty &&
+                    _outputPathController.text.trim().isNotEmpty &&
+                    !_isBuilding;
+                return DiabloButton(
+                  onPressed: canBuild ? _startBuild : null,
+                  height: 40,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_isBuilding)
+                        const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFFD4C4A0),
+                          ),
+                        )
+                      else
+                        const Icon(Icons.build, size: 18, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Text(_isBuilding ? l10n.building : l10n.buildMpq),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             if (_progress != null) ...[
@@ -317,57 +344,53 @@ class _HomeScreenState extends State<HomeScreen> {
     required ThemeData theme,
     required String label,
     required String hint,
-    required String? path,
+    required TextEditingController controller,
     required VoidCallback? onBrowse,
-    required AppLocalizations l10n,
+    required bool enabled,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          children: [
-            SizedBox(
-              width: 100,
-              child: Text(label, style: theme.textTheme.bodyMedium),
-            ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  path ?? l10n.notSelected,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: path != null
-                        ? theme.colorScheme.onSurface
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            SizedBox(
-              height: 32,
-              child: FilledButton(
-                onPressed: onBrowse,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                ),
-                child: Text(l10n.browse, style: const TextStyle(fontSize: 12)),
-              ),
-            ),
-          ],
+        SizedBox(
+          width: 100,
+          child: Text(label, style: theme.textTheme.bodyMedium),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 100, top: 4),
-          child: Text(
-            hint,
-            style: TextStyle(fontSize: 11, color: theme.colorScheme.outline),
+        Expanded(
+          child: TextField(
+            controller: controller,
+            enabled: enabled,
+            style: const TextStyle(fontSize: 12),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 10,
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surfaceContainerHighest,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: BorderSide(color: theme.colorScheme.primary),
+              ),
+            ),
           ),
+        ),
+        const SizedBox(width: 8),
+        DiabloButton(
+          onPressed: onBrowse,
+          child: Text(AppLocalizations.of(context)!.browse),
         ),
       ],
     );

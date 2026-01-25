@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
+import 'diablo_progress_bar.dart';
 
 class BuildProgressIndicator extends StatelessWidget {
   final BuildProgress progress;
@@ -25,9 +26,8 @@ class BuildProgressIndicator extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        LinearProgressIndicator(
+        DiabloProgressBar(
           value: progress.percentage > 0 ? progress.percentage : null,
-          backgroundColor: theme.colorScheme.surfaceContainerHighest,
         ),
         const SizedBox(height: 8),
         if (progress.currentFile.isNotEmpty)
