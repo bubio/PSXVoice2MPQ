@@ -1,6 +1,6 @@
 {
   "@@locale": "tr",
-  "appTitle": "PSX MPQ Dönüştürücü",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Giriş Klasörü",
   "outputFolder": "Çıkış Klasörü",
   "selectInputFolder": "ps1_assets klasörünü seçin",

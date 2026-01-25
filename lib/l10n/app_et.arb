@@ -1,6 +1,6 @@
 {
   "@@locale": "et",
-  "appTitle": "PSX MPQ Konverter",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Sisendkaust",
   "outputFolder": "Väljundkaust",
   "selectInputFolder": "Valige ps1_assets kaust",

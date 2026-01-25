@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Конвертер';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Входная папка';

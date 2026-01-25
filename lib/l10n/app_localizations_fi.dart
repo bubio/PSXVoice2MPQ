@@ -9,7 +9,7 @@ class AppLocalizationsFi extends AppLocalizations {
   AppLocalizationsFi([String locale = 'fi']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Muunnin';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Syötekansio';

@@ -9,7 +9,7 @@ class AppLocalizationsCs extends AppLocalizations {
   AppLocalizationsCs([String locale = 'cs']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Konvertor';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Vstupní složka';

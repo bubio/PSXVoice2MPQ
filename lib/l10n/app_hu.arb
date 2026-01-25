@@ -1,6 +1,6 @@
 {
   "@@locale": "hu",
-  "appTitle": "PSX MPQ Konverter",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Bemeneti mappa",
   "outputFolder": "Kimeneti mappa",
   "selectInputFolder": "Válassza ki a ps1_assets mappát",

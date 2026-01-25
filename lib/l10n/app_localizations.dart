@@ -148,7 +148,7 @@ abstract class AppLocalizations {
   /// The title of the application
   ///
   /// In en, this message translates to:
-  /// **'PSX MPQ Converter'**
+  /// **'PSXVoice2MPQ'**
   String get appTitle;
 
   /// Label for input folder selection

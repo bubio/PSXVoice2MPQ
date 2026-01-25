@@ -1,6 +1,6 @@
 {
   "@@locale": "hr",
-  "appTitle": "PSX MPQ Pretvarač",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Ulazna mapa",
   "outputFolder": "Izlazna mapa",
   "selectInputFolder": "Odaberite mapu ps1_assets",

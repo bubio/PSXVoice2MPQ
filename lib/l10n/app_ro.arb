@@ -1,6 +1,6 @@
 {
   "@@locale": "ro",
-  "appTitle": "Convertor PSX MPQ",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Dosar de intrare",
   "outputFolder": "Dosar de ieșire",
   "selectInputFolder": "Selectați dosarul ps1_assets",

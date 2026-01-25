@@ -9,7 +9,7 @@ class AppLocalizationsUk extends AppLocalizations {
   AppLocalizationsUk([String locale = 'uk']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Конвертер';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Вхідна папка';

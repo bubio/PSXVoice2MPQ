@@ -9,7 +9,7 @@ class AppLocalizationsEt extends AppLocalizations {
   AppLocalizationsEt([String locale = 'et']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Konverter';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Sisendkaust';

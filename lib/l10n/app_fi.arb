@@ -1,6 +1,6 @@
 {
   "@@locale": "fi",
-  "appTitle": "PSX MPQ Muunnin",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Syötekansio",
   "outputFolder": "Tulostekansio",
   "selectInputFolder": "Valitse ps1_assets-kansio",

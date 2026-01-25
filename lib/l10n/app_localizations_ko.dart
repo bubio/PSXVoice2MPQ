@@ -9,7 +9,7 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ 변환기';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => '입력 폴더';

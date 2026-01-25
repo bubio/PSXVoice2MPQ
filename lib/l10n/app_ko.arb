@@ -1,6 +1,6 @@
 {
   "@@locale": "ko",
-  "appTitle": "PSX MPQ 변환기",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "입력 폴더",
   "outputFolder": "출력 폴더",
   "selectInputFolder": "ps1_assets 폴더 선택",

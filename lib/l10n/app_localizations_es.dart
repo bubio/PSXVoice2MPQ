@@ -9,7 +9,7 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get appTitle => 'Convertidor PSX MPQ';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Carpeta de entrada';

@@ -1,6 +1,6 @@
 {
   "@@locale": "bg",
-  "appTitle": "PSX MPQ Конвертор",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Входяща папка",
   "outputFolder": "Изходяща папка",
   "selectInputFolder": "Изберете папка ps1_assets",

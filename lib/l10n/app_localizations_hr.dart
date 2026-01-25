@@ -9,7 +9,7 @@ class AppLocalizationsHr extends AppLocalizations {
   AppLocalizationsHr([String locale = 'hr']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Pretvarač';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Ulazna mapa';

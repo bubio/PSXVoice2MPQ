@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ 转换器';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => '输入文件夹';
@@ -93,7 +93,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   AppLocalizationsZhCn() : super('zh_CN');
 
   @override
-  String get appTitle => 'PSX MPQ 转换器';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => '输入文件夹';
@@ -177,7 +177,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw() : super('zh_TW');
 
   @override
-  String get appTitle => 'PSX MPQ 轉換器';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => '輸入資料夾';

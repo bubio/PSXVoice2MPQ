@@ -9,7 +9,7 @@ class AppLocalizationsSv extends AppLocalizations {
   AppLocalizationsSv([String locale = 'sv']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Konverterare';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Indatamapp';

@@ -1,6 +1,6 @@
 {
   "@@locale": "ja",
-  "appTitle": "PSX MPQ コンバーター",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "入力フォルダ",
   "outputFolder": "出力フォルダ",
   "selectInputFolder": "ps1_assetsフォルダを選択",

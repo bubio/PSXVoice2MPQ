@@ -9,7 +9,7 @@ class AppLocalizationsBg extends AppLocalizations {
   AppLocalizationsBg([String locale = 'bg']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Конвертор';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Входяща папка';

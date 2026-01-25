@@ -1,6 +1,6 @@
 {
   "@@locale": "el",
-  "appTitle": "Μετατροπέας PSX MPQ",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Φάκελος εισόδου",
   "outputFolder": "Φάκελος εξόδου",
   "selectInputFolder": "Επιλέξτε φάκελο ps1_assets",

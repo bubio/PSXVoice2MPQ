@@ -1,6 +1,6 @@
 {
   "@@locale": "cs",
-  "appTitle": "PSX MPQ Konvertor",
+  "appTitle": "PSXVoice2MPQ",
   "inputFolder": "Vstupní složka",
   "outputFolder": "Výstupní složka",
   "selectInputFolder": "Vyberte složku ps1_assets",

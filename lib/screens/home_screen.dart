@@ -23,7 +23,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? _selectedAssetsPath = '/Users/seiji/dev/psx-tools/ps1_assets';
-  String? _selectedOutputPath = '/Users/seiji/dev/psx-tools/ps1_assets';
+  String? _selectedOutputPath = '/Users/seiji/dev/sandbox';
   bool _isBuilding = false;
   BuildProgress? _progress;
   StreamSubscription<BuildProgress>? _buildSubscription;
@@ -120,26 +120,26 @@ class _HomeScreenState extends State<HomeScreen> {
     _buildSubscription = _builderService
         .build(_selectedAssetsPath!, _selectedOutputPath!, l10n)
         .listen(
-      (progress) {
-        setState(() {
-          _progress = progress;
-        });
-      },
-      onDone: () {
-        setState(() {
-          _isBuilding = false;
-        });
-      },
-      onError: (error) {
-        setState(() {
-          _isBuilding = false;
-          _progress = _progress?.copyWith(
-            error: error.toString(),
-            isComplete: true,
-          );
-        });
-      },
-    );
+          (progress) {
+            setState(() {
+              _progress = progress;
+            });
+          },
+          onDone: () {
+            setState(() {
+              _isBuilding = false;
+            });
+          },
+          onError: (error) {
+            setState(() {
+              _isBuilding = false;
+              _progress = _progress?.copyWith(
+                error: error.toString(),
+                isComplete: true,
+              );
+            });
+          },
+        );
   }
 
   @override
@@ -151,7 +151,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.appTitle),
-        backgroundColor: theme.colorScheme.inversePrimary,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/appbar_background.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        // backgroundColor: theme.colorScheme.inversePrimary,
         actions: [
           // Debug Language Selector (only in debug mode)
           if (kDebugMode)
@@ -215,7 +223,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
-              onPressed: (_selectedAssetsPath != null &&
+              onPressed:
+                  (_selectedAssetsPath != null &&
                       _selectedOutputPath != null &&
                       !_isBuilding)
                   ? _startBuild
@@ -239,9 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (_progress != null) ...[
               BuildProgressIndicator(progress: _progress!),
               const SizedBox(height: 12),
-              Expanded(
-                child: LogViewer(logs: _progress!.logs),
-              ),
+              Expanded(child: LogViewer(logs: _progress!.logs)),
             ] else
               Expanded(
                 child: Center(
@@ -256,9 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 12),
                       Text(
                         l10n.clickBuildToStart,
-                        style: TextStyle(
-                          color: theme.colorScheme.outline,
-                        ),
+                        style: TextStyle(color: theme.colorScheme.outline),
                       ),
                     ],
                   ),
@@ -281,10 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         SizedBox(
           width: 100,
-          child: Text(
-            label,
-            style: theme.textTheme.bodyMedium,
-          ),
+          child: Text(label, style: theme.textTheme.bodyMedium),
         ),
         Expanded(
           child: Container(

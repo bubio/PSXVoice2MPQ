@@ -9,7 +9,7 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ コンバーター';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => '入力フォルダ';

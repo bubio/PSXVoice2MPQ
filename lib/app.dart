@@ -21,7 +21,7 @@ class _PsxMpqConverterAppState extends State<PsxMpqConverterApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PSX MPQ Converter',
+      title: 'PSXVoice2MPQ',
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

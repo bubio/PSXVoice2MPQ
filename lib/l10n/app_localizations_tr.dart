@@ -9,7 +9,7 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
-  String get appTitle => 'PSX MPQ Dönüştürücü';
+  String get appTitle => 'PSXVoice2MPQ';
 
   @override
   String get inputFolder => 'Giriş Klasörü';

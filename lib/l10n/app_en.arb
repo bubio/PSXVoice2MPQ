@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "PSX MPQ Converter",
+  "appTitle": "PSXVoice2MPQ",
   "@appTitle": {
     "description": "The title of the application"
   },
