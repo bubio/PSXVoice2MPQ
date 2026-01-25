@@ -7,10 +7,10 @@ class MainFlutterWindow: NSWindow {
     self.contentViewController = flutterViewController
 
     // Set minimum window size
-    self.minSize = NSSize(width: 500, height: 600)
+    self.minSize = NSSize(width: 480, height: 480)
 
     // Set initial window size
-    let initialSize = NSSize(width: 600, height: 700)
+    let initialSize = NSSize(width: 640, height: 480)
     self.setContentSize(initialSize)
 
     // Center the window
