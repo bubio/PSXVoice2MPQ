@@ -153,7 +153,7 @@ class MpqBuilderService {
         );
         currentStepNum++;
 
-        // Convert VAG to WAV
+        // Convert VAG to WAV (parallel processing)
         yield progress = progress.copyWith(
           stepKey: BuildStepKey.convertingVagFiles,
           streamName: streamName,
@@ -167,33 +167,56 @@ class MpqBuilderService {
             .toList();
 
         yield progress = progress.addLog(
-          'Found ${vagFiles.length} VAG files to convert.',
+          'Found ${vagFiles.length} VAG files to convert (parallel processing).',
         );
 
-        for (int i = 0; i < vagFiles.length; i++) {
-          final vagFile = vagFiles[i];
-          final wavPath =
-              '${vagFile.path.substring(0, vagFile.path.length - 4)}.WAV';
+        // Parallel VAG to WAV conversion
+        // Use half of CPU cores to maintain UI responsiveness and reduce battery usage
+        final numWorkers = (Platform.numberOfProcessors ~/ 2).clamp(1, 8);
+        final vagConversionErrors = <String>[];
 
-          yield progress = progress.copyWith(
-            currentFile: p.basename(vagFile.path),
-            totalFiles: vagFiles.length,
-            processedFiles: i,
-          );
+        yield progress = progress.copyWith(
+          totalFiles: vagFiles.length,
+          processedFiles: 0,
+        );
 
-          final result = await _vagToWavConverter.convert(
-            vagFile.path,
-            wavPath,
-          );
-          if (!result.isSuccess) {
-            yield progress = progress.addLog(
-              'Warning: Failed to convert ${p.basename(vagFile.path)}: ${result.errorMessage}',
+        // Process in batches using Future.wait for parallelism
+        final batchSize = numWorkers;
+        int processedCount = 0;
+
+        for (int batchStart = 0; batchStart < vagFiles.length; batchStart += batchSize) {
+          final batchEnd = (batchStart + batchSize).clamp(0, vagFiles.length);
+          final batch = vagFiles.sublist(batchStart, batchEnd);
+
+          final futures = batch.map((vagFile) async {
+            final wavPath =
+                '${vagFile.path.substring(0, vagFile.path.length - 4)}.WAV';
+            final result = await _vagToWavConverter.convert(
+              vagFile.path,
+              wavPath,
             );
+            return (vagFile.path, result);
+          }).toList();
+
+          final results = await Future.wait(futures);
+
+          for (final (vagPath, result) in results) {
+            processedCount++;
+            if (!result.isSuccess) {
+              vagConversionErrors.add(
+                '${p.basename(vagPath)}: ${result.errorMessage}',
+              );
+            }
           }
 
-          // Update progress after processing
           yield progress = progress.copyWith(
-            processedFiles: i + 1,
+            processedFiles: processedCount,
+          );
+        }
+
+        if (vagConversionErrors.isNotEmpty) {
+          yield progress = progress.addLog(
+            'Warning: ${vagConversionErrors.length} VAG files failed to convert',
           );
         }
 
@@ -202,7 +225,7 @@ class MpqBuilderService {
         );
         currentStepNum++;
 
-        // Convert WAV to MP3 if lame or ffmpeg is available
+        // Convert WAV to MP3 if lame or ffmpeg is available (parallel processing)
         if (useMp3) {
           yield progress = progress.copyWith(
             stepKey: BuildStepKey.convertingToMp3,
@@ -217,56 +240,76 @@ class MpqBuilderService {
               .toList();
 
           yield progress = progress.addLog(
-            'Converting ${wavFiles.length} WAV files to MP3...',
+            'Converting ${wavFiles.length} WAV files to MP3 (parallel processing)...',
           );
 
-          for (int i = 0; i < wavFiles.length; i++) {
-            final wavFile = wavFiles[i];
-            final mp3Path =
-                '${wavFile.path.substring(0, wavFile.path.length - 4)}.mp3';
+          yield progress = progress.copyWith(
+            totalFiles: wavFiles.length,
+            processedFiles: 0,
+          );
+
+          // Parallel MP3 conversion using Future.wait
+          // Use half of CPU cores to maintain UI responsiveness and reduce battery usage
+          final mp3BatchSize = (Platform.numberOfProcessors ~/ 2).clamp(1, 8);
+          int mp3ProcessedCount = 0;
+          final mp3Errors = <String>[];
+
+          for (int batchStart = 0; batchStart < wavFiles.length; batchStart += mp3BatchSize) {
+            final batchEnd = (batchStart + mp3BatchSize).clamp(0, wavFiles.length);
+            final batch = wavFiles.sublist(batchStart, batchEnd);
+
+            final futures = batch.map((wavFile) async {
+              final mp3Path =
+                  '${wavFile.path.substring(0, wavFile.path.length - 4)}.mp3';
+
+              final ProcessResult result;
+              if (useFfmpeg) {
+                // Use ffmpeg for MP3 conversion (VBR quality 7 for 11kHz mono source)
+                result = await _processRunner.run(mp3EncoderPath!, [
+                  '-i',
+                  wavFile.path,
+                  '-codec:a',
+                  'libmp3lame',
+                  '-qscale:a',
+                  '7',
+                  '-y',
+                  mp3Path,
+                ]);
+              } else {
+                // Use lame for MP3 conversion (VBR quality 7 for 11kHz mono source)
+                result = await _processRunner.run(mp3EncoderPath!, [
+                  '--quiet',
+                  '-V',
+                  '7',
+                  wavFile.path,
+                  mp3Path,
+                ]);
+              }
+
+              if (result.isSuccess) {
+                // Delete the WAV file after successful conversion
+                await wavFile.delete();
+              }
+              return (wavFile.path, result.isSuccess);
+            }).toList();
+
+            final results = await Future.wait(futures);
+
+            for (final (wavPath, isSuccess) in results) {
+              mp3ProcessedCount++;
+              if (!isSuccess) {
+                mp3Errors.add(p.basename(wavPath));
+              }
+            }
 
             yield progress = progress.copyWith(
-              currentFile: p.basename(wavFile.path),
-              totalFiles: wavFiles.length,
-              processedFiles: i,
+              processedFiles: mp3ProcessedCount,
             );
+          }
 
-            final ProcessResult result;
-            if (useFfmpeg) {
-              // Use ffmpeg for MP3 conversion (VBR quality 7 for 11kHz mono source)
-              result = await _processRunner.run(mp3EncoderPath!, [
-                '-i',
-                wavFile.path,
-                '-codec:a',
-                'libmp3lame',
-                '-qscale:a',
-                '7',
-                '-y',
-                mp3Path,
-              ]);
-            } else {
-              // Use lame for MP3 conversion (VBR quality 7 for 11kHz mono source)
-              result = await _processRunner.run(mp3EncoderPath!, [
-                '--quiet',
-                '-V',
-                '7',
-                wavFile.path,
-                mp3Path,
-              ]);
-            }
-
-            if (result.isSuccess) {
-              // Delete the WAV file after successful conversion
-              await wavFile.delete();
-            } else {
-              yield progress = progress.addLog(
-                'Warning: Failed to convert ${p.basename(wavFile.path)} to MP3',
-              );
-            }
-
-            // Update progress after processing
-            yield progress = progress.copyWith(
-              processedFiles: i + 1,
+          if (mp3Errors.isNotEmpty) {
+            yield progress = progress.addLog(
+              'Warning: ${mp3Errors.length} WAV files failed to convert to MP3',
             );
           }
 
