@@ -23,7 +23,7 @@ class BinaryExtractor {
     if (Platform.isWindows) {
       return ['dstream.exe', 'vag2wav.exe'];
     }
-    return ['dstream', 'vag2wav'];
+    return ['dstream.bin', 'vag2wav.bin'];
   }
 
   Future<void> extractBinaries() async {
