@@ -1,0 +1,2 @@
+# Place libStorm.dylib (universal binary for arm64 and x86_64) in this directory.
+# Build StormLib with: cmake .. -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" && make

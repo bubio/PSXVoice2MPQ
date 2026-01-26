@@ -10,20 +10,24 @@ import '../models/build_progress.dart';
 import '../models/stream_mapping.dart';
 import 'dstream_extractor.dart';
 import 'process_runner.dart';
+import 'stormlib_service.dart';
 import 'vag_to_wav_converter.dart';
 
 class MpqBuilderService {
   final ProcessRunner _processRunner;
   final VagToWavConverter _vagToWavConverter;
   final DstreamExtractor _dstreamExtractor;
+  final StormLibService _stormLibService;
 
   MpqBuilderService({
     required ProcessRunner processRunner,
     VagToWavConverter? vagToWavConverter,
     DstreamExtractor? dstreamExtractor,
+    StormLibService? stormLibService,
   })  : _processRunner = processRunner,
         _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
-        _dstreamExtractor = dstreamExtractor ?? DstreamExtractor();
+        _dstreamExtractor = dstreamExtractor ?? DstreamExtractor(),
+        _stormLibService = stormLibService ?? StormLibService();
 
   Stream<BuildProgress> build(
     String ps1AssetsPath,
@@ -35,17 +39,29 @@ class MpqBuilderService {
     );
 
     try {
-      // Step 1: Check for smpq
-      yield progress = progress.addLog('Checking for smpq command...');
-      final smpqPath = await _processRunner.findSmpq();
-      if (smpqPath == null) {
-        yield progress.copyWith(
-          errorKey: BuildErrorKey.smpqNotFound,
-          isComplete: true,
+      // Step 1: Check for StormLib FFI or smpq command
+      final useStormLib = _stormLibService.initialize();
+      String? smpqPath;
+
+      if (useStormLib) {
+        yield progress = progress.addLog(
+          'Using bundled StormLib for MPQ creation',
         );
-        return;
+        yield progress = progress.addLog(
+          'StormLib path: ${_stormLibService.libraryPath}',
+        );
+      } else {
+        yield progress = progress.addLog('Checking for smpq command...');
+        smpqPath = await _processRunner.findSmpq();
+        if (smpqPath == null) {
+          yield progress.copyWith(
+            errorKey: BuildErrorKey.smpqNotFound,
+            isComplete: true,
+          );
+          return;
+        }
+        yield progress = progress.addLog('smpq found at: $smpqPath');
       }
-      yield progress = progress.addLog('smpq found at: $smpqPath');
 
       // Check for lame or ffmpeg (optional MP3 encoding)
       final lamePath = await _processRunner.findLame();
@@ -321,48 +337,92 @@ class MpqBuilderService {
         // Create MPQ archive
         final langCode = StreamConstants.getLanguageCode(streamNum);
         final mpqPath = p.join(outputPath, '$langCode.mpq');
-        final mpqFile = File(mpqPath);
-        if (await mpqFile.exists()) {
-          await mpqFile.delete();
-        }
 
         yield progress = progress.addLog('Creating MPQ archive: $mpqPath');
 
-        // Create new MPQ
-        var result = await _processRunner.run(smpqPath, [
-          '-M',
-          '1',
-          '-C',
-          'none',
-          '-c',
-          mpqPath,
-        ]);
-        if (!result.isSuccess) {
-          yield progress = progress.addLog(
-            'Error creating MPQ: ${result.stderr}',
-          );
-          currentStepNum++;
-          continue;
-        }
-
-        // Add files to MPQ
+        // Collect files to add
         final filesToAdd = await _listFilesRecursive(mpqDir);
         yield progress = progress.addLog(
           'Adding ${filesToAdd.length} files to MPQ...',
         );
 
-        for (final file in filesToAdd) {
-          final relativePath = p.relative(file.path, from: mpqDir.path);
-          result = await _processRunner.run(smpqPath, [
-            '-a',
-            '-C',
-            'none',
+        bool mpqCreated = false;
+
+        // Try StormLib first
+        if (useStormLib) {
+          final fileEntries = filesToAdd.map((file) {
+            final relativePath = p.relative(file.path, from: mpqDir.path);
+            return MpqFileEntry(
+              sourcePath: file.path,
+              archivePath: relativePath,
+            );
+          }).toList();
+
+          final stormResult = _stormLibService.createArchive(
             mpqPath,
-            relativePath,
-          ], workingDirectory: mpqDir.path);
+            fileEntries,
+          );
+
+          if (stormResult.isSuccess) {
+            mpqCreated = true;
+            yield progress = progress.addLog(
+              'MPQ created with StormLib: $mpqPath',
+            );
+          } else {
+            yield progress = progress.addLog(
+              'StormLib failed: ${stormResult.errorMessage}',
+            );
+            // Fall back to smpq
+            yield progress = progress.addLog('Falling back to smpq...');
+          }
         }
 
-        yield progress = progress.addLog('MPQ created: $mpqPath');
+        // Fall back to smpq if StormLib failed or wasn't available
+        if (!mpqCreated && smpqPath != null) {
+          final mpqFile = File(mpqPath);
+          if (await mpqFile.exists()) {
+            await mpqFile.delete();
+          }
+
+          // Create new MPQ using smpq
+          var result = await _processRunner.run(smpqPath, [
+            '-M',
+            '1',
+            '-C',
+            'none',
+            '-c',
+            mpqPath,
+          ]);
+          if (!result.isSuccess) {
+            yield progress = progress.addLog(
+              'Error creating MPQ: ${result.stderr}',
+            );
+            currentStepNum++;
+            continue;
+          }
+
+          // Add files to MPQ using smpq
+          for (final file in filesToAdd) {
+            final relativePath = p.relative(file.path, from: mpqDir.path);
+            result = await _processRunner.run(smpqPath, [
+              '-a',
+              '-C',
+              'none',
+              mpqPath,
+              relativePath,
+            ], workingDirectory: mpqDir.path);
+          }
+
+          mpqCreated = true;
+          yield progress = progress.addLog('MPQ created with smpq: $mpqPath');
+        }
+
+        if (!mpqCreated) {
+          yield progress = progress.addLog(
+            'Error: Could not create MPQ - no MPQ creation method available',
+          );
+        }
+
         currentStepNum++;
       }
 

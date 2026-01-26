@@ -106,3 +106,11 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# Install StormLib DLL if it exists
+set(STORMLIB_DLL "${CMAKE_CURRENT_SOURCE_DIR}/../native_libs/windows/Storm.dll")
+if(EXISTS "${STORMLIB_DLL}")
+  install(FILES "${STORMLIB_DLL}"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}"
+    COMPONENT Runtime)
+endif()

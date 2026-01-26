@@ -126,3 +126,11 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+# Install StormLib shared library if it exists
+set(STORMLIB_SO "${CMAKE_CURRENT_SOURCE_DIR}/../native_libs/linux/libStorm.so")
+if(EXISTS "${STORMLIB_SO}")
+  install(FILES "${STORMLIB_SO}"
+    DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+    COMPONENT Runtime)
+endif()
