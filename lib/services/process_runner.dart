@@ -19,6 +19,7 @@ class ProcessResult {
 class ProcessRunner {
   String? _smpqPath;
   String? _lamePath;
+  String? _ffmpegPath;
 
   Future<ProcessResult> run(
     String executable,
@@ -84,5 +85,11 @@ class ProcessRunner {
     if (_lamePath != null) return _lamePath;
     _lamePath = await _findExecutable('lame');
     return _lamePath;
+  }
+
+  Future<String?> findFfmpeg() async {
+    if (_ffmpegPath != null) return _ffmpegPath;
+    _ffmpegPath = await _findExecutable('ffmpeg');
+    return _ffmpegPath;
   }
 }

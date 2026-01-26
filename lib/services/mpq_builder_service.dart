@@ -47,15 +47,22 @@ class MpqBuilderService {
       }
       yield progress = progress.addLog('smpq found at: $smpqPath');
 
-      // Check for lame (optional MP3 encoding)
+      // Check for lame or ffmpeg (optional MP3 encoding)
       final lamePath = await _processRunner.findLame();
-      final useMp3 = lamePath != null;
-      if (useMp3) {
+      final ffmpegPath = lamePath == null ? await _processRunner.findFfmpeg() : null;
+      final useMp3 = lamePath != null || ffmpegPath != null;
+      final mp3EncoderPath = lamePath ?? ffmpegPath;
+      final useFfmpeg = lamePath == null && ffmpegPath != null;
+      if (lamePath != null) {
         yield progress = progress.addLog(
           'lame found at: $lamePath - MP3 encoding enabled',
         );
+      } else if (ffmpegPath != null) {
+        yield progress = progress.addLog(
+          'ffmpeg found at: $ffmpegPath - MP3 encoding enabled (using ffmpeg)',
+        );
       } else {
-        yield progress = progress.addLog('lame not found - using WAV format');
+        yield progress = progress.addLog('lame/ffmpeg not found - using WAV format');
       }
 
       // Step 2: Create temp directory
@@ -179,7 +186,7 @@ class MpqBuilderService {
         );
         currentStepNum++;
 
-        // Convert WAV to MP3 if lame is available
+        // Convert WAV to MP3 if lame or ffmpeg is available
         if (useMp3) {
           yield progress = progress.copyWith(
             stepKey: BuildStepKey.convertingToMp3,
@@ -208,13 +215,29 @@ class MpqBuilderService {
               processedFiles: i,
             );
 
-            final result = await _processRunner.run(lamePath, [
-              '--quiet',
-              '-V',
-              '2',
-              wavFile.path,
-              mp3Path,
-            ]);
+            final ProcessResult result;
+            if (useFfmpeg) {
+              // Use ffmpeg for MP3 conversion (VBR quality 7 for 11kHz mono source)
+              result = await _processRunner.run(mp3EncoderPath!, [
+                '-i',
+                wavFile.path,
+                '-codec:a',
+                'libmp3lame',
+                '-qscale:a',
+                '7',
+                '-y',
+                mp3Path,
+              ]);
+            } else {
+              // Use lame for MP3 conversion (VBR quality 7 for 11kHz mono source)
+              result = await _processRunner.run(mp3EncoderPath!, [
+                '--quiet',
+                '-V',
+                '7',
+                wavFile.path,
+                mp3Path,
+              ]);
+            }
 
             if (result.isSuccess) {
               // Delete the WAV file after successful conversion
