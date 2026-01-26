@@ -64,6 +64,7 @@ flutter:
     - assets/maps/
     - assets/icon/
     - assets/images/
+    - assets/voices/
 
 flutter_launcher_icons:
   image_path: "assets/icon/app_icon.png"

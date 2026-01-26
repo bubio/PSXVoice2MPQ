@@ -52,11 +52,6 @@ class BinaryExtractor {
     return p.join(dir, PathConstants.dstreamName);
   }
 
-  Future<String> getVag2WavPath() async {
-    final dir = await binaryDirectory;
-    return p.join(dir, PathConstants.vag2wavName);
-  }
-
   Future<void> cleanup() async {
     if (_binaryDir != null) {
       final dir = Directory(_binaryDir!);

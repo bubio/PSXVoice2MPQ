@@ -11,8 +11,8 @@ class PathConstants {
   static const String workDirPrefix = 'psx_mpq_work_';
 
   // Binary names by platform
-  static const List<String> windowsBinaries = ['dstream.exe', 'vag2wav.exe'];
-  static const List<String> unixBinaries = ['dstream.bin', 'vag2wav.bin'];
+  static const List<String> windowsBinaries = ['dstream.exe'];
+  static const List<String> unixBinaries = ['dstream.bin'];
 
   /// Get binary names for current platform
   static List<String> get binaryNames =>
@@ -29,10 +29,6 @@ class PathConstants {
   /// Get dstream binary name for current platform
   static String get dstreamName =>
       Platform.isWindows ? 'dstream.exe' : 'dstream.bin';
-
-  /// Get vag2wav binary name for current platform
-  static String get vag2wavName =>
-      Platform.isWindows ? 'vag2wav.exe' : 'vag2wav.bin';
 
   /// Get default output path for MPQ files (platform-specific)
   static String? getDefaultOutputPath() {

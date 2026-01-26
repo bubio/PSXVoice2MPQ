@@ -10,16 +10,20 @@ import '../models/build_progress.dart';
 import '../models/stream_mapping.dart';
 import 'binary_extractor.dart';
 import 'process_runner.dart';
+import 'vag_to_wav_converter.dart';
 
 class MpqBuilderService {
   final BinaryExtractor _binaryExtractor;
   final ProcessRunner _processRunner;
+  final VagToWavConverter _vagToWavConverter;
 
   MpqBuilderService({
     required BinaryExtractor binaryExtractor,
     required ProcessRunner processRunner,
+    VagToWavConverter? vagToWavConverter,
   })  : _binaryExtractor = binaryExtractor,
-        _processRunner = processRunner;
+        _processRunner = processRunner,
+        _vagToWavConverter = vagToWavConverter ?? VagToWavConverter();
 
   Stream<BuildProgress> build(
     String ps1AssetsPath,
@@ -59,7 +63,6 @@ class MpqBuilderService {
       yield progress = progress.addLog('Extracting bundled binaries...');
       await _binaryExtractor.extractBinaries();
       final dstreamPath = await _binaryExtractor.getDstreamPath();
-      final vag2wavPath = await _binaryExtractor.getVag2WavPath();
       yield progress = progress.addLog('Binaries extracted.');
 
       // Step 3: Create temp directory
@@ -95,7 +98,7 @@ class MpqBuilderService {
       );
 
       // Step 5: Process each STREAM*.DIR
-      int totalSteps = streamDirs.length * 3; // dstream + vag2wav + mpq
+      int totalSteps = streamDirs.length * 3; // dstream + vag conversion + mpq
       int currentStepNum = 0;
 
       for (final streamDir in streamDirs) {
@@ -164,13 +167,13 @@ class MpqBuilderService {
             processedFiles: i,
           );
 
-          final result = await _processRunner.run(vag2wavPath, [
+          final result = await _vagToWavConverter.convert(
             vagFile.path,
             wavPath,
-          ]);
+          );
           if (!result.isSuccess) {
             yield progress = progress.addLog(
-              'Warning: Failed to convert ${p.basename(vagFile.path)}',
+              'Warning: Failed to convert ${p.basename(vagFile.path)}: ${result.errorMessage}',
             );
           }
 
