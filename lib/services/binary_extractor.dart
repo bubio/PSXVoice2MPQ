@@ -28,7 +28,9 @@ class BinaryExtractor {
 
   Future<void> extractBinaries() async {
     final tempDir = await getTemporaryDirectory();
-    final binaryDir = Directory(p.join(tempDir.path, 'PSXVoice2MPQ', 'binaries'));
+    final binaryDir = Directory(
+      p.join(tempDir.path, 'PSXVoice2MPQ', 'binaries'),
+    );
 
     if (!await binaryDir.exists()) {
       await binaryDir.create(recursive: true);
@@ -58,13 +60,13 @@ class BinaryExtractor {
 
   Future<String> getDstreamPath() async {
     final dir = await binaryDirectory;
-    final name = Platform.isWindows ? 'dstream.exe' : 'dstream';
+    final name = Platform.isWindows ? 'dstream.exe' : 'dstream.bin';
     return p.join(dir, name);
   }
 
   Future<String> getVag2WavPath() async {
     final dir = await binaryDirectory;
-    final name = Platform.isWindows ? 'vag2wav.exe' : 'vag2wav';
+    final name = Platform.isWindows ? 'vag2wav.exe' : 'vag2wav.bin';
     return p.join(dir, name);
   }
 

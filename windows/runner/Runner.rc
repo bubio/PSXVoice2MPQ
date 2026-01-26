@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "com.github.bubio" "\0"
             VALUE "FileDescription", "PSXVoice2MPQ" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "PSXVoice2MPQ" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.github.bubio. All rights reserved." "\0"
             VALUE "OriginalFilename", "PSXVoice2MPQ.exe" "\0"
             VALUE "ProductName", "PSXVoice2MPQ" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
