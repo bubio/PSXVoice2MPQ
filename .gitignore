@@ -48,4 +48,4 @@ app.*.map.json
 .fvm/
 
 # Debug
-assets/voices/
+assets/test/

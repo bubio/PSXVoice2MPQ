@@ -7,8 +7,8 @@ import 'package:psxvoice2mpq/services/vag_to_wav_converter.dart';
 void main() {
   group('VagToWavConverter', () {
     late VagToWavConverter converter;
-    final testVagPath = 'assets/voices/J02F8.VAG';
-    final expectedWavPath = 'assets/voices/J02F8.WAV';
+    final testVagPath = 'assets/test/J02F8.VAG';
+    final expectedWavPath = 'assets/test/J02F8.WAV';
 
     setUp(() {
       converter = VagToWavConverter();
@@ -22,7 +22,8 @@ void main() {
       expect(String.fromCharCodes(vagData.sublist(0, 4)), equals('VAGp'));
 
       // Check data size (big-endian at offset 12)
-      final dataSize = (vagData[12] << 24) |
+      final dataSize =
+          (vagData[12] << 24) |
           (vagData[13] << 16) |
           (vagData[14] << 8) |
           vagData[15];
@@ -30,7 +31,8 @@ void main() {
       expect(dataSize, equals(0x0e10)); // 3600 bytes
 
       // Check sample rate (big-endian at offset 16)
-      final sampleRate = (vagData[16] << 24) |
+      final sampleRate =
+          (vagData[16] << 24) |
           (vagData[17] << 16) |
           (vagData[18] << 8) |
           vagData[19];
@@ -52,7 +54,8 @@ void main() {
       expect(String.fromCharCodes(wavData.sublist(36, 40)), equals('data'));
 
       // Check sample rate in WAV (little-endian at offset 24)
-      final wavSampleRate = wavData[24] |
+      final wavSampleRate =
+          wavData[24] |
           (wavData[25] << 8) |
           (wavData[26] << 16) |
           (wavData[27] << 24);
@@ -76,8 +79,11 @@ void main() {
       print('Expected WAV size: ${expectedWavData.length} bytes');
 
       // Check if sizes match
-      expect(wavData.length, equals(expectedWavData.length),
-          reason: 'WAV file sizes should match');
+      expect(
+        wavData.length,
+        equals(expectedWavData.length),
+        reason: 'WAV file sizes should match',
+      );
     });
 
     test('should produce WAV with matching audio data', () async {
@@ -94,7 +100,8 @@ void main() {
       for (int i = 0; i < 44; i++) {
         if (wavData![i] != expectedWavData[i]) {
           print(
-              'Header mismatch at offset $i: got ${wavData[i]}, expected ${expectedWavData[i]}');
+            'Header mismatch at offset $i: got ${wavData[i]}, expected ${expectedWavData[i]}',
+          );
         }
       }
 
@@ -102,14 +109,21 @@ void main() {
       print('Comparing first 100 samples...');
       int mismatches = 0;
       for (int i = 44; i < 44 + 200 && i < wavData!.length; i += 2) {
-        final gotSample =
-            ByteData.sublistView(wavData, i, i + 2).getInt16(0, Endian.little);
-        final expectedSample = ByteData.sublistView(expectedWavData, i, i + 2)
-            .getInt16(0, Endian.little);
+        final gotSample = ByteData.sublistView(
+          wavData,
+          i,
+          i + 2,
+        ).getInt16(0, Endian.little);
+        final expectedSample = ByteData.sublistView(
+          expectedWavData,
+          i,
+          i + 2,
+        ).getInt16(0, Endian.little);
         if (gotSample != expectedSample) {
           if (mismatches < 10) {
             print(
-                'Sample mismatch at offset $i: got $gotSample, expected $expectedSample');
+              'Sample mismatch at offset $i: got $gotSample, expected $expectedSample',
+            );
           }
           mismatches++;
         }
