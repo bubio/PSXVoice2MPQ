@@ -1,33 +1,35 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
-import '../l10n/app_localizations.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+
+import '../core/constants/path_constants.dart';
+import '../core/constants/stream_constants.dart';
 import '../models/build_progress.dart';
+import '../models/build_state.dart';
 import '../models/stream_mapping.dart';
 import 'binary_extractor.dart';
 import 'process_runner.dart';
 
 class MpqBuilderService {
-  final BinaryExtractor _binaryExtractor = BinaryExtractor();
-  final ProcessRunner _processRunner = ProcessRunner();
+  final BinaryExtractor _binaryExtractor;
+  final ProcessRunner _processRunner;
 
-  // Stream number to language code mapping
-  static const Map<String, String> _streamToLang = {
-    '1': 'en',
-    '2': 'fr',
-    '3': 'de',
-    '4': 'sv',
-    '5': 'ja',
-  };
+  MpqBuilderService({
+    required BinaryExtractor binaryExtractor,
+    required ProcessRunner processRunner,
+  })  : _binaryExtractor = binaryExtractor,
+        _processRunner = processRunner;
 
   Stream<BuildProgress> build(
     String ps1AssetsPath,
     String outputPath,
-    AppLocalizations l10n,
   ) async* {
-    var progress = BuildProgress(currentStep: l10n.initializing);
+    var progress = BuildProgress(
+      currentStep: '',
+      stepKey: BuildStepKey.initializing,
+    );
 
     try {
       // Step 1: Check for smpq
@@ -35,7 +37,7 @@ class MpqBuilderService {
       final smpqPath = await _processRunner.findSmpq();
       if (smpqPath == null) {
         yield progress.copyWith(
-          error: l10n.errorSmpqNotFound,
+          errorKey: BuildErrorKey.smpqNotFound,
           isComplete: true,
         );
         return;
@@ -46,13 +48,15 @@ class MpqBuilderService {
       final lamePath = await _processRunner.findLame();
       final useMp3 = lamePath != null;
       if (useMp3) {
-        yield progress = progress.addLog('lame found at: $lamePath - MP3 encoding enabled');
+        yield progress = progress.addLog(
+          'lame found at: $lamePath - MP3 encoding enabled',
+        );
       } else {
         yield progress = progress.addLog('lame not found - using WAV format');
       }
 
       // Step 2: Extract binaries
-      yield progress = progress.copyWith(currentStep: l10n.extractingBinaries);
+      yield progress = progress.copyWith(stepKey: BuildStepKey.extractingBinaries);
       yield progress = progress.addLog('Extracting bundled binaries...');
       await _binaryExtractor.extractBinaries();
       final dstreamPath = await _binaryExtractor.getDstreamPath();
@@ -64,14 +68,14 @@ class MpqBuilderService {
       final workDir = Directory(
         p.join(
           tempDir.path,
-          'psx_mpq_work_${DateTime.now().millisecondsSinceEpoch}',
+          '${PathConstants.workDirPrefix}${DateTime.now().millisecondsSinceEpoch}',
         ),
       );
       await workDir.create(recursive: true);
       yield progress = progress.addLog('Work directory: ${workDir.path}');
 
       // Step 4: Find STREAM*.DIR files
-      yield progress = progress.copyWith(currentStep: l10n.findingStreamFiles);
+      yield progress = progress.copyWith(stepKey: BuildStepKey.findingStreamFiles);
       final assetsDir = Directory(ps1AssetsPath);
       final streamDirs = await assetsDir
           .list()
@@ -81,7 +85,7 @@ class MpqBuilderService {
 
       if (streamDirs.isEmpty) {
         yield progress.copyWith(
-          error: l10n.errorNoStreamFiles,
+          errorKey: BuildErrorKey.noStreamFiles,
           isComplete: true,
         );
         return;
@@ -107,7 +111,8 @@ class MpqBuilderService {
 
         // Run dstream
         yield progress = progress.copyWith(
-          currentStep: l10n.extractingStream(streamName),
+          stepKey: BuildStepKey.extractingStream,
+          streamName: streamName,
           currentFile: streamDir.path,
           percentage: currentStepNum / totalSteps,
         );
@@ -125,10 +130,8 @@ class MpqBuilderService {
         }
 
         // Count extracted files
-        final extractedFiles = await streamWorkDir
-            .list()
-            .where((e) => e is File)
-            .toList();
+        final extractedFiles =
+            await streamWorkDir.list().where((e) => e is File).toList();
         yield progress = progress.addLog(
           'Extracted ${extractedFiles.length} files from $streamName.',
         );
@@ -136,7 +139,8 @@ class MpqBuilderService {
 
         // Convert VAG to WAV
         yield progress = progress.copyWith(
-          currentStep: l10n.convertingVagFiles(streamName),
+          stepKey: BuildStepKey.convertingVagFiles,
+          streamName: streamName,
           percentage: currentStepNum / totalSteps,
         );
 
@@ -185,7 +189,8 @@ class MpqBuilderService {
         // Convert WAV to MP3 if lame is available
         if (useMp3) {
           yield progress = progress.copyWith(
-            currentStep: l10n.convertingToMp3(streamName),
+            stepKey: BuildStepKey.convertingToMp3,
+            streamName: streamName,
             percentage: currentStepNum / totalSteps,
           );
 
@@ -240,7 +245,8 @@ class MpqBuilderService {
 
         // Load map file and organize files
         yield progress = progress.copyWith(
-          currentStep: l10n.creatingMpq(streamName),
+          stepKey: BuildStepKey.creatingMpq,
+          streamName: streamName,
           percentage: currentStepNum / totalSteps,
         );
 
@@ -297,7 +303,7 @@ class MpqBuilderService {
         );
 
         // Create MPQ archive
-        final langCode = _streamToLang[streamNum] ?? 'stream$streamNum';
+        final langCode = StreamConstants.getLanguageCode(streamNum);
         final mpqPath = p.join(outputPath, '$langCode.mpq');
         final mpqFile = File(mpqPath);
         if (await mpqFile.exists()) {
@@ -345,12 +351,12 @@ class MpqBuilderService {
       }
 
       // Cleanup
-      yield progress = progress.copyWith(currentStep: l10n.cleaningUp);
+      yield progress = progress.copyWith(stepKey: BuildStepKey.cleaningUp);
       await workDir.delete(recursive: true);
 
       yield progress
           .copyWith(
-            currentStep: l10n.complete,
+            stepKey: BuildStepKey.complete,
             percentage: 1.0,
             isComplete: true,
           )

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
+import '../core/constants/path_constants.dart';
+
 class BinaryExtractor {
   String? _binaryDir;
 
@@ -12,24 +14,10 @@ class BinaryExtractor {
     return _binaryDir!;
   }
 
-  String get _platformFolder {
-    if (Platform.isMacOS) return 'macos';
-    if (Platform.isWindows) return 'windows';
-    if (Platform.isLinux) return 'linux';
-    throw UnsupportedError('Unsupported platform');
-  }
-
-  List<String> get _binaryNames {
-    if (Platform.isWindows) {
-      return ['dstream.exe', 'vag2wav.exe'];
-    }
-    return ['dstream.bin', 'vag2wav.bin'];
-  }
-
   Future<void> extractBinaries() async {
     final tempDir = await getTemporaryDirectory();
     final binaryDir = Directory(
-      p.join(tempDir.path, 'PSXVoice2MPQ', 'binaries'),
+      p.join(tempDir.path, PathConstants.tempDirName, PathConstants.binarySubdir),
     );
 
     if (!await binaryDir.exists()) {
@@ -38,8 +26,9 @@ class BinaryExtractor {
 
     _binaryDir = binaryDir.path;
 
-    for (final binaryName in _binaryNames) {
-      final assetPath = 'assets/binaries/$_platformFolder/$binaryName';
+    for (final binaryName in PathConstants.binaryNames) {
+      final assetPath =
+          'assets/binaries/${PathConstants.platformFolder}/$binaryName';
       final targetPath = p.join(binaryDir.path, binaryName);
       final targetFile = File(targetPath);
 
@@ -60,14 +49,12 @@ class BinaryExtractor {
 
   Future<String> getDstreamPath() async {
     final dir = await binaryDirectory;
-    final name = Platform.isWindows ? 'dstream.exe' : 'dstream.bin';
-    return p.join(dir, name);
+    return p.join(dir, PathConstants.dstreamName);
   }
 
   Future<String> getVag2WavPath() async {
     final dir = await binaryDirectory;
-    final name = Platform.isWindows ? 'vag2wav.exe' : 'vag2wav.bin';
-    return p.join(dir, name);
+    return p.join(dir, PathConstants.vag2wavName);
   }
 
   Future<void> cleanup() async {

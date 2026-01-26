@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'l10n/app_localizations.dart';
-import 'screens/home_screen.dart';
+import 'views/home_view.dart';
 
 class PsxMpqConverterApp extends StatefulWidget {
   const PsxMpqConverterApp({super.key});
@@ -33,7 +34,7 @@ class _PsxMpqConverterAppState extends State<PsxMpqConverterApp> {
         ),
         useMaterial3: true,
       ),
-      home: HomeScreen(
+      home: HomeView(
         currentLocale: _locale,
         onLocaleChanged: _setLocale,
       ),

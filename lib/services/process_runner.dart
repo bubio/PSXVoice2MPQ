@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import '../core/constants/path_constants.dart';
+
 class ProcessResult {
   final int exitCode;
   final String stdout;
@@ -43,7 +45,7 @@ class ProcessRunner {
     if (pathResult != null) return pathResult;
 
     // Then check common installation directories
-    final searchPaths = _getSearchPaths(name);
+    final searchPaths = PathConstants.getSearchPaths(name);
     for (final path in searchPaths) {
       if (await File(path).exists()) {
         return path;
@@ -70,43 +72,6 @@ class ProcessRunner {
       // Command not found or other error
     }
     return null;
-  }
-
-  /// Get platform-specific search paths for an executable
-  List<String> _getSearchPaths(String name) {
-    final paths = <String>[];
-    final execName = Platform.isWindows ? '$name.exe' : name;
-
-    if (Platform.isWindows) {
-      final programFiles = Platform.environment['ProgramFiles'] ?? r'C:\Program Files';
-      final programFilesX86 = Platform.environment['ProgramFiles(x86)'] ?? r'C:\Program Files (x86)';
-      final localAppData = Platform.environment['LOCALAPPDATA'] ?? '';
-
-      paths.addAll([
-        '$programFiles\\StormLib\\$execName',
-        '$programFilesX86\\StormLib\\$execName',
-        '$localAppData\\StormLib\\$execName',
-        '$programFiles\\smpq\\$execName',
-        '$programFilesX86\\smpq\\$execName',
-      ]);
-    } else if (Platform.isMacOS) {
-      paths.addAll([
-        '/opt/homebrew/bin/$name',
-        '/usr/local/bin/$name',
-        '/usr/bin/$name',
-      ]);
-    } else {
-      // Linux
-      final home = Platform.environment['HOME'] ?? '';
-      paths.addAll([
-        '/usr/local/bin/$name',
-        '/usr/bin/$name',
-        '$home/.local/bin/$name',
-        '/snap/bin/$name',
-      ]);
-    }
-
-    return paths;
   }
 
   Future<String?> findSmpq() async {

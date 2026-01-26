@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
+import '../models/build_state.dart';
 import 'diablo_progress_bar.dart';
 
 class BuildProgressIndicator extends StatelessWidget {
@@ -11,17 +13,56 @@ class BuildProgressIndicator extends StatelessWidget {
     required this.progress,
   });
 
+  String _getLocalizedStep(AppLocalizations l10n) {
+    final streamName = progress.streamName ?? '';
+
+    switch (progress.stepKey) {
+      case BuildStepKey.initializing:
+        return l10n.initializing;
+      case BuildStepKey.extractingBinaries:
+        return l10n.extractingBinaries;
+      case BuildStepKey.findingStreamFiles:
+        return l10n.findingStreamFiles;
+      case BuildStepKey.extractingStream:
+        return l10n.extractingStream(streamName);
+      case BuildStepKey.convertingVagFiles:
+        return l10n.convertingVagFiles(streamName);
+      case BuildStepKey.convertingToMp3:
+        return l10n.convertingToMp3(streamName);
+      case BuildStepKey.creatingMpq:
+        return l10n.creatingMpq(streamName);
+      case BuildStepKey.cleaningUp:
+        return l10n.cleaningUp;
+      case BuildStepKey.complete:
+        return l10n.complete;
+      case null:
+        return progress.currentStep;
+    }
+  }
+
+  String _getLocalizedError(AppLocalizations l10n) {
+    switch (progress.errorKey) {
+      case BuildErrorKey.smpqNotFound:
+        return l10n.errorSmpqNotFound;
+      case BuildErrorKey.noStreamFiles:
+        return l10n.errorNoStreamFiles;
+      case BuildErrorKey.unknown:
+      case null:
+        return progress.error ?? l10n.buildFailed;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final hasError = progress.error != null;
+    final hasError = progress.error != null || progress.errorKey != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          hasError ? l10n.buildFailed : progress.currentStep,
+          hasError ? l10n.buildFailed : _getLocalizedStep(l10n),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: hasError ? theme.colorScheme.error : null,
@@ -29,7 +70,9 @@ class BuildProgressIndicator extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         DiabloProgressBar(
-          value: hasError ? 0.0 : (progress.percentage > 0 ? progress.percentage : null),
+          value: hasError
+              ? 0.0
+              : (progress.percentage > 0 ? progress.percentage : null),
         ),
         const SizedBox(height: 8),
         if (!hasError && progress.currentFile.isNotEmpty)
@@ -59,7 +102,7 @@ class BuildProgressIndicator extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    progress.error!,
+                    _getLocalizedError(l10n),
                     style: TextStyle(
                       color: theme.colorScheme.onErrorContainer,
                     ),
