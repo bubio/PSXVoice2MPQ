@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:psx_mpq_converter/app.dart';
+import 'package:psxvoice2mpq/app.dart';
 
 void main() {
   testWidgets('App starts without error', (WidgetTester tester) async {

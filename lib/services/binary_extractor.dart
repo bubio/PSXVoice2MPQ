@@ -28,7 +28,7 @@ class BinaryExtractor {
 
   Future<void> extractBinaries() async {
     final tempDir = await getTemporaryDirectory();
-    final binaryDir = Directory(p.join(tempDir.path, 'psx_mpq_converter', 'binaries'));
+    final binaryDir = Directory(p.join(tempDir.path, 'PSXVoice2MPQ', 'binaries'));
 
     if (!await binaryDir.exists()) {
       await binaryDir.create(recursive: true);

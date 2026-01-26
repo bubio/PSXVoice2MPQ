@@ -1,4 +1,4 @@
-# psx_mpq_converter
+# PSXVoice2MPQ
 
 A new Flutter project.
 

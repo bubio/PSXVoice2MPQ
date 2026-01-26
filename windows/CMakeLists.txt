@@ -1,10 +1,10 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
-project(psx_mpq_converter LANGUAGES CXX)
+project(PSXVoice2MPQ LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "psx_mpq_converter")
+set(BINARY_NAME "PSXVoice2MPQ")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.

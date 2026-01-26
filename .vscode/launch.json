@@ -11,18 +11,18 @@
             "program": "lib/main.dart"
         },
         {
-            "name": "psx_mpq_converter",
+            "name": "PSXVoice2MPQ",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "psx_mpq_converter (profile mode)",
+            "name": "PSXVoice2MPQ (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "psx_mpq_converter (release mode)",
+            "name": "PSXVoice2MPQ (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
