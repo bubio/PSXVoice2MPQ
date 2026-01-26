@@ -7,28 +7,7 @@ class PathConstants {
 
   // Temp directory name
   static const String tempDirName = 'PSXVoice2MPQ';
-  static const String binarySubdir = 'binaries';
   static const String workDirPrefix = 'psx_mpq_work_';
-
-  // Binary names by platform
-  static const List<String> windowsBinaries = ['dstream.exe'];
-  static const List<String> unixBinaries = ['dstream.bin'];
-
-  /// Get binary names for current platform
-  static List<String> get binaryNames =>
-      Platform.isWindows ? windowsBinaries : unixBinaries;
-
-  /// Get platform folder name for assets
-  static String get platformFolder {
-    if (Platform.isMacOS) return 'macos';
-    if (Platform.isWindows) return 'windows';
-    if (Platform.isLinux) return 'linux';
-    throw UnsupportedError('Unsupported platform');
-  }
-
-  /// Get dstream binary name for current platform
-  static String get dstreamName =>
-      Platform.isWindows ? 'dstream.exe' : 'dstream.bin';
 
   /// Get default output path for MPQ files (platform-specific)
   static String? getDefaultOutputPath() {

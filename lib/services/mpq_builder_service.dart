@@ -8,22 +8,22 @@ import '../core/constants/path_constants.dart';
 import '../core/constants/stream_constants.dart';
 import '../models/build_progress.dart';
 import '../models/stream_mapping.dart';
-import 'binary_extractor.dart';
+import 'dstream_extractor.dart';
 import 'process_runner.dart';
 import 'vag_to_wav_converter.dart';
 
 class MpqBuilderService {
-  final BinaryExtractor _binaryExtractor;
   final ProcessRunner _processRunner;
   final VagToWavConverter _vagToWavConverter;
+  final DstreamExtractor _dstreamExtractor;
 
   MpqBuilderService({
-    required BinaryExtractor binaryExtractor,
     required ProcessRunner processRunner,
     VagToWavConverter? vagToWavConverter,
-  })  : _binaryExtractor = binaryExtractor,
-        _processRunner = processRunner,
-        _vagToWavConverter = vagToWavConverter ?? VagToWavConverter();
+    DstreamExtractor? dstreamExtractor,
+  })  : _processRunner = processRunner,
+        _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
+        _dstreamExtractor = dstreamExtractor ?? DstreamExtractor();
 
   Stream<BuildProgress> build(
     String ps1AssetsPath,
@@ -58,14 +58,7 @@ class MpqBuilderService {
         yield progress = progress.addLog('lame not found - using WAV format');
       }
 
-      // Step 2: Extract binaries
-      yield progress = progress.copyWith(stepKey: BuildStepKey.extractingBinaries);
-      yield progress = progress.addLog('Extracting bundled binaries...');
-      await _binaryExtractor.extractBinaries();
-      final dstreamPath = await _binaryExtractor.getDstreamPath();
-      yield progress = progress.addLog('Binaries extracted.');
-
-      // Step 3: Create temp directory
+      // Step 2: Create temp directory
       final tempDir = await getTemporaryDirectory();
       final workDir = Directory(
         p.join(
@@ -76,7 +69,7 @@ class MpqBuilderService {
       await workDir.create(recursive: true);
       yield progress = progress.addLog('Work directory: ${workDir.path}');
 
-      // Step 4: Find STREAM*.DIR files
+      // Step 3: Find STREAM*.DIR files
       yield progress = progress.copyWith(stepKey: BuildStepKey.findingStreamFiles);
       final assetsDir = Directory(ps1AssetsPath);
       final streamDirs = await assetsDir
@@ -97,8 +90,8 @@ class MpqBuilderService {
         'Found ${streamDirs.length} stream file(s).',
       );
 
-      // Step 5: Process each STREAM*.DIR
-      int totalSteps = streamDirs.length * 3; // dstream + vag conversion + mpq
+      // Step 4: Process each STREAM*.DIR
+      int totalSteps = streamDirs.length * 3; // extract + vag conversion + mpq
       int currentStepNum = 0;
 
       for (final streamDir in streamDirs) {
@@ -111,31 +104,29 @@ class MpqBuilderService {
         );
         await streamWorkDir.create(recursive: true);
 
-        // Run dstream
+        // Extract stream files using Dart implementation
         yield progress = progress.copyWith(
           stepKey: BuildStepKey.extractingStream,
           streamName: streamName,
           currentFile: streamDir.path,
           percentage: currentStepNum / totalSteps,
         );
-        yield progress = progress.addLog('Running dstream on $streamName...');
+        yield progress = progress.addLog('Extracting $streamName...');
 
-        final dstreamResult = await _processRunner.run(dstreamPath, [
-          streamDir.path,
-          streamBin,
-        ], workingDirectory: streamWorkDir.path);
+        final dstreamResult = await _dstreamExtractor.extract(
+          dirPath: streamDir.path,
+          binPath: streamBin,
+          outputDir: streamWorkDir.path,
+        );
 
         if (!dstreamResult.isSuccess) {
           yield progress = progress.addLog(
-            'dstream warning: ${dstreamResult.stderr}',
+            'Extraction warning: ${dstreamResult.errorMessage}',
           );
         }
 
-        // Count extracted files
-        final extractedFiles =
-            await streamWorkDir.list().where((e) => e is File).toList();
         yield progress = progress.addLog(
-          'Extracted ${extractedFiles.length} files from $streamName.',
+          'Extracted ${dstreamResult.extractedFiles.length} files from $streamName.',
         );
         currentStepNum++;
 
