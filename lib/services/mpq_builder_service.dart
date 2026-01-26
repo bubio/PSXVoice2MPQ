@@ -7,7 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import '../core/constants/path_constants.dart';
 import '../core/constants/stream_constants.dart';
 import '../models/build_progress.dart';
-import '../models/build_state.dart';
 import '../models/stream_mapping.dart';
 import 'binary_extractor.dart';
 import 'process_runner.dart';

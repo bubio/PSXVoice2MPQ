@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
-import '../models/build_state.dart';
 import 'diablo_progress_bar.dart';
 
 class BuildProgressIndicator extends StatelessWidget {
@@ -40,18 +39,6 @@ class BuildProgressIndicator extends StatelessWidget {
     }
   }
 
-  String _getLocalizedError(AppLocalizations l10n) {
-    switch (progress.errorKey) {
-      case BuildErrorKey.smpqNotFound:
-        return l10n.errorSmpqNotFound;
-      case BuildErrorKey.noStreamFiles:
-        return l10n.errorNoStreamFiles;
-      case BuildErrorKey.unknown:
-      case null:
-        return progress.error ?? l10n.buildFailed;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -85,33 +72,6 @@ class BuildProgressIndicator extends StatelessWidget {
             l10n.filesProgress(progress.processedFiles, progress.totalFiles),
             style: theme.textTheme.bodySmall,
           ),
-        if (hasError) ...[
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  color: theme.colorScheme.onErrorContainer,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _getLocalizedError(l10n),
-                    style: TextStyle(
-                      color: theme.colorScheme.onErrorContainer,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ],
     );
   }

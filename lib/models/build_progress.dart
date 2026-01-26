@@ -1,4 +1,5 @@
 import 'build_state.dart';
+export 'build_state.dart';
 
 class BuildProgress {
   final String currentStep;

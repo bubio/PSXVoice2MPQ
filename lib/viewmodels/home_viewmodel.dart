@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/path_constants.dart';
 import '../core/di/service_locator.dart';
 import '../models/build_progress.dart';
-import '../models/build_state.dart';
 import '../services/mpq_builder_service.dart';
 
 /// Build status enum

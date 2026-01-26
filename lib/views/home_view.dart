@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../l10n/app_localizations.dart';
+import '../models/build_state.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../widgets/diablo_button.dart';
 import '../widgets/folder_selector.dart';
@@ -38,6 +39,40 @@ class _HomeViewState extends ConsumerState<HomeView> {
     // Sync text controllers with ViewModel
     _assetsPathController.addListener(_onAssetsPathChanged);
     _outputPathController.addListener(_onOutputPathChanged);
+  }
+
+  String _getLocalizedError(AppLocalizations l10n, BuildErrorKey errorKey) {
+    switch (errorKey) {
+      case BuildErrorKey.smpqNotFound:
+        return l10n.errorSmpqNotFound;
+      case BuildErrorKey.noStreamFiles:
+        return l10n.errorNoStreamFiles;
+      case BuildErrorKey.unknown:
+        return l10n.buildFailed;
+    }
+  }
+
+  void _showErrorDialog(String title, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.error_outline,
+          color: Theme.of(context).colorScheme.error,
+          size: 48,
+        ),
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: SelectableText(errorMessage),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _onAssetsPathChanged() {
@@ -108,6 +143,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(homeViewModelProvider);
     final currentKey = _getLocaleKey(widget.currentLocale);
+
+    // Listen for error state changes and show alert
+    ref.listen<HomeState>(homeViewModelProvider, (previous, next) {
+      if (next.status == BuildStatus.error && previous?.status != BuildStatus.error) {
+        final progress = next.progress;
+        if (progress != null) {
+          String errorMessage;
+          if (progress.errorKey != null) {
+            errorMessage = _getLocalizedError(l10n, progress.errorKey!);
+          } else {
+            errorMessage = progress.error ?? l10n.buildFailed;
+          }
+          _showErrorDialog(l10n.buildFailed, errorMessage);
+        }
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
