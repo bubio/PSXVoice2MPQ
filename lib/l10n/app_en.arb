@@ -138,6 +138,10 @@
   "@errorNoStreamFiles": {
     "description": "Error when no stream files are found"
   },
+  "errorOutputDirectoryNotFound": "Output directory does not exist.",
+  "@errorOutputDirectoryNotFound": {
+    "description": "Error when output directory is not found"
+  },
   "convertingToMp3": "Converting WAV to MP3 from {streamName}...",
   "@convertingToMp3": {
     "description": "Converting WAV to MP3 step",

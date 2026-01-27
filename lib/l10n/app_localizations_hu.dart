@@ -100,6 +100,9 @@ class AppLocalizationsHu extends AppLocalizations {
       'Nem található STREAM*.DIR fájl a kiválasztott mappában.';
 
   @override
+  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'WAV konvertálása MP3-ra: $streamName...';
   }

@@ -29,7 +29,7 @@ class HomeState {
 
   factory HomeState.initial() {
     return HomeState(
-      assetsPath: kDebugMode ? '/Users/seiji/dev/psx-tools/ps1_assets' : '',
+      assetsPath: '',
       outputPath: PathConstants.getDefaultOutputPath() ?? '',
       status: BuildStatus.idle,
     );
@@ -99,7 +99,8 @@ class HomeViewModel extends StateNotifier<HomeState> {
           },
           onDone: () {
             final currentProgress = state.progress;
-            final hasError = currentProgress?.error != null ||
+            final hasError =
+                currentProgress?.error != null ||
                 currentProgress?.errorKey != null;
             state = state.copyWith(
               status: hasError ? BuildStatus.error : BuildStatus.completed,
@@ -119,10 +120,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
 
   void reset() {
     _buildSubscription?.cancel();
-    state = state.copyWith(
-      status: BuildStatus.idle,
-      clearProgress: true,
-    );
+    state = state.copyWith(status: BuildStatus.idle, clearProgress: true);
   }
 
   @override
@@ -133,7 +131,8 @@ class HomeViewModel extends StateNotifier<HomeState> {
 }
 
 /// Provider for HomeViewModel
-final homeViewModelProvider =
-    StateNotifierProvider<HomeViewModel, HomeState>((ref) {
+final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
+  ref,
+) {
   return HomeViewModel(getIt<MpqBuilderService>());
 });

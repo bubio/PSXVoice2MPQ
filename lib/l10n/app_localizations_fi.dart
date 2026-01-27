@@ -99,6 +99,9 @@ class AppLocalizationsFi extends AppLocalizations {
       'STREAM*.DIR-tiedostoja ei löytynyt valitusta kansiosta.';
 
   @override
+  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'Muunnetaan WAV MP3:ksi kohteesta $streamName...';
   }

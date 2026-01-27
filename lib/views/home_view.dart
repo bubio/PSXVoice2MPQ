@@ -47,6 +47,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
         return l10n.errorSmpqNotFound;
       case BuildErrorKey.noStreamFiles:
         return l10n.errorNoStreamFiles;
+      case BuildErrorKey.outputDirectoryNotFound:
+        return l10n.errorOutputDirectoryNotFound;
       case BuildErrorKey.unknown:
         return l10n.buildFailed;
     }

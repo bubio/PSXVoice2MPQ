@@ -15,5 +15,6 @@ enum BuildStepKey {
 enum BuildErrorKey {
   smpqNotFound,
   noStreamFiles,
+  outputDirectoryNotFound,
   unknown,
 }

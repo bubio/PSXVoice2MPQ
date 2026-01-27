@@ -97,6 +97,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorNoStreamFiles => '選択したフォルダにSTREAM*.DIRファイルが見つかりません。';
 
   @override
+  String get errorOutputDirectoryNotFound => '出力フォルダが存在しません。';
+
+  @override
   String convertingToMp3(String streamName) {
     return '$streamName の WAV を MP3 に変換中...';
   }

@@ -25,7 +25,7 @@
   "complete": "完了！",
   "buildFailed": "ビルド失敗",
   "errorSmpqNotFound": "smpqコマンドが見つかりません。",
-  "errorNoStreamFiles": "選択したフォルダにSTREAM*.DIRファイルが見つかりません。"
-,
+  "errorNoStreamFiles": "選択したフォルダにSTREAM*.DIRファイルが見つかりません。",
+  "errorOutputDirectoryNotFound": "出力フォルダが存在しません。",
   "convertingToMp3": "{streamName} の WAV を MP3 に変換中..."
 }

@@ -99,6 +99,9 @@ class AppLocalizationsEt extends AppLocalizations {
       'Valitud kaustast ei leitud STREAM*.DIR faile.';
 
   @override
+  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'WAV teisendamine MP3-ks failist $streamName...';
   }

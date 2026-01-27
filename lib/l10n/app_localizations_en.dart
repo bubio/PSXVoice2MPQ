@@ -99,6 +99,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'No STREAM*.DIR files found in the selected folder.';
 
   @override
+  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'Converting WAV to MP3 from $streamName...';
   }

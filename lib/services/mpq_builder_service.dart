@@ -39,6 +39,16 @@ class MpqBuilderService {
     );
 
     try {
+      // Check if output directory exists
+      final outputDir = Directory(outputPath);
+      if (!await outputDir.exists()) {
+        yield progress.copyWith(
+          errorKey: BuildErrorKey.outputDirectoryNotFound,
+          isComplete: true,
+        );
+        return;
+      }
+
       // Step 1: Check for StormLib FFI or smpq command
       final useStormLib = _stormLibService.initialize();
       String? smpqPath;

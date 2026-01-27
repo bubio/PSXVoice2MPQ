@@ -301,6 +301,12 @@ abstract class AppLocalizations {
   /// **'No STREAM*.DIR files found in the selected folder.'**
   String get errorNoStreamFiles;
 
+  /// Error when output directory is not found
+  ///
+  /// In en, this message translates to:
+  /// **'Output directory does not exist.'**
+  String get errorOutputDirectoryNotFound;
+
   /// Converting WAV to MP3 step
   ///
   /// In en, this message translates to:
