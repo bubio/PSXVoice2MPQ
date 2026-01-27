@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  Convert PlayStation 1 Diablo voice files to MPQ format for use with DevilutionX.
+  PlayStation 1版Diabloの音声ファイルをDevilutionX用のMPQ形式に変換するツール
 </p>
 
 <p align="center">
@@ -17,32 +17,45 @@
   </a>
 </p>
 
-## Overview
+## 概要
 
-PSXVoice2MPQ extracts voice data from PlayStation 1 Diablo disc images and converts them into MPQ archives compatible with [DevilutionX](https://github.com/diasurgical/devilutionX).
+PSXVoice2MPQは、PlayStation 1版Diabloのディスクイメージから音声データを抽出し、[DevilutionX](https://github.com/diasurgical/devilutionX)で使用可能なMPQアーカイブに変換します。
 
-### Features
+<p align="center">
+  <img src="assets/images/screen_shot.png" alt="PSXVoice2MPQ App ScreenShot">
+</p>
 
-- Extracts audio from PS1 Diablo STREAM files (STREAM1-5.DIR/BIN)
-- Converts VAG audio to WAV or MP3 format
-- Creates MPQ archives with proper file structure for DevilutionX
-- Parallel processing for fast conversion
-- Cross-platform support (macOS, Windows, Linux)
-- Localized UI (25+ languages)
 
-### Supported Languages
+### 機能
 
-The PS1 version of Diablo contains voice files for multiple languages:
+- PS1版DiabloのSTREAMファイル（STREAM1-5.DIR/BIN）から音声を抽出
+- VAG音声をWAVまたはMP3形式に変換
+- DevilutionX互換のMPQアーカイブを作成
+- 並列処理による高速変換
+- クロスプラットフォーム対応
+- 25以上の言語に対応したUI
 
-| Stream | Language |
-|--------|----------|
-| STREAM1 | English |
-| STREAM2 | French |
-| STREAM3 | German |
-| STREAM4 | Swedish |
-| STREAM5 | Japanese |
+### 対応言語（音声）
 
-## Installation
+PS1版Diabloには以下の言語の音声ファイルが含まれています：
+
+| Stream | 言語 | 地域 |
+|--------|------|------|
+| STREAM1 | 英語 | Europe/USA |
+| STREAM2 | フランス語 | Europe/USA |
+| STREAM3 | ドイツ語 | Europe/USA |
+| STREAM4 | スウェーデン語 | Europe/USA |
+| STREAM5 | 日本語 | 日本 |
+
+## 対応プラットフォーム
+
+| OS | アーキテクチャ | ファイル名 |
+|----|---------------|-----------|
+| macOS | arm64 (Apple Silicon) | `PSXVoice2MPQ-macOS.dmg` |
+| Windows | x86_64 (64-bit) | `PSXVoice2MPQ-Windows-x64.zip` |
+| Linux | x86_64 (64-bit) | `PSXVoice2MPQ-Linux-x64.tar.gz` |
+
+## インストール
 
 ### macOS (Homebrew)
 
@@ -51,85 +64,81 @@ brew tap bubio/psxvoice2mpq
 brew install --cask psxvoice2mpq
 ```
 
-### macOS / Windows / Linux
+### 直接ダウンロード
 
-Download the latest release from the [Releases](https://github.com/bubio/PSXVoice2MPQ/releases) page:
+[Releases](https://github.com/bubio/PSXVoice2MPQ/releases)ページから最新版をダウンロードしてください。
 
-- **macOS**: `PSXVoice2MPQ-macOS.dmg`
-- **Windows**: `PSXVoice2MPQ-Windows-x64.zip`
-- **Linux**: `PSXVoice2MPQ-Linux-x64.tar.gz`
+## 使い方
 
-## Usage
+1. **PSXVoice2MPQを起動**
+2. **入力フォルダを選択**: STREAM*.DIRとSTREAM*.BINファイルが含まれるフォルダを選択
+3. **出力フォルダを選択**: MPQファイルの保存先を選択
+4. **「MPQをビルド」をクリック**: 変換処理が開始されます
 
-1. **Extract PS1 disc image**: Use a tool like [dumpsxiso](https://github.com/Lameguy64/mkpsxiso) to extract your PS1 Diablo disc
-2. **Launch PSXVoice2MPQ**
-3. **Select input folder**: Choose the folder containing STREAM*.DIR and STREAM*.BIN files
-4. **Select output folder**: Choose where to save the generated MPQ files
-5. **Click "Build MPQ"**: The conversion process will start
+### 出力ファイル
 
-### Output Files
+言語コード別にMPQファイルが生成されます：
 
-The tool generates MPQ files named by language code:
+- `en.mpq` - 英語音声
+- `fr.mpq` - フランス語音声
+- `de.mpq` - ドイツ語音声
+- `sv.mpq` - スウェーデン語音声
+- `ja.mpq` - 日本語音声
 
-- `en.mpq` - English voices
-- `fr.mpq` - French voices
-- `de.mpq` - German voices
-- `sv.mpq` - Swedish voices
-- `ja.mpq` - Japanese voices
+### DevilutionXでの使用
 
-### Using with DevilutionX
-
-Copy the generated MPQ files to your DevilutionX data folder:
+生成されたMPQファイルをDevilutionXのデータフォルダにコピーしてください：
 
 - **macOS**: `~/Library/Application Support/diasurgical/devilution/`
 - **Windows**: `%APPDATA%\diasurgical\devilution\`
-- **Linux**: `~/.local/share/diasurgical/devilution/`
+- **Linux**: `~/.local/share/diasurgical/devilution/`、またはFlatpackでインストールした場合は、`~/.var/app/org.diasurgical.DevilutionX/data/diasurgical/devilution/`
 
-## Optional Dependencies
+## オプション依存関係
 
-For MP3 output (smaller file sizes), install one of the following:
+MP3出力（ファイルサイズ削減）を利用する場合は、以下のいずれかをインストールしてください：
 
-- **lame** (recommended): `brew install lame` / `apt install lame` / `choco install lame`
+- **lame**（推奨）: `brew install lame` / `apt install lame` / `choco install lame`
 - **ffmpeg**: `brew install ffmpeg` / `apt install ffmpeg` / `choco install ffmpeg`
 
-If neither is installed, audio will be saved as WAV files.
+どちらもインストールされていない場合は、WAV形式で保存されます。
 
-## Building from Source
+## ソースからのビルド
 
-### Prerequisites
+### 必要なもの
 
-- [Flutter](https://flutter.dev/) 3.38.7 or later
-- Platform-specific build tools:
+- [Flutter](https://flutter.dev/) 3.38.7以降
+- プラットフォーム別のビルドツール：
   - **macOS**: Xcode
-  - **Windows**: Visual Studio with C++ workload
-  - **Linux**: GTK3 development libraries
+  - **Windows**: Visual Studio（C++ワークロード）
+  - **Linux**: GTK3開発ライブラリ
 
-### Build Commands
+### ビルドコマンド
 
 ```bash
-# Clone the repository
+# リポジトリをクローン
 git clone https://github.com/bubio/PSXVoice2MPQ.git
 cd PSXVoice2MPQ
 
-# Install dependencies
+# 依存関係をインストール
 flutter pub get
 
-# Build for your platform
+# ビルド
 flutter build macos --release  # macOS
 flutter build windows --release  # Windows
 flutter build linux --release  # Linux
 ```
 
-## License
+## ライセンス
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+このプロジェクトはMITライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
 
-## Acknowledgments
+## 謝辞
 
-- [DevilutionX](https://github.com/diasurgical/devilutionX) - Diablo source port
-- [StormLib](https://github.com/ladislav-zezula/StormLib) - MPQ archive library
-- PlayStation 1 Diablo developed by Climax Studios, published by Electronic Arts
+- [DevilutionX](https://github.com/diasurgical/devilutionX) - Diabloソースポート
+- [psx-tools](https://github.com/diasurgical/psx-tools) - PS版Diabloデータ変換ツール
+- [StormLib](https://github.com/ladislav-zezula/StormLib) - MPQアーカイブライブラリ
+- PlayStation 1版Diablo - 開発: Climax Studios、販売: Electronic Arts
 
-## Legal Notice
+## 法的事項
 
-This tool requires you to own a legitimate copy of PlayStation 1 Diablo. The tool does not include any copyrighted game assets.
+このツールを使用するには、PlayStation 1版Diabloの正規コピーを所有している必要があります。本ツールには著作権で保護されたゲームアセットは含まれていません。
