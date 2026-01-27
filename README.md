@@ -128,7 +128,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [DevilutionX](https://github.com/diasurgical/devilutionX) - Diablo source port
 - [StormLib](https://github.com/ladislav-zezula/StormLib) - MPQ archive library
-- PlayStation 1 Diablo by Climax Studios
+- PlayStation 1 Diablo developed by Climax Studios, published by Electronic Arts
 
 ## Legal Notice
 
