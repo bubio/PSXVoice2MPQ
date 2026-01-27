@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Get-Item ''C:\\\\Users\\\\bubio\\\\dev\\\\PSXVoice2MPQ\\\\native_libs\\\\windows\\\\StormLib.dll'' | Format-List\")"
+    ]
+  }
+}

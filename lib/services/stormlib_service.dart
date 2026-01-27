@@ -101,33 +101,38 @@ class StormLibService {
 
     // Allocate native memory for the archive handle
     final handlePtr = calloc<Pointer<Void>>();
-    final mpqPathPtr = mpqPath.toNativeUtf8();
+    Pointer<Void>? archiveHandle;
 
     try {
       // Calculate max file count (add some buffer)
       final maxFileCount = files.length + 16;
 
-      // Create the archive
-      final createResult = bindings.sFileCreateArchive(
-        mpqPathPtr,
-        MpqCreateFlags.mpqCreateArchiveV1,
-        maxFileCount,
-        handlePtr,
-      );
+      // Create the archive with error handling for FFI calls
+      int createResult;
+      try {
+        createResult = bindings.sFileCreateArchive(
+          mpqPath,
+          MpqCreateFlags.mpqCreateArchiveV1,
+          maxFileCount,
+          handlePtr,
+        );
+      } catch (e) {
+        return MpqCreateResult.failure(
+            'FFI error during SFileCreateArchive: $e');
+      }
 
       if (createResult == 0) {
         return MpqCreateResult.failure(
             'Failed to create MPQ archive: SFileCreateArchive returned false');
       }
 
-      final archiveHandle = handlePtr.value;
+      archiveHandle = handlePtr.value;
 
       // Add each file to the archive
+      final failedFiles = <String>[];
       for (final file in files) {
-        final sourcePathPtr = file.sourcePath.toNativeUtf8();
         // Convert forward slashes to backslashes for MPQ compatibility
         final archiveName = file.archivePath.replaceAll('/', '\\');
-        final archivePathPtr = archiveName.toNativeUtf8();
 
         try {
           // Determine flags based on compression
@@ -135,38 +140,63 @@ class StormLibService {
               ? 0
               : MpqFileFlags.mpqFileCompress;
 
-          final addResult = bindings.sFileAddFileEx(
-            archiveHandle,
-            sourcePathPtr,
-            archivePathPtr,
-            flags,
-            compression,
-            compression,
-          );
+          int addResult;
+          try {
+            addResult = bindings.sFileAddFileEx(
+              archiveHandle,
+              file.sourcePath,
+              archiveName,
+              flags,
+              compression,
+              compression,
+            );
+          } catch (e) {
+            failedFiles.add('${file.archivePath} (FFI error: $e)');
+            continue;
+          }
 
           if (addResult == 0) {
-            // Log warning but continue with other files
-            // In production, you might want to collect these failures
+            failedFiles.add(file.archivePath);
           }
-        } finally {
-          calloc.free(sourcePathPtr);
-          calloc.free(archivePathPtr);
+        } catch (e) {
+          failedFiles.add('${file.archivePath} (error: $e)');
         }
       }
 
-      // Compact the archive to remove slack space
-      bindings.sFileCompactArchive(archiveHandle, nullptr, 0);
+      // Note: SFileCompactArchive is skipped as it can cause issues on Windows
+      // and is not strictly necessary for newly created archives
 
       // Close the archive
-      final closeResult = bindings.sFileCloseArchive(archiveHandle);
+      int closeResult;
+      try {
+        closeResult = bindings.sFileCloseArchive(archiveHandle);
+      } catch (e) {
+        return MpqCreateResult.failure('FFI error during SFileCloseArchive: $e');
+      }
+      archiveHandle = null; // Mark as closed
+
       if (closeResult == 0) {
         return MpqCreateResult.failure('Failed to close MPQ archive properly');
       }
 
+      if (failedFiles.isNotEmpty && failedFiles.length == files.length) {
+        return MpqCreateResult.failure(
+            'All files failed to add to archive');
+      }
+
       return MpqCreateResult.success(mpqPath);
+    } catch (e) {
+      // Ensure archive is closed on unexpected errors
+      if (archiveHandle != null) {
+        try {
+          bindings.sFileCloseArchive(archiveHandle);
+        } catch (_) {
+          // Ignore close errors during cleanup
+        }
+      }
+      return MpqCreateResult.failure('Unexpected error: $e');
     } finally {
       calloc.free(handlePtr);
-      calloc.free(mpqPathPtr);
     }
   }
 }

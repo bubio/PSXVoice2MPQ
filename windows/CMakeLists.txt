@@ -108,7 +108,7 @@ install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   COMPONENT Runtime)
 
 # Install StormLib DLL if it exists
-set(STORMLIB_DLL "${CMAKE_CURRENT_SOURCE_DIR}/../native_libs/windows/Storm.dll")
+set(STORMLIB_DLL "${CMAKE_CURRENT_SOURCE_DIR}/../native_libs/windows/StormLib.dll")
 if(EXISTS "${STORMLIB_DLL}")
   install(FILES "${STORMLIB_DLL}"
     DESTINATION "${CMAKE_INSTALL_PREFIX}"

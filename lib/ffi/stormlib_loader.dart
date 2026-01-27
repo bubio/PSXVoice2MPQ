@@ -15,7 +15,7 @@ class StormLibLoader {
     if (Platform.isMacOS) {
       return 'libStorm.dylib';
     } else if (Platform.isWindows) {
-      return 'Storm.dll';
+      return 'StormLib.dll';
     } else if (Platform.isLinux) {
       return 'libStorm.so';
     }
