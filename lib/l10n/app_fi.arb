@@ -25,7 +25,7 @@
   "complete": "Valmis!",
   "buildFailed": "Rakennus epäonnistui",
   "errorSmpqNotFound": "smpq-komentoa ei löydy.",
-  "errorNoStreamFiles": "STREAM*.DIR-tiedostoja ei löytynyt valitusta kansiosta."
-,
+  "errorNoStreamFiles": "STREAM*.DIR-tiedostoja ei löytynyt valitusta kansiosta.",
+  "errorOutputDirectoryNotFound": "Tulostekansiota ei ole olemassa.",
   "convertingToMp3": "Muunnetaan WAV MP3:ksi kohteesta {streamName}..."
 }

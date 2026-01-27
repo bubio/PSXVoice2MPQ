@@ -25,7 +25,7 @@
   "complete": "Kész!",
   "buildFailed": "A build sikertelen",
   "errorSmpqNotFound": "Az smpq parancs nem található.",
-  "errorNoStreamFiles": "Nem található STREAM*.DIR fájl a kiválasztott mappában."
-,
+  "errorNoStreamFiles": "Nem található STREAM*.DIR fájl a kiválasztott mappában.",
+  "errorOutputDirectoryNotFound": "A kimeneti mappa nem létezik.",
   "convertingToMp3": "WAV konvertálása MP3-ra: {streamName}..."
 }

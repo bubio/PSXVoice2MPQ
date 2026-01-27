@@ -25,7 +25,7 @@
   "complete": "Ολοκληρώθηκε!",
   "buildFailed": "Η κατασκευή απέτυχε",
   "errorSmpqNotFound": "Η εντολή smpq δεν βρέθηκε.",
-  "errorNoStreamFiles": "Δεν βρέθηκαν αρχεία STREAM*.DIR στον επιλεγμένο φάκελο."
-,
+  "errorNoStreamFiles": "Δεν βρέθηκαν αρχεία STREAM*.DIR στον επιλεγμένο φάκελο.",
+  "errorOutputDirectoryNotFound": "Ο φάκελος εξόδου δεν υπάρχει.",
   "convertingToMp3": "Μετατροπή WAV σε MP3 από {streamName}..."
 }

@@ -98,7 +98,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Файлы STREAM*.DIR не найдены в выбранной папке.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'Выходная папка не существует.';
 
   @override
   String convertingToMp3(String streamName) {

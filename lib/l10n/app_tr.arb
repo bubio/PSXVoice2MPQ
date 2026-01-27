@@ -25,7 +25,7 @@
   "complete": "Tamamlandı!",
   "buildFailed": "Derleme başarısız",
   "errorSmpqNotFound": "smpq komutu bulunamadı.",
-  "errorNoStreamFiles": "Seçilen klasörde STREAM*.DIR dosyası bulunamadı."
-,
+  "errorNoStreamFiles": "Seçilen klasörde STREAM*.DIR dosyası bulunamadı.",
+  "errorOutputDirectoryNotFound": "Çıkış klasörü mevcut değil.",
   "convertingToMp3": "{streamName} WAV dosyalarını MP3'e dönüştürülüyor..."
 }

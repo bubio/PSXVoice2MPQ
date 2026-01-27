@@ -99,7 +99,7 @@ class AppLocalizationsEt extends AppLocalizations {
       'Valitud kaustast ei leitud STREAM*.DIR faile.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'Väljundkausta ei eksisteeri.';
 
   @override
   String convertingToMp3(String streamName) {

@@ -25,7 +25,7 @@
   "complete": "Finalizat!",
   "buildFailed": "Construcție eșuată",
   "errorSmpqNotFound": "Comanda smpq nu a fost găsită.",
-  "errorNoStreamFiles": "Nu s-au găsit fișiere STREAM*.DIR în dosarul selectat."
-,
+  "errorNoStreamFiles": "Nu s-au găsit fișiere STREAM*.DIR în dosarul selectat.",
+  "errorOutputDirectoryNotFound": "Dosarul de ieșire nu există.",
   "convertingToMp3": "Conversie WAV în MP3 din {streamName}..."
 }

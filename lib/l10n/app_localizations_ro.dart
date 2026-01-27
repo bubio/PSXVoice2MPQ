@@ -101,7 +101,7 @@ class AppLocalizationsRo extends AppLocalizations {
       'Nu s-au găsit fișiere STREAM*.DIR în dosarul selectat.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'Dosarul de ieșire nu există.';
 
   @override
   String convertingToMp3(String streamName) {

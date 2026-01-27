@@ -97,7 +97,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get errorNoStreamFiles => '선택한 폴더에서 STREAM*.DIR 파일을 찾을 수 없습니다.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => '출력 폴더가 존재하지 않습니다.';
 
   @override
   String convertingToMp3(String streamName) {

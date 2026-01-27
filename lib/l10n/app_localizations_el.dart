@@ -100,7 +100,7 @@ class AppLocalizationsEl extends AppLocalizations {
       'Δεν βρέθηκαν αρχεία STREAM*.DIR στον επιλεγμένο φάκελο.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'Ο φάκελος εξόδου δεν υπάρχει.';
 
   @override
   String convertingToMp3(String streamName) {

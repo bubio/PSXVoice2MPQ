@@ -25,7 +25,7 @@
   "complete": "Završeno!",
   "buildFailed": "Izgradnja nije uspjela",
   "errorSmpqNotFound": "Naredba smpq nije pronađena.",
-  "errorNoStreamFiles": "Nisu pronađene STREAM*.DIR datoteke u odabranoj mapi."
-,
+  "errorNoStreamFiles": "Nisu pronađene STREAM*.DIR datoteke u odabranoj mapi.",
+  "errorOutputDirectoryNotFound": "Izlazna mapa ne postoji.",
   "convertingToMp3": "Pretvaranje WAV u MP3 iz {streamName}..."
 }

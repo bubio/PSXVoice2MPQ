@@ -100,7 +100,7 @@ class AppLocalizationsPt extends AppLocalizations {
       'Nenhum arquivo STREAM*.DIR encontrado na pasta selecionada.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'A pasta de saída não existe.';
 
   @override
   String convertingToMp3(String streamName) {
@@ -202,6 +202,9 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get errorNoStreamFiles =>
       'Nenhum arquivo STREAM*.DIR encontrado na pasta selecionada.';
+
+  @override
+  String get errorOutputDirectoryNotFound => 'A pasta de saída não existe.';
 
   @override
   String convertingToMp3(String streamName) {

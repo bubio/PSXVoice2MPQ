@@ -25,7 +25,7 @@
   "complete": "Готово!",
   "buildFailed": "Збірка не вдалася",
   "errorSmpqNotFound": "Команду smpq не знайдено.",
-  "errorNoStreamFiles": "Файли STREAM*.DIR не знайдено у вибраній папці."
-,
+  "errorNoStreamFiles": "Файли STREAM*.DIR не знайдено у вибраній папці.",
+  "errorOutputDirectoryNotFound": "Вихідна папка не існує.",
   "convertingToMp3": "Конвертація WAV в MP3 з {streamName}..."
 }

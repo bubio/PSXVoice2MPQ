@@ -98,7 +98,7 @@ class AppLocalizationsSv extends AppLocalizations {
       'Inga STREAM*.DIR-filer hittades i den valda mappen.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'Utdatamappen finns inte.';
 
   @override
   String convertingToMp3(String streamName) {

@@ -25,7 +25,7 @@
   "complete": "Hotovo!",
   "buildFailed": "Sestavení selhalo",
   "errorSmpqNotFound": "Příkaz smpq nebyl nalezen.",
-  "errorNoStreamFiles": "Ve vybrané složce nebyly nalezeny žádné soubory STREAM*.DIR."
-,
+  "errorNoStreamFiles": "Ve vybrané složce nebyly nalezeny žádné soubory STREAM*.DIR.",
+  "errorOutputDirectoryNotFound": "Výstupní složka neexistuje.",
   "convertingToMp3": "Převod WAV na MP3 z {streamName}..."
 }

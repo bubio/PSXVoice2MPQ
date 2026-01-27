@@ -25,7 +25,7 @@
   "complete": "Valmis!",
   "buildFailed": "Ehitamine ebaõnnestus",
   "errorSmpqNotFound": "smpq käsku ei leitud.",
-  "errorNoStreamFiles": "Valitud kaustast ei leitud STREAM*.DIR faile."
-,
+  "errorNoStreamFiles": "Valitud kaustast ei leitud STREAM*.DIR faile.",
+  "errorOutputDirectoryNotFound": "Väljundkausta ei eksisteeri.",
   "convertingToMp3": "WAV teisendamine MP3-ks failist {streamName}..."
 }

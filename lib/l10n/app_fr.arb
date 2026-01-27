@@ -25,7 +25,7 @@
   "complete": "Terminé !",
   "buildFailed": "Échec de la construction",
   "errorSmpqNotFound": "Commande smpq introuvable.",
-  "errorNoStreamFiles": "Aucun fichier STREAM*.DIR trouvé dans le dossier sélectionné."
-,
+  "errorNoStreamFiles": "Aucun fichier STREAM*.DIR trouvé dans le dossier sélectionné.",
+  "errorOutputDirectoryNotFound": "Le dossier de sortie n'existe pas.",
   "convertingToMp3": "Conversion WAV en MP3 de {streamName}..."
 }

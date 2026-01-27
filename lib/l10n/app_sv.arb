@@ -25,7 +25,7 @@
   "complete": "Klart!",
   "buildFailed": "Bygget misslyckades",
   "errorSmpqNotFound": "smpq-kommandot hittades inte.",
-  "errorNoStreamFiles": "Inga STREAM*.DIR-filer hittades i den valda mappen."
-,
+  "errorNoStreamFiles": "Inga STREAM*.DIR-filer hittades i den valda mappen.",
+  "errorOutputDirectoryNotFound": "Utdatamappen finns inte.",
   "convertingToMp3": "Konverterar WAV till MP3 från {streamName}..."
 }

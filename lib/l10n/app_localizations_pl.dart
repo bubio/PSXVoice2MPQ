@@ -99,7 +99,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie znaleziono plików STREAM*.DIR w wybranym folderze.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'Folder wyjściowy nie istnieje.';
 
   @override
   String convertingToMp3(String streamName) {

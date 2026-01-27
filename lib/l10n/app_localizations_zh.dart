@@ -97,7 +97,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorNoStreamFiles => '在所选文件夹中找不到 STREAM*.DIR 文件。';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => '输出文件夹不存在。';
 
   @override
   String convertingToMp3(String streamName) {
@@ -198,6 +198,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get errorNoStreamFiles => '在所选文件夹中找不到 STREAM*.DIR 文件。';
 
   @override
+  String get errorOutputDirectoryNotFound => '输出文件夹不存在。';
+
+  @override
   String convertingToMp3(String streamName) {
     return '正在将 $streamName 的 WAV 转换为 MP3...';
   }
@@ -294,6 +297,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get errorNoStreamFiles => '在所選資料夾中找不到 STREAM*.DIR 檔案。';
+
+  @override
+  String get errorOutputDirectoryNotFound => '輸出資料夾不存在。';
 
   @override
   String convertingToMp3(String streamName) {

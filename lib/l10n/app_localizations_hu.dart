@@ -100,7 +100,7 @@ class AppLocalizationsHu extends AppLocalizations {
       'Nem található STREAM*.DIR fájl a kiválasztott mappában.';
 
   @override
-  String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
+  String get errorOutputDirectoryNotFound => 'A kimeneti mappa nem létezik.';
 
   @override
   String convertingToMp3(String streamName) {
