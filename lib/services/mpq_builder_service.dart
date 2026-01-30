@@ -7,26 +7,26 @@ import '../core/constants/path_constants.dart';
 import '../core/constants/stream_constants.dart';
 import '../models/build_progress.dart';
 import '../models/stream_mapping.dart';
+import '../services/pure_dart_mpq_builder.dart';
 import 'dstream_extractor.dart';
 import 'process_runner.dart';
-import 'stormlib_service.dart';
 import 'vag_to_wav_converter.dart';
 
 class MpqBuilderService {
   final ProcessRunner _processRunner;
   final VagToWavConverter _vagToWavConverter;
   final DstreamExtractor _dstreamExtractor;
-  final StormLibService _stormLibService;
+  final PureDartMpqBuilder _pureDartMpqBuilder;
 
   MpqBuilderService({
     required ProcessRunner processRunner,
     VagToWavConverter? vagToWavConverter,
     DstreamExtractor? dstreamExtractor,
-    StormLibService? stormLibService,
+    required PureDartMpqBuilder pureDartMpqBuilder,
   })  : _processRunner = processRunner,
         _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
         _dstreamExtractor = dstreamExtractor ?? DstreamExtractor(),
-        _stormLibService = stormLibService ?? StormLibService();
+        _pureDartMpqBuilder = pureDartMpqBuilder;
 
   Stream<BuildProgress> build(
     String ps1AssetsPath,
@@ -48,31 +48,8 @@ class MpqBuilderService {
         return;
       }
 
-      // Step 1: Check for StormLib FFI or smpq command
-      final useStormLib = _stormLibService.initialize();
-      String? smpqPath;
-
-      if (useStormLib) {
-        yield progress = progress.addLog(
-          'Using bundled StormLib for MPQ creation',
-        );
-        yield progress = progress.addLog(
-          'StormLib path: ${_stormLibService.libraryPath}',
-        );
-      } else {
-        yield progress = progress.addLog('Checking for smpq command...');
-        smpqPath = await _processRunner.findSmpq();
-        if (smpqPath == null) {
-          yield progress.copyWith(
-            errorKey: BuildErrorKey.smpqNotFound,
-            isComplete: true,
-          );
-          return;
-        }
-        yield progress = progress.addLog('smpq found at: $smpqPath');
-      }
-
-      // Check for lame or ffmpeg (optional MP3 encoding)
+      // Step 1: Check for optional MP3 encoding tools
+      // Check for lame or ffmpeg
       final lamePath = await _processRunner.findLame();
       final ffmpegPath = lamePath == null ? await _processRunner.findFfmpeg() : null;
       final useMp3 = lamePath != null || ffmpegPath != null;
@@ -395,83 +372,29 @@ class MpqBuilderService {
         // Collect files to add
         final filesToAdd = await _listFilesRecursive(mpqDir);
         yield progress = progress.addLog(
-          'Adding ${filesToAdd.length} files to MPQ...',
+          'Adding ${filesToAdd.length} files to MPQ using pure Dart implementation...',
         );
 
-        bool mpqCreated = false;
-
-        // Try StormLib first
-        if (useStormLib) {
-          final fileEntries = filesToAdd.map((file) {
-            final relativePath = p.relative(file.path, from: mpqDir.path);
-            return MpqFileEntry(
-              sourcePath: file.path,
-              archivePath: relativePath,
-            );
-          }).toList();
-
-          final stormResult = _stormLibService.createArchive(
-            mpqPath,
-            fileEntries,
+        final fileEntries = filesToAdd.map((file) {
+          final relativePath = p.relative(file.path, from: mpqDir.path);
+          return MpqFileEntry(
+            sourcePath: file.path,
+            archivePath: relativePath,
           );
+        }).toList();
 
-          if (stormResult.isSuccess) {
-            mpqCreated = true;
-            yield progress = progress.addLog(
-              'MPQ created with StormLib: $mpqPath',
-            );
-          } else {
-            yield progress = progress.addLog(
-              'StormLib failed: ${stormResult.errorMessage}',
-            );
-            // Fall back to smpq
-            yield progress = progress.addLog('Falling back to smpq...');
-          }
-        }
+        final result = await _pureDartMpqBuilder.createArchive(
+          mpqPath,
+          fileEntries,
+        );
 
-        // Fall back to smpq if StormLib failed or wasn't available
-        if (!mpqCreated && smpqPath != null) {
-          final mpqFile = File(mpqPath);
-          if (await mpqFile.exists()) {
-            await mpqFile.delete();
-          }
-
-          // Create new MPQ using smpq
-          var result = await _processRunner.run(smpqPath, [
-            '-M',
-            '1',
-            '-C',
-            'none',
-            '-c',
-            mpqPath,
-          ]);
-          if (!result.isSuccess) {
-            yield progress = progress.addLog(
-              'Error creating MPQ: ${result.stderr}',
-            );
-            currentStepNum++;
-            continue;
-          }
-
-          // Add files to MPQ using smpq
-          for (final file in filesToAdd) {
-            final relativePath = p.relative(file.path, from: mpqDir.path);
-            result = await _processRunner.run(smpqPath, [
-              '-a',
-              '-C',
-              'none',
-              mpqPath,
-              relativePath,
-            ], workingDirectory: mpqDir.path);
-          }
-
-          mpqCreated = true;
-          yield progress = progress.addLog('MPQ created with smpq: $mpqPath');
-        }
-
-        if (!mpqCreated) {
+        if (result.isSuccess) {
           yield progress = progress.addLog(
-            'Error: Could not create MPQ - no MPQ creation method available',
+            'MPQ created successfully: $mpqPath',
+          );
+        } else {
+          yield progress = progress.addLog(
+            'Error creating MPQ: ${result.errorMessage}',
           );
         }
 
