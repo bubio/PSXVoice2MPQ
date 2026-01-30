@@ -74,6 +74,9 @@
 		33CC10F22044A3C60003C045 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Runner/Assets.xcassets; sourceTree = "<group>"; };
 		33CC10F52044A3C60003C045 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		F1A2B3C4D5E607890011AA22 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		F1A2B3C4D5E607890011AA01 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		F1A2B3C4D5E607890011AA02 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		F1A2B3C4D5E607890011AA23 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		33CC10F72044A3C60003C045 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Runner/Info.plist; sourceTree = "<group>"; };
 		33CC11122044BFA00003C045 /* MainFlutterWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainFlutterWindow.swift; sourceTree = "<group>"; };
 		33CEB47222A05771004F2AC0 /* Flutter-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Flutter-Debug.xcconfig"; sourceTree = "<group>"; };
@@ -297,28 +300,7 @@
 				ja,
 				de,
 				fr,
-				es,
-				it,
-				pt,
-				"pt-BR",
-				ru,
-				"zh-Hans",
-				"zh-Hant",
-				ko,
-				be,
-				bg,
-				cs,
-				da,
-				el,
-				et,
-				fi,
-				hr,
-				hu,
-				pl,
-				ro,
 				sv,
-				tr,
-				uk,
 			);
 			mainGroup = 33CC10E42044A3C60003C045;
 			productRefGroup = 33CC10EE2044A3C60003C045 /* Products */;
@@ -493,6 +475,9 @@
 			children = (
 				33CC10F52044A3C60003C045 /* Base */,
 				F1A2B3C4D5E607890011AA22 /* ja */,
+				F1A2B3C4D5E607890011AA01 /* de */,
+				F1A2B3C4D5E607890011AA02 /* fr */,
+				F1A2B3C4D5E607890011AA23 /* sv */,
 			);
 			name = MainMenu.xib;
 			path = Runner;
