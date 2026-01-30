@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'dart:io';
-import 'dart:typed_data';
+import 'dart:math'; // For max
 
 // --- MPQ Format Constants ---
 
@@ -28,7 +26,6 @@ class MpqHeader {
   /// (2 bytes) MPQ format version.
   final int formatVersion;  // 0=Format 1, 1=Format 2, 2=Format 3, 3=Format 4
   final int wBlockSize;       // Power of two exponent for logical sector size (512 * 2^wBlockSize)
-  /// (2 bytes) Power of two of the hash table size.
 
   /// (4 bytes) Offset to the hash table.
   final int hashTableOffset;
@@ -317,12 +314,15 @@ class PureDartMpqBuilder {
       final totalEntries = actualFileCount + 1; // +1 for the (listfile)
 
       int hashTableSizePower = 0;
+      int calculatedHashTableSize = 0;
       while ((1 << hashTableSizePower) < totalEntries) {
         hashTableSizePower++;
       }
-      final hashTableSize = 1 << hashTableSizePower;
+      calculatedHashTableSize = 1 << hashTableSizePower;
+      // Enforce a minimum hash table size, common in StormLib is 32 entries.
+      final hashTableSize = max(calculatedHashTableSize, 32);
 
-      // 2. Prepare initial hash table
+      // 2. Prepare in-memory hash and block tables
       final hashTable = List.generate(
         hashTableSize,
         (_) => MpqHashTableEntry(
@@ -335,13 +335,13 @@ class PureDartMpqBuilder {
       );
       final blockTable = <MpqBlockTableEntry>[];
 
-      // 3. Write placeholder header and reserve space for tables
-      final int headerAndTablesSize = mpqHeaderSizeV1 +
-          (hashTableSize * mpqHashTableEntrySize) +
-          (totalEntries * mpqBlockTableEntrySize); // Use totalEntries here
+      // 3. Write a placeholder header at the beginning (offset 0)
+      // This will be overwritten with the final header later.
+      final placeholderHeaderBytes = Uint8List(mpqHeaderSizeV1);
+      await raf.writeFrom(placeholderHeaderBytes);
 
-      await raf.setPosition(headerAndTablesSize);
-      int currentFileOffset = headerAndTablesSize;
+      // File data starts immediately after the header
+      int currentFileOffset = mpqHeaderSizeV1;
 
       // 4. Add (listfile) first
       final listFileEntry = MpqFileEntry(
@@ -389,7 +389,7 @@ class PureDartMpqBuilder {
         await raf.writeFrom(fileBytes);
 
         // Create block entry
-        const flags = 0x80000000; // File is a single unit
+        const flags = 0x80000000; // MPQ_FILE_SINGLE_UNIT
         final blockEntry = MpqBlockTableEntry(
           fileOffset: currentFileOffset,
           compressedSize: fileBytes.length,
@@ -418,10 +418,10 @@ class PureDartMpqBuilder {
         );
       }
 
-      final int archiveSize = await raf.position();
+      final int fileDataEndOffset = await raf.position();
 
       // 6. Write final tables
-      final int hashTableOffset = mpqHeaderSizeV1;
+      final int hashTableOffset = fileDataEndOffset;
       final int blockTableOffset = hashTableOffset + (hashTableSize * mpqHashTableEntrySize);
 
       // Write hash table
@@ -446,6 +446,8 @@ class PureDartMpqBuilder {
       _MpqEncryptor.encryptDecryptMpqBlock(blockTableBytes.buffer.asUint8List(), _MpqEncryptor.getBlockTableEncryptionKey()); // Encrypt
       await raf.writeFrom(blockTableBytes.buffer.asUint8List());
 
+      final int archiveSize = await raf.position(); // Final archive size
+
       // 7. Write final header
       final header = MpqHeader(
         id: mpqId,
@@ -455,7 +457,7 @@ class PureDartMpqBuilder {
         wBlockSize: 3, // Default for 4KB sectors
         hashTableOffset: hashTableOffset,
         blockTableOffset: blockTableOffset,
-        hashTableEntries: hashTableSize, // Use calculated hashTableSize for entries
+        hashTableEntries: hashTableSize,
         blockTableEntries: totalEntries,
       );
       await raf.setPosition(0);
