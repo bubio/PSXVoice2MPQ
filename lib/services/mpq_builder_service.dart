@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import '../core/constants/path_constants.dart';
 import '../core/constants/stream_constants.dart';
@@ -92,7 +91,7 @@ class MpqBuilderService {
       }
 
       // Step 2: Create temp directory
-      final tempDir = await getTemporaryDirectory();
+      final tempDir = Directory.systemTemp;
       final workDir = Directory(
         p.join(
           tempDir.path,
