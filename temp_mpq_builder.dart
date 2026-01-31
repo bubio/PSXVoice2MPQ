@@ -7,11 +7,11 @@ void main() async {
   final inputFiles = [
     MpqFileEntry(
       sourcePath: '/Users/seiji/dev/flutter/PSXVoice2MPQ/assets/test/J00ED.WAV',
-      archivePath: 'sfx\towners\cow8.wav',
+      archivePath: r'sfx\towners\cow8.wav',
     ),
     MpqFileEntry(
       sourcePath: '/Users/seiji/dev/flutter/PSXVoice2MPQ/assets/test/J02B1.WAV',
-      archivePath: 'sfx\rogue\rogue77.wav',
+      archivePath: r'sfx\rogue\rogue77.wav',
     ),
   ];
 
@@ -26,4 +26,3 @@ void main() async {
     print('Failed to create MPQ: ${result.errorMessage}');
   }
 }
-
