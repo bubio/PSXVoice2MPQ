@@ -1,2 +1,0 @@
-# Place libStorm.so in this directory.
-# Build StormLib with: cmake .. && make
