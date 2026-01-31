@@ -1,5 +1,5 @@
 # Project-level configuration.
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
@@ -49,6 +49,17 @@ endfunction()
 # Flutter library and tool build rules.
 set(FLUTTER_MANAGED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter")
 add_subdirectory(${FLUTTER_MANAGED_DIR})
+
+include(FetchContent)
+SET(STORM_SKIP_INSTALL ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+FetchContent_Declare(
+  storm
+  GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
+  GIT_TAG        v9.25
+)
+FetchContent_MakeAvailable(storm)
+set_target_properties(storm PROPERTIES OUTPUT_NAME "Storm")
 
 # System-level dependencies.
 find_package(PkgConfig REQUIRED)
@@ -127,10 +138,6 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
     COMPONENT Runtime)
 endif()
 
-# Install StormLib shared library if it exists
-set(STORMLIB_SO "${CMAKE_CURRENT_SOURCE_DIR}/../native_libs/linux/libStorm.so")
-if(EXISTS "${STORMLIB_SO}")
-  install(FILES "${STORMLIB_SO}"
-    DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
-    COMPONENT Runtime)
-endif()
+install(FILES $<TARGET_FILE:storm>
+  DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
