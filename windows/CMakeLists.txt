@@ -36,7 +36,7 @@ set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 FetchContent_Declare(
   storm
   GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
-  GIT_TAG        v9.25
+  GIT_TAG        v9.31
 )
 FetchContent_MakeAvailable(storm)
 target_compile_definitions(storm PRIVATE UNICODE _UNICODE)

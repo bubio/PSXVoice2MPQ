@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-STORMLIB_VERSION="v9.25"
+STORMLIB_VERSION="v9.31"
 CACHE_DIR="${TMPDIR:-/tmp}/stormlib_build_cache"
 SRC_DIR="${CACHE_DIR}/StormLib-${STORMLIB_VERSION}"
 BUILD_DIR="${SRC_DIR}/build_universal"

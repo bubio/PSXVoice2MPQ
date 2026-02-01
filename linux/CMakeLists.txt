@@ -56,10 +56,10 @@ set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 FetchContent_Declare(
   storm
   GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
-  GIT_TAG        v9.25
+  GIT_TAG        v9.31
 )
 FetchContent_MakeAvailable(storm)
-set_target_properties(storm PROPERTIES OUTPUT_NAME "Storm")
+set_target_properties(storm PROPERTIES OUTPUT_NAME "Storm" VERSION "" SOVERSION "")
 
 # System-level dependencies.
 find_package(PkgConfig REQUIRED)
@@ -140,4 +140,5 @@ endif()
 
 install(FILES $<TARGET_FILE:storm>
   DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  RENAME "libStorm.so"
   COMPONENT Runtime)
