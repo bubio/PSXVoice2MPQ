@@ -56,18 +56,45 @@ class ProcessRunner {
     return null;
   }
 
-  /// Find executable in PATH using 'which' (Unix) or 'where' (Windows)
+  /// Find executable in PATH using 'which' (Unix) or 'where' (Windows).
+  /// On macOS/Linux, uses the user's login shell to get the full PATH
+  /// (covers Homebrew, MacPorts, Nix, etc.)
   Future<String?> _findInPath(String name) async {
-    try {
-      final command = Platform.isWindows ? 'where' : 'which';
-      final result = await Process.run(command, [name]);
-      if (result.exitCode == 0) {
-        // 'where' on Windows may return multiple lines, take the first one
-        final output = result.stdout.toString().trim();
-        final firstLine = output.split('\n').first.trim();
-        if (firstLine.isNotEmpty) {
-          return firstLine;
+    if (Platform.isWindows) {
+      try {
+        final result = await Process.run('where', [name]);
+        if (result.exitCode == 0) {
+          final output = result.stdout.toString().trim();
+          final firstLine = output.split('\n').first.trim();
+          if (firstLine.isNotEmpty) return firstLine;
         }
+      } catch (e) {
+        // Command not found or other error
+      }
+      return null;
+    }
+
+    // macOS/Linux: use login shell to get full PATH from user's profile
+    final shell = Platform.environment['SHELL'] ?? '/bin/sh';
+    try {
+      final result = await Process.run(
+        shell,
+        ['-l', '-c', 'command -v $name'],
+      );
+      if (result.exitCode == 0) {
+        final output = result.stdout.toString().trim();
+        if (output.isNotEmpty) return output;
+      }
+    } catch (e) {
+      // Login shell failed
+    }
+
+    // Fallback: try 'which' directly
+    try {
+      final result = await Process.run('which', [name]);
+      if (result.exitCode == 0) {
+        final output = result.stdout.toString().trim();
+        if (output.isNotEmpty) return output;
       }
     } catch (e) {
       // Command not found or other error

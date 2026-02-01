@@ -80,6 +80,7 @@ class PathConstants {
     } else if (Platform.isMacOS) {
       paths.addAll([
         '/opt/homebrew/bin/$name',
+        '/opt/local/bin/$name',
         '/usr/local/bin/$name',
         '/usr/bin/$name',
       ]);
