@@ -39,6 +39,7 @@ FetchContent_Declare(
   GIT_TAG        v9.25
 )
 FetchContent_MakeAvailable(storm)
+target_compile_definitions(storm PRIVATE UNICODE _UNICODE)
 set_target_properties(storm PROPERTIES OUTPUT_NAME "StormLib")
 
 # Use Unicode for all projects.
