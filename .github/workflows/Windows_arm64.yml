@@ -37,9 +37,16 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
+      - name: Find build output
+        id: build_output
+        run: |
+          $archDir = (Get-ChildItem -Path "build\windows" -Directory).Name
+          Write-Host "Build architecture directory: $archDir"
+          echo "arch_dir=$archDir" >> $env:GITHUB_OUTPUT
+
       - name: Create ZIP
         run: |
-          Compress-Archive -Path "build\windows\arm64\runner\Release\*" -DestinationPath "PSXVoice2MPQ-Windows-arm64.zip"
+          Compress-Archive -Path "build\windows\${{ steps.build_output.outputs.arch_dir }}\runner\Release\*" -DestinationPath "PSXVoice2MPQ-Windows-arm64.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
