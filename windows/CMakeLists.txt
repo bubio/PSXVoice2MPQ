@@ -2,17 +2,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(PSXVoice2MPQ LANGUAGES CXX)
 
-include(FetchContent)
-SET(STORM_SKIP_INSTALL ON CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
-FetchContent_Declare(
-  storm
-  GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
-  GIT_TAG        v9.25
-)
-FetchContent_MakeAvailable(storm)
-set_target_properties(storm PROPERTIES OUTPUT_NAME "StormLib")
-
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
 set(BINARY_NAME "PSXVoice2MPQ")
@@ -39,6 +28,18 @@ set(CMAKE_EXE_LINKER_FLAGS_PROFILE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 set(CMAKE_SHARED_LINKER_FLAGS_PROFILE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
 set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE}")
 set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
+
+# Fetch and build StormLib from source
+include(FetchContent)
+SET(STORM_SKIP_INSTALL ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+FetchContent_Declare(
+  storm
+  GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
+  GIT_TAG        v9.25
+)
+FetchContent_MakeAvailable(storm)
+set_target_properties(storm PROPERTIES OUTPUT_NAME "StormLib")
 
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
