@@ -61,4 +61,5 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: PSXVoice2MPQ-macOS-universal.dmg
+          tag: ${{ github.event.release.tag_name }}
           overwrite: true

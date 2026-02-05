@@ -196,6 +196,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: PSXVoice2MPQ-Linux-arm64.deb
+          tag: ${{ github.event.release.tag_name }}
           overwrite: true
 
       - name: Update Release RPM
@@ -203,6 +204,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: PSXVoice2MPQ-Linux-arm64.rpm
+          tag: ${{ github.event.release.tag_name }}
           overwrite: true
 
       - name: Update Release AppImage
@@ -210,4 +212,5 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: PSXVoice2MPQ-Linux-arm64.AppImage
+          tag: ${{ github.event.release.tag_name }}
           overwrite: true

@@ -62,4 +62,5 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: PSXVoice2MPQ-Windows-arm64.zip
+          tag: ${{ github.event.release.tag_name }}
           overwrite: true
