@@ -22,7 +22,7 @@
 
 ## 概要
 
-PSXVoice2MPQは、PlayStation 1版Diabloのディスクイメージから音声データを抽出し、[DevilutionX](https://github.com/diasurgical/devilutionX)で使用可能なMPQアーカイブに変換します。
+PSXVoice2MPQは、PlayStation 1版Diabloのゲームディスクから音声データを抽出し、[DevilutionX](https://github.com/diasurgical/devilutionX)で使用可能なMPQアーカイブに変換します。
 
 <p align="center">
   <img src="assets/images/screen_shot.png" alt="PSXVoice2MPQ App ScreenShot">
