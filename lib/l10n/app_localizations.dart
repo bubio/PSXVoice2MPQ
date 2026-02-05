@@ -271,6 +271,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Converting WAV to MP3 from {streamName}...'**
   String convertingToMp3(String streamName);
+
+  /// AudioSR enhancement step
+  ///
+  /// In en, this message translates to:
+  /// **'Enhancing audio with AudioSR from {streamName}...'**
+  String enhancingAudio(String streamName);
+
+  /// Checkbox label for enabling AudioSR
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance audio quality (AudioSR)'**
+  String get enableAudioSr;
+
+  /// Message when audiosr is not found
+  ///
+  /// In en, this message translates to:
+  /// **'Please specify the audiosr executable.'**
+  String get audioSrNotFound;
+
+  /// Button to browse for audiosr executable
+  ///
+  /// In en, this message translates to:
+  /// **'Browse...'**
+  String get browseAudioSr;
+
+  /// Settings dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// Language section label in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// Button to clear intermediate/cache files
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Cache'**
+  String get clearCache;
+
+  /// Message shown after cache is cleared
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleared'**
+  String get cacheCleared;
+
+  /// Note about AudioSR processing time
+  ///
+  /// In en, this message translates to:
+  /// **'Processing may take a very long time.'**
+  String get audioSrNote;
+
+  /// Title for cache found dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Previous data found'**
+  String get cacheFoundTitle;
+
+  /// Message for cache found dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?'**
+  String get cacheFoundMessage;
+
+  /// Button to continue from cached data
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueFromCache;
+
+  /// Button to clear cache and start fresh
+  ///
+  /// In en, this message translates to:
+  /// **'Start Fresh'**
+  String get startFresh;
+
+  /// Version label in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// Button to show open source licenses
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source Licenses'**
+  String get licenses;
+
+  /// Section title for licenses in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Licenses'**
+  String get licensesSection;
 }
 
 class _AppLocalizationsDelegate

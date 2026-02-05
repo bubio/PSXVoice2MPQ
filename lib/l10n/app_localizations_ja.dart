@@ -103,4 +103,55 @@ class AppLocalizationsJa extends AppLocalizations {
   String convertingToMp3(String streamName) {
     return '$streamName の WAV を MP3 に変換中...';
   }
+
+  @override
+  String enhancingAudio(String streamName) {
+    return '$streamName のオーディオをAudioSRで高音質化中...';
+  }
+
+  @override
+  String get enableAudioSr => 'オーディオ品質を向上 (AudioSR)';
+
+  @override
+  String get audioSrNotFound => 'audiosrの実行ファイルを指定してください。';
+
+  @override
+  String get browseAudioSr => '参照...';
+
+  @override
+  String get settings => '設定';
+
+  @override
+  String get language => '言語';
+
+  @override
+  String get clearCache => 'キャッシュを削除';
+
+  @override
+  String get cacheCleared => 'キャッシュを削除しました';
+
+  @override
+  String get audioSrNote => '処理に非常に時間がかかる場合があります。';
+
+  @override
+  String get cacheFoundTitle => '中断データが見つかりました';
+
+  @override
+  String get cacheFoundMessage =>
+      '前回中断したビルドのデータが見つかりました。続きから再開しますか、それとも最初からやり直しますか？';
+
+  @override
+  String get continueFromCache => '続きから再開';
+
+  @override
+  String get startFresh => '最初からやり直す';
+
+  @override
+  String get version => 'バージョン';
+
+  @override
+  String get licenses => 'オープンソースライセンス';
+
+  @override
+  String get licensesSection => 'ライセンス';
 }

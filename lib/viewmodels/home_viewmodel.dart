@@ -6,6 +6,8 @@ import '../core/constants/path_constants.dart';
 import '../core/di/service_locator.dart';
 import '../models/build_progress.dart';
 import '../services/mpq_builder_service.dart';
+import '../services/process_runner.dart';
+import '../services/settings_service.dart';
 
 /// Build status enum
 enum BuildStatus { idle, building, completed, error }
@@ -17,6 +19,9 @@ class HomeState {
   final BuildStatus status;
   final BuildProgress? progress;
   final Locale? locale;
+  final bool useAudioSr;
+  final bool audioSrAvailable;
+  final String? audioSrPath;
 
   const HomeState({
     required this.assetsPath,
@@ -24,6 +29,9 @@ class HomeState {
     required this.status,
     this.progress,
     this.locale,
+    this.useAudioSr = false,
+    this.audioSrAvailable = false,
+    this.audioSrPath,
   });
 
   factory HomeState.initial() {
@@ -47,7 +55,11 @@ class HomeState {
     BuildStatus? status,
     BuildProgress? progress,
     Locale? locale,
+    bool? useAudioSr,
+    bool? audioSrAvailable,
+    String? audioSrPath,
     bool clearProgress = false,
+    bool clearAudioSrPath = false,
   }) {
     return HomeState(
       assetsPath: assetsPath ?? this.assetsPath,
@@ -55,6 +67,9 @@ class HomeState {
       status: status ?? this.status,
       progress: clearProgress ? null : (progress ?? this.progress),
       locale: locale ?? this.locale,
+      useAudioSr: useAudioSr ?? this.useAudioSr,
+      audioSrAvailable: audioSrAvailable ?? this.audioSrAvailable,
+      audioSrPath: clearAudioSrPath ? null : (audioSrPath ?? this.audioSrPath),
     );
   }
 }
@@ -62,9 +77,70 @@ class HomeState {
 /// HomeViewModel using Riverpod StateNotifier
 class HomeViewModel extends StateNotifier<HomeState> {
   final MpqBuilderService _builderService;
+  final ProcessRunner _processRunner;
+  final SettingsService _settingsService;
   StreamSubscription<BuildProgress>? _buildSubscription;
 
-  HomeViewModel(this._builderService) : super(HomeState.initial());
+  HomeViewModel(
+    this._builderService,
+    this._processRunner,
+    this._settingsService,
+  ) : super(HomeState.initial()) {
+    _initAudioSr();
+  }
+
+  Future<void> _initAudioSr() async {
+    // Load saved path from settings
+    final savedPath = await _settingsService.getAudioSrPath();
+    if (savedPath != null && await _processRunner.isValidAudioSr(savedPath)) {
+      state = state.copyWith(
+        audioSrPath: savedPath,
+        audioSrAvailable: true,
+        useAudioSr: true,
+      );
+      return;
+    }
+
+    // Try auto-detection via PATH
+    await checkAudioSrAvailability();
+  }
+
+  Future<void> checkAudioSrAvailability() async {
+    final path = await _processRunner.findAudioSr();
+    if (path != null) {
+      state = state.copyWith(
+        audioSrPath: path,
+        audioSrAvailable: true,
+        useAudioSr: true,
+      );
+    } else {
+      state = state.copyWith(
+        audioSrAvailable: false,
+        useAudioSr: false,
+        clearAudioSrPath: true,
+      );
+    }
+  }
+
+  void setUseAudioSr(bool value) {
+    if (!state.audioSrAvailable) return;
+    state = state.copyWith(useAudioSr: value);
+  }
+
+  Future<void> setAudioSrPath(String? path) async {
+    if (path != null && await _processRunner.isValidAudioSr(path)) {
+      await _settingsService.setAudioSrPath(path);
+      state = state.copyWith(
+        audioSrPath: path,
+        audioSrAvailable: true,
+        useAudioSr: true,
+      );
+    } else {
+      await _settingsService.setAudioSrPath(null);
+      // Re-check auto-detection
+      await checkAudioSrAvailability();
+    }
+  }
 
   void setAssetsPath(String path) {
     state = state.copyWith(assetsPath: path);
@@ -89,9 +165,11 @@ class HomeViewModel extends StateNotifier<HomeState> {
       ),
     );
 
+    final audioSrPath = state.useAudioSr ? state.audioSrPath : null;
+
     _buildSubscription?.cancel();
     _buildSubscription = _builderService
-        .build(state.assetsPath, state.outputPath)
+        .build(state.assetsPath, state.outputPath, audioSrPath: audioSrPath)
         .listen(
           (progress) {
             state = state.copyWith(progress: progress);
@@ -119,6 +197,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
 
   void reset() {
     _buildSubscription?.cancel();
+    _builderService.cancel();
     state = state.copyWith(status: BuildStatus.idle, clearProgress: true);
   }
 
@@ -133,5 +212,9 @@ class HomeViewModel extends StateNotifier<HomeState> {
 final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
   ref,
 ) {
-  return HomeViewModel(getIt<MpqBuilderService>());
+  return HomeViewModel(
+    getIt<MpqBuilderService>(),
+    getIt<ProcessRunner>(),
+    getIt<SettingsService>(),
+  );
 });

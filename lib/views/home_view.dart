@@ -1,15 +1,17 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../core/constants/path_constants.dart';
 import '../l10n/app_localizations.dart';
 import '../models/build_state.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../widgets/diablo_button.dart';
 import '../widgets/folder_selector.dart';
-import '../widgets/language_selector.dart';
 import '../widgets/progress_indicator.dart';
+import '../widgets/settings_dialog.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   final Locale? currentLocale;
@@ -98,23 +100,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     super.dispose();
   }
 
-  String _getLocaleKey(Locale? locale) {
-    if (locale == null) return 'system';
-    if (locale.countryCode != null) {
-      return '${locale.languageCode}_${locale.countryCode}';
-    }
-    return locale.languageCode;
-  }
-
-  Locale? _parseLocaleKey(String key) {
-    if (key == 'system') return null;
-    final parts = key.split('_');
-    if (parts.length == 2) {
-      return Locale(parts[0], parts[1]);
-    }
-    return Locale(parts[0]);
-  }
-
   Future<void> _selectAssetsFolder() async {
     final l10n = AppLocalizations.of(context)!;
     final result = await FilePicker.platform.getDirectoryPath(
@@ -135,7 +120,68 @@ class _HomeViewState extends ConsumerState<HomeView> {
     }
   }
 
-  void _startBuild() {
+  void _openSettings() {
+    final currentKey = SettingsDialog.getLocaleKey(widget.currentLocale);
+    showDialog(
+      context: context,
+      builder: (context) => SettingsDialog(
+        currentLocaleKey: currentKey,
+        onLocaleChanged: (key) {
+          widget.onLocaleChanged(SettingsDialog.parseLocaleKey(key));
+        },
+      ),
+    );
+  }
+
+  Future<void> _startBuild() async {
+    final state = ref.read(homeViewModelProvider);
+    if (!state.useAudioSr) {
+      ref.read(homeViewModelProvider.notifier).startBuild();
+      return;
+    }
+
+    // Check if AudioSR cache exists
+    final cacheDir = Directory(PathConstants.getCacheDir());
+    final hasCache = await cacheDir.exists() &&
+        await cacheDir.list().any((e) => e is Directory || e is File);
+
+    if (!hasCache || !mounted) {
+      ref.read(homeViewModelProvider.notifier).startBuild();
+      return;
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.cacheFoundTitle),
+        content: Text(l10n.cacheFoundMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.startFresh),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.continueFromCache),
+          ),
+        ],
+      ),
+    );
+
+    if (result == null || !mounted) return;
+
+    if (!result) {
+      // Clear cache before starting
+      if (await cacheDir.exists()) {
+        await cacheDir.delete(recursive: true);
+      }
+    }
+
     ref.read(homeViewModelProvider.notifier).startBuild();
   }
 
@@ -144,7 +190,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(homeViewModelProvider);
-    final currentKey = _getLocaleKey(widget.currentLocale);
 
     // Listen for error state changes and show alert
     ref.listen<HomeState>(homeViewModelProvider, (previous, next) {
@@ -174,13 +219,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
           ),
         ),
         actions: [
-          if (kDebugMode)
-            LanguageSelector(
-              currentKey: currentKey,
-              onSelected: (key) {
-                widget.onLocaleChanged(_parseLocaleKey(key));
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: l10n.settings,
+            onPressed: _openSettings,
+          ),
         ],
       ),
       body: Padding(
@@ -203,7 +246,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               onBrowse: state.isBuilding ? null : _selectOutputFolder,
               enabled: !state.isBuilding,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             ListenableBuilder(
               listenable: Listenable.merge([
                 _assetsPathController,

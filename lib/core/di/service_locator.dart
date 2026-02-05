@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../services/mpq_builder_service.dart';
 import '../../services/process_runner.dart';
+import '../../services/settings_service.dart';
 import '../../services/stormlib_service.dart';
 
 final getIt = GetIt.instance;
@@ -12,6 +13,8 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<ProcessRunner>(() => ProcessRunner());
 
   getIt.registerLazySingleton<StormLibService>(() => StormLibService());
+
+  getIt.registerLazySingleton<SettingsService>(() => SettingsService());
 
   getIt.registerLazySingleton<MpqBuilderService>(
     () => MpqBuilderService(
