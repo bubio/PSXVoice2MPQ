@@ -65,6 +65,18 @@ brew tap bubio/psxvoice2mpq
 brew install --cask psxvoice2mpq
 ```
 
+> **注意**: このアプリはAppleによるノータリゼーション（公証）を受けていないため、初回起動時にGatekeeperによってブロックされる場合があります。以下のいずれかの方法で回避できます：
+>
+> **方法1: ターミナルで隔離フラグを削除**
+> ```bash
+> xattr -cr /Applications/PSXVoice2MPQ.app
+> ```
+>
+> **方法2: システム設定から許可**
+> 1. アプリを開こうとしてブロックされた後
+> 2. 「システム設定」→「プライバシーとセキュリティ」を開く
+> 3. 「"PSXVoice2MPQ"は開発元を確認できないため、使用がブロックされました」の横にある「このまま開く」をクリック
+
 ### 直接ダウンロード
 
 [Releases](https://github.com/bubio/PSXVoice2MPQ/releases)ページから最新版をダウンロードしてください。
