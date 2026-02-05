@@ -27,5 +27,21 @@
   "errorSmpqNotFound": "smpq-kommandot hittades inte.",
   "errorNoStreamFiles": "Inga STREAM*.DIR-filer hittades i den valda mappen.",
   "errorOutputDirectoryNotFound": "Utdatamappen finns inte.",
-  "convertingToMp3": "Konverterar WAV till MP3 från {streamName}..."
+  "convertingToMp3": "Konverterar WAV till MP3 från {streamName}...",
+  "enhancingAudio": "Förbättrar ljud med AudioSR från {streamName}...",
+  "enableAudioSr": "Förbättra ljudkvalitet (AudioSR)",
+  "audioSrNotFound": "Ange sökvägen till audiosr.",
+  "browseAudioSr": "Bläddra...",
+  "settings": "Inställningar",
+  "language": "Språk",
+  "clearCache": "Rensa cache",
+  "cacheCleared": "Cache rensad",
+  "audioSrNote": "Bearbetningen kan ta mycket lång tid.",
+  "cacheFoundTitle": "Tidigare data hittad",
+  "cacheFoundMessage": "Data från en tidigare avbruten byggnation hittades. Vill du fortsätta där det slutade eller börja om?",
+  "continueFromCache": "Fortsätt",
+  "startFresh": "Börja om",
+  "version": "Version",
+  "licenses": "Öppen källkodslicenser",
+  "licensesSection": "Licenser"
 }

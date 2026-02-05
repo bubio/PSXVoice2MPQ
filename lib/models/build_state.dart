@@ -5,6 +5,7 @@ enum BuildStepKey {
   findingStreamFiles,
   extractingStream,
   convertingVagFiles,
+  enhancingAudio,
   convertingToMp3,
   creatingMpq,
   cleaningUp,

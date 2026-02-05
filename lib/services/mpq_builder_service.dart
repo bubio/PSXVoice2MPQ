@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
@@ -18,20 +19,32 @@ class MpqBuilderService {
   final DstreamExtractor _dstreamExtractor;
   final StormLibService _stormLibService;
 
+  Process? _audioSrProcess;
+  bool _cancelled = false;
+
   MpqBuilderService({
     required ProcessRunner processRunner,
     VagToWavConverter? vagToWavConverter,
     DstreamExtractor? dstreamExtractor,
     StormLibService? stormLibService,
-  })  : _processRunner = processRunner,
-        _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
-        _dstreamExtractor = dstreamExtractor ?? DstreamExtractor(),
-        _stormLibService = stormLibService ?? StormLibService();
+  }) : _processRunner = processRunner,
+       _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
+       _dstreamExtractor = dstreamExtractor ?? DstreamExtractor(),
+       _stormLibService = stormLibService ?? StormLibService();
+
+  void cancel() {
+    _cancelled = true;
+    _audioSrProcess?.kill();
+  }
 
   Stream<BuildProgress> build(
     String ps1AssetsPath,
-    String outputPath,
-  ) async* {
+    String outputPath, {
+    String? audioSrPath,
+  }) async* {
+    _cancelled = false;
+    _audioSrProcess = null;
+
     var progress = BuildProgress(
       currentStep: '',
       stepKey: BuildStepKey.initializing,
@@ -74,7 +87,9 @@ class MpqBuilderService {
 
       // Check for lame or ffmpeg (optional MP3 encoding)
       final lamePath = await _processRunner.findLame();
-      final ffmpegPath = lamePath == null ? await _processRunner.findFfmpeg() : null;
+      final ffmpegPath = lamePath == null
+          ? await _processRunner.findFfmpeg()
+          : null;
       final useMp3 = lamePath != null || ffmpegPath != null;
       final mp3EncoderPath = lamePath ?? ffmpegPath;
       final useFfmpeg = lamePath == null && ffmpegPath != null;
@@ -87,7 +102,16 @@ class MpqBuilderService {
           'ffmpeg found at: $ffmpegPath - MP3 encoding enabled (using ffmpeg)',
         );
       } else {
-        yield progress = progress.addLog('lame/ffmpeg not found - using WAV format');
+        yield progress = progress.addLog(
+          'lame/ffmpeg not found - using WAV format',
+        );
+      }
+
+      // Log AudioSR status
+      if (audioSrPath != null) {
+        yield progress = progress.addLog(
+          'audiosr found at: $audioSrPath - audio enhancement enabled',
+        );
       }
 
       // Step 2: Create temp directory
@@ -102,7 +126,9 @@ class MpqBuilderService {
       yield progress = progress.addLog('Work directory: ${workDir.path}');
 
       // Step 3: Find STREAM*.DIR files
-      yield progress = progress.copyWith(stepKey: BuildStepKey.findingStreamFiles);
+      yield progress = progress.copyWith(
+        stepKey: BuildStepKey.findingStreamFiles,
+      );
       final assetsDir = Directory(ps1AssetsPath);
       final streamDirs = await assetsDir
           .list()
@@ -123,10 +149,14 @@ class MpqBuilderService {
       );
 
       // Step 4: Process each STREAM*.DIR
-      int totalSteps = streamDirs.length * 3; // extract + vag conversion + mpq
+      // Steps: extract + vag conversion + [audiosr] + [mp3] + mpq
+      final stepsPerStream = 3 + (audioSrPath != null ? 1 : 0);
+      int totalSteps = streamDirs.length * stepsPerStream;
       int currentStepNum = 0;
 
       for (final streamDir in streamDirs) {
+        if (_cancelled) break;
+
         final streamName = p.basenameWithoutExtension(streamDir.path);
         final streamBin = streamDir.path.replaceAll('.DIR', '.BIN');
 
@@ -161,26 +191,59 @@ class MpqBuilderService {
           'Extracted ${dstreamResult.extractedFiles.length} files from $streamName.',
         );
         currentStepNum++;
+        if (_cancelled) break;
 
-        // Convert VAG to WAV (parallel processing)
+        // Load map file (needed to filter all processing steps)
+        final streamNum = streamName.replaceAll(RegExp(r'[^0-9]'), '');
+        final mapAssetPath = 'assets/maps/stream$streamNum.map';
+
+        List<StreamMapping> mappings;
+        try {
+          final mapData = await rootBundle.loadString(mapAssetPath);
+          mappings = _parseMappings(mapData);
+          yield progress = progress.addLog(
+            'Loaded ${mappings.length} mappings from stream$streamNum.map',
+          );
+        } catch (e) {
+          yield progress = progress.addLog(
+            'Warning: Could not load map file: $e',
+          );
+          mappings = [];
+        }
+
+        // Build set of map source files for filtering
+        final mapSourceFiles = mappings
+            .map((m) => m.sourceFile.toUpperCase())
+            .toSet();
+
+        // Convert VAG to WAV (parallel processing, filtered by map)
         yield progress = progress.copyWith(
           stepKey: BuildStepKey.convertingVagFiles,
           streamName: streamName,
           percentage: currentStepNum / totalSteps,
         );
 
+        // Only convert VAG files whose WAV counterpart is in the map
+        final mapVagFiles = mapSourceFiles
+            .where((f) => f.endsWith('.WAV'))
+            .map((f) => '${f.substring(0, f.length - 4)}.VAG')
+            .toSet();
+
         final vagFiles = await streamWorkDir
             .list()
-            .where((e) => e is File && e.path.toUpperCase().endsWith('.VAG'))
+            .where(
+              (e) =>
+                  e is File &&
+                  mapVagFiles.contains(p.basename(e.path).toUpperCase()),
+            )
             .cast<File>()
             .toList();
 
         yield progress = progress.addLog(
-          'Found ${vagFiles.length} VAG files to convert (parallel processing).',
+          'Found ${vagFiles.length} VAG files to convert (filtered by map).',
         );
 
         // Parallel VAG to WAV conversion
-        // Use half of CPU cores to maintain UI responsiveness and reduce battery usage
         final numWorkers = (Platform.numberOfProcessors ~/ 2).clamp(1, 8);
         final vagConversionErrors = <String>[];
 
@@ -189,11 +252,15 @@ class MpqBuilderService {
           processedFiles: 0,
         );
 
-        // Process in batches using Future.wait for parallelism
         final batchSize = numWorkers;
         int processedCount = 0;
 
-        for (int batchStart = 0; batchStart < vagFiles.length; batchStart += batchSize) {
+        for (
+          int batchStart = 0;
+          batchStart < vagFiles.length;
+          batchStart += batchSize
+        ) {
+          if (_cancelled) break;
           final batchEnd = (batchStart + batchSize).clamp(0, vagFiles.length);
           final batch = vagFiles.sublist(batchStart, batchEnd);
 
@@ -203,6 +270,7 @@ class MpqBuilderService {
             final result = await _vagToWavConverter.convert(
               vagFile.path,
               wavPath,
+              gain: audioSrPath != null ? 2.0 : 1.0,
             );
             return (vagFile.path, result);
           }).toList();
@@ -218,9 +286,7 @@ class MpqBuilderService {
             }
           }
 
-          yield progress = progress.copyWith(
-            processedFiles: processedCount,
-          );
+          yield progress = progress.copyWith(processedFiles: processedCount);
         }
 
         if (vagConversionErrors.isNotEmpty) {
@@ -233,6 +299,28 @@ class MpqBuilderService {
           'Converted ${vagFiles.length} VAG files to WAV.',
         );
         currentStepNum++;
+        if (_cancelled) break;
+
+        // AudioSR enhancement step (optional)
+        if (audioSrPath != null && mappings.isNotEmpty) {
+          yield progress = progress.copyWith(
+            stepKey: BuildStepKey.enhancingAudio,
+            streamName: streamName,
+            percentage: currentStepNum / totalSteps,
+          );
+
+          yield* _runAudioSr(
+            audioSrPath: audioSrPath,
+            streamName: streamName,
+            streamWorkDir: streamWorkDir,
+            mappings: mappings,
+            progress: progress,
+            onProgress: (p) => progress = p,
+          );
+
+          currentStepNum++;
+          if (_cancelled) break;
+        }
 
         // Convert WAV to MP3 if lame or ffmpeg is available (parallel processing)
         if (useMp3) {
@@ -244,7 +332,11 @@ class MpqBuilderService {
 
           final wavFiles = await streamWorkDir
               .list()
-              .where((e) => e is File && e.path.toUpperCase().endsWith('.WAV'))
+              .where(
+                (e) =>
+                    e is File &&
+                    mapSourceFiles.contains(p.basename(e.path).toUpperCase()),
+              )
               .cast<File>()
               .toList();
 
@@ -257,14 +349,23 @@ class MpqBuilderService {
             processedFiles: 0,
           );
 
-          // Parallel MP3 conversion using Future.wait
-          // Use half of CPU cores to maintain UI responsiveness and reduce battery usage
+          // MP3 quality: -V 4 for AudioSR-enhanced (48kHz), -V 7 for original (11kHz)
+          final mp3Quality = audioSrPath != null ? '4' : '7';
+
           final mp3BatchSize = (Platform.numberOfProcessors ~/ 2).clamp(1, 8);
           int mp3ProcessedCount = 0;
           final mp3Errors = <String>[];
 
-          for (int batchStart = 0; batchStart < wavFiles.length; batchStart += mp3BatchSize) {
-            final batchEnd = (batchStart + mp3BatchSize).clamp(0, wavFiles.length);
+          for (
+            int batchStart = 0;
+            batchStart < wavFiles.length;
+            batchStart += mp3BatchSize
+          ) {
+            if (_cancelled) break;
+            final batchEnd = (batchStart + mp3BatchSize).clamp(
+              0,
+              wavFiles.length,
+            );
             final batch = wavFiles.sublist(batchStart, batchEnd);
 
             final futures = batch.map((wavFile) async {
@@ -273,30 +374,27 @@ class MpqBuilderService {
 
               final ProcessResult result;
               if (useFfmpeg) {
-                // Use ffmpeg for MP3 conversion (VBR quality 7 for 11kHz mono source)
                 result = await _processRunner.run(mp3EncoderPath!, [
                   '-i',
                   wavFile.path,
                   '-codec:a',
                   'libmp3lame',
                   '-qscale:a',
-                  '7',
+                  mp3Quality,
                   '-y',
                   mp3Path,
                 ]);
               } else {
-                // Use lame for MP3 conversion (VBR quality 7 for 11kHz mono source)
                 result = await _processRunner.run(mp3EncoderPath!, [
                   '--quiet',
                   '-V',
-                  '7',
+                  mp3Quality,
                   wavFile.path,
                   mp3Path,
                 ]);
               }
 
               if (result.isSuccess) {
-                // Delete the WAV file after successful conversion
                 await wavFile.delete();
               }
               return (wavFile.path, result.isSuccess);
@@ -327,31 +425,15 @@ class MpqBuilderService {
           );
         }
 
-        // Load map file and organize files
+        if (_cancelled) break;
+
+        // Create mpq subdirectory and copy files according to mapping
         yield progress = progress.copyWith(
           stepKey: BuildStepKey.creatingMpq,
           streamName: streamName,
           percentage: currentStepNum / totalSteps,
         );
 
-        final streamNum = streamName.replaceAll(RegExp(r'[^0-9]'), '');
-        final mapAssetPath = 'assets/maps/stream$streamNum.map';
-
-        List<StreamMapping> mappings;
-        try {
-          final mapData = await rootBundle.loadString(mapAssetPath);
-          mappings = _parseMappings(mapData);
-          yield progress = progress.addLog(
-            'Loaded ${mappings.length} mappings from stream$streamNum.map',
-          );
-        } catch (e) {
-          yield progress = progress.addLog(
-            'Warning: Could not load map file: $e',
-          );
-          mappings = [];
-        }
-
-        // Create mpq subdirectory and copy files according to mapping
         final mpqDir = Directory(p.join(streamWorkDir.path, 'mpq'));
         await mpqDir.create(recursive: true);
 
@@ -424,7 +506,6 @@ class MpqBuilderService {
             yield progress = progress.addLog(
               'StormLib failed: ${stormResult.errorMessage}',
             );
-            // Fall back to smpq
             yield progress = progress.addLog('Falling back to smpq...');
           }
         }
@@ -436,7 +517,6 @@ class MpqBuilderService {
             await mpqFile.delete();
           }
 
-          // Create new MPQ using smpq
           var result = await _processRunner.run(smpqPath, [
             '-M',
             '1',
@@ -453,7 +533,6 @@ class MpqBuilderService {
             continue;
           }
 
-          // Add files to MPQ using smpq
           for (final file in filesToAdd) {
             final relativePath = p.relative(file.path, from: mpqDir.path);
             result = await _processRunner.run(smpqPath, [
@@ -482,19 +561,221 @@ class MpqBuilderService {
       yield progress = progress.copyWith(stepKey: BuildStepKey.cleaningUp);
       await workDir.delete(recursive: true);
 
-      yield progress
-          .copyWith(
-            stepKey: BuildStepKey.complete,
-            percentage: 1.0,
-            isComplete: true,
-          )
-          .addLog('Build complete!');
+      // Delete AudioSR cache after successful build
+      if (!_cancelled && audioSrPath != null) {
+        final audioCacheDir = Directory(
+          p.join(PathConstants.getCacheDir(), 'audiosr'),
+        );
+        if (await audioCacheDir.exists()) {
+          await audioCacheDir.delete(recursive: true);
+          yield progress = progress.addLog('AudioSR cache cleared.');
+        }
+      }
+
+      if (_cancelled) {
+        yield progress.copyWith(isComplete: true).addLog('Build cancelled.');
+      } else {
+        yield progress
+            .copyWith(
+              stepKey: BuildStepKey.complete,
+              percentage: 1.0,
+              isComplete: true,
+            )
+            .addLog('Build complete!');
+      }
     } catch (e, stackTrace) {
       yield progress.copyWith(
         error: 'Error: $e\n$stackTrace',
         isComplete: true,
       );
     }
+  }
+
+  /// Run AudioSR enhancement on map-filtered WAV files with persistent caching.
+  Stream<BuildProgress> _runAudioSr({
+    required String audioSrPath,
+    required String streamName,
+    required Directory streamWorkDir,
+    required List<StreamMapping> mappings,
+    required BuildProgress progress,
+    required void Function(BuildProgress) onProgress,
+  }) async* {
+    // Get the set of WAV source files referenced in the map
+    final mapWavFiles = mappings
+        .map((m) => m.sourceFile)
+        .where((f) => f.toUpperCase().endsWith('.WAV'))
+        .toSet();
+
+    if (mapWavFiles.isEmpty) {
+      yield progress = progress.addLog(
+        'No WAV files in map, skipping AudioSR.',
+      );
+      onProgress(progress);
+      return;
+    }
+
+    yield progress = progress.addLog(
+      'AudioSR: ${mapWavFiles.length} WAV files in map for $streamName',
+    );
+
+    // Set up cache directory
+    final cacheDir = Directory(PathConstants.getAudioSrCacheDir(streamName));
+    await cacheDir.create(recursive: true);
+
+    // Determine which files need processing (not yet cached)
+    final filesToProcess = <String>[];
+    final cachedFiles = <String>[];
+
+    for (final fileName in mapWavFiles) {
+      final cachedFile = File(p.join(cacheDir.path, fileName));
+      if (await cachedFile.exists()) {
+        cachedFiles.add(fileName);
+      } else {
+        filesToProcess.add(fileName);
+      }
+    }
+
+    if (cachedFiles.isNotEmpty) {
+      yield progress = progress.addLog(
+        'AudioSR: ${cachedFiles.length} files already cached, skipping.',
+      );
+    }
+
+    final totalFiles = mapWavFiles.length;
+    yield progress = progress.copyWith(
+      totalFiles: totalFiles,
+      processedFiles: cachedFiles.length,
+    );
+    onProgress(progress);
+
+    // Process uncached files with AudioSR (one file at a time)
+    if (filesToProcess.isNotEmpty && !_cancelled) {
+      yield progress = progress.addLog(
+        'AudioSR: Processing ${filesToProcess.length} files...',
+      );
+
+      // Create output directory for AudioSR
+      final audioSrOutDir = Directory(
+        p.join(streamWorkDir.path, 'audiosr_out'),
+      );
+      await audioSrOutDir.create(recursive: true);
+
+      try {
+        int processedCount = 0;
+        for (final fileName in filesToProcess) {
+          if (_cancelled) break;
+
+          yield progress = progress.addLog('AudioSR: Processing $fileName...');
+          onProgress(progress);
+
+          // Clean output directory before each file
+          if (await audioSrOutDir.exists()) {
+            await audioSrOutDir.delete(recursive: true);
+          }
+          await audioSrOutDir.create(recursive: true);
+
+          final inputFile = p.join(streamWorkDir.path, fileName);
+
+          _audioSrProcess = await _processRunner.startProcess(audioSrPath, [
+            '-i',
+            inputFile,
+            '-s',
+            audioSrOutDir.path,
+            '--model_name',
+            'speech',
+          ]);
+
+          // Collect stderr into a buffer
+          final stderrBuffer = StringBuffer();
+          _audioSrProcess!.stderr
+              .transform(utf8.decoder)
+              .listen((data) => stderrBuffer.write(data));
+
+          // Stream stdout lines to GUI log in real-time
+          await for (final line
+              in _audioSrProcess!.stdout
+                  .transform(utf8.decoder)
+                  .transform(const LineSplitter())) {
+            if (line.trim().isNotEmpty) {
+              yield progress = progress.addLog('AudioSR: $line');
+              onProgress(progress);
+            }
+          }
+
+          final exitCode = await _audioSrProcess!.exitCode;
+          _audioSrProcess = null;
+
+          if (_cancelled) break;
+
+          if (exitCode != 0) {
+            yield progress = progress.addLog(
+              'AudioSR: Process exited with code $exitCode',
+            );
+            final errMsg = stderrBuffer.toString().trim();
+            if (errMsg.isNotEmpty) {
+              yield progress = progress.addLog('AudioSR error: $errMsg');
+            }
+            onProgress(progress);
+          }
+
+          // Find the output WAV file (AudioSR may create subfolders or rename)
+          if (exitCode == 0) {
+            File? outputFile;
+            await for (final entity in audioSrOutDir.list(recursive: true)) {
+              if (entity is File &&
+                  entity.path.toUpperCase().endsWith('.WAV')) {
+                outputFile = entity;
+                break;
+              }
+            }
+            if (outputFile != null) {
+              await outputFile.copy(p.join(cacheDir.path, fileName));
+              yield progress = progress.addLog('AudioSR: Cached $fileName');
+            } else {
+              yield progress = progress.addLog(
+                'AudioSR: Warning - no output file found for $fileName',
+              );
+            }
+            onProgress(progress);
+          }
+
+          processedCount++;
+          yield progress = progress.copyWith(
+            processedFiles: cachedFiles.length + processedCount,
+          );
+          onProgress(progress);
+        }
+
+        if (_cancelled) {
+          _audioSrProcess?.kill();
+          yield progress = progress.addLog('AudioSR: Cancelled by user.');
+        }
+      } catch (e) {
+        _audioSrProcess = null;
+        yield progress = progress.addLog('AudioSR error: $e');
+      }
+    }
+
+    // Copy all cached files to workDir (overwrite 11kHz WAV with 48kHz WAV)
+    int copiedCount = 0;
+    if (await cacheDir.exists()) {
+      await for (final entity in cacheDir.list()) {
+        if (entity is File && entity.path.toUpperCase().endsWith('.WAV')) {
+          final fileName = p.basename(entity.path);
+          final destFile = File(p.join(streamWorkDir.path, fileName));
+          await entity.copy(destFile.path);
+          copiedCount++;
+        }
+      }
+    }
+
+    yield progress = progress.copyWith(processedFiles: totalFiles);
+    onProgress(progress);
+
+    yield progress = progress.addLog(
+      'AudioSR: Copied $copiedCount enhanced files to work directory.',
+    );
+    onProgress(progress);
   }
 
   bool _isStreamDir(String path) {

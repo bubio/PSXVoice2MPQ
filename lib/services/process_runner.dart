@@ -20,6 +20,7 @@ class ProcessRunner {
   String? _smpqPath;
   String? _lamePath;
   String? _ffmpegPath;
+  String? _audioSrPath;
 
   Future<ProcessResult> run(
     String executable,
@@ -118,5 +119,35 @@ class ProcessRunner {
     if (_ffmpegPath != null) return _ffmpegPath;
     _ffmpegPath = await _findExecutable('ffmpeg');
     return _ffmpegPath;
+  }
+
+  Future<String?> findAudioSr() async {
+    if (_audioSrPath != null) return _audioSrPath;
+    _audioSrPath = await _findExecutable('audiosr');
+    return _audioSrPath;
+  }
+
+  /// Check if a specific path is a valid audiosr executable
+  Future<bool> isValidAudioSr(String path) async {
+    try {
+      final file = File(path);
+      return await file.exists();
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Start a long-running process and return the Process object.
+  /// The caller is responsible for killing the process when done.
+  Future<Process> startProcess(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  }) async {
+    return Process.start(
+      executable,
+      arguments,
+      workingDirectory: workingDirectory,
+    );
   }
 }

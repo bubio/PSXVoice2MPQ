@@ -151,5 +151,75 @@
         "example": "STREAM1"
       }
     }
+  },
+  "enhancingAudio": "Enhancing audio with AudioSR from {streamName}...",
+  "@enhancingAudio": {
+    "description": "AudioSR enhancement step",
+    "placeholders": {
+      "streamName": {
+        "type": "String",
+        "example": "STREAM1"
+      }
+    }
+  },
+  "enableAudioSr": "Enhance audio quality (AudioSR)",
+  "@enableAudioSr": {
+    "description": "Checkbox label for enabling AudioSR"
+  },
+  "audioSrNotFound": "Please specify the audiosr executable.",
+  "@audioSrNotFound": {
+    "description": "Message when audiosr is not found"
+  },
+  "browseAudioSr": "Browse...",
+  "@browseAudioSr": {
+    "description": "Button to browse for audiosr executable"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings dialog title"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language section label in settings"
+  },
+  "clearCache": "Clear Cache",
+  "@clearCache": {
+    "description": "Button to clear intermediate/cache files"
+  },
+  "cacheCleared": "Cache cleared",
+  "@cacheCleared": {
+    "description": "Message shown after cache is cleared"
+  },
+  "audioSrNote": "Processing may take a very long time.",
+  "@audioSrNote": {
+    "description": "Note about AudioSR processing time"
+  },
+  "cacheFoundTitle": "Previous data found",
+  "@cacheFoundTitle": {
+    "description": "Title for cache found dialog"
+  },
+  "cacheFoundMessage": "Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?",
+  "@cacheFoundMessage": {
+    "description": "Message for cache found dialog"
+  },
+  "continueFromCache": "Continue",
+  "@continueFromCache": {
+    "description": "Button to continue from cached data"
+  },
+  "startFresh": "Start Fresh",
+  "@startFresh": {
+    "description": "Button to clear cache and start fresh"
+  },
+  "version": "Version",
+  "@version": {
+    "description": "Version label in settings"
+  },
+  "licenses": "Open Source Licenses",
+  "@licenses": {
+    "description": "Button to show open source licenses"
+  },
+  "licensesSection": "Licenses",
+  "@licensesSection": {
+    "description": "Section title for licenses in settings"
   }
 }

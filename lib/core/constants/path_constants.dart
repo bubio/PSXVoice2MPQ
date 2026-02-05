@@ -70,12 +70,21 @@ class PathConstants {
           r'C:\Program Files (x86)';
       final localAppData = Platform.environment['LOCALAPPDATA'] ?? '';
 
+      final userProfile = Platform.environment['USERPROFILE'] ?? '';
+
       paths.addAll([
         '$programFiles\\StormLib\\$execName',
         '$programFilesX86\\StormLib\\$execName',
         '$localAppData\\StormLib\\$execName',
         '$programFiles\\smpq\\$execName',
         '$programFilesX86\\smpq\\$execName',
+        // Python Scripts paths for pip-installed tools (e.g. audiosr)
+        '$localAppData\\Programs\\Python\\Python311\\Scripts\\$execName',
+        '$localAppData\\Programs\\Python\\Python312\\Scripts\\$execName',
+        '$localAppData\\Programs\\Python\\Python313\\Scripts\\$execName',
+        '$userProfile\\AppData\\Local\\Programs\\Python\\Python311\\Scripts\\$execName',
+        '$userProfile\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\$execName',
+        '$userProfile\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\$execName',
       ]);
     } else if (Platform.isMacOS) {
       paths.addAll([
@@ -96,5 +105,51 @@ class PathConstants {
     }
 
     return paths;
+  }
+
+  /// Get the AudioSR cache directory for a specific stream.
+  /// Cache persists across app restarts to allow resuming.
+  static String getAudioSrCacheDir(String streamName) {
+    if (Platform.isMacOS) {
+      final home = Platform.environment['HOME'] ?? '';
+      return p.join(home, 'Library', 'Caches', tempDirName, 'audiosr', streamName);
+    } else if (Platform.isWindows) {
+      final localAppData = Platform.environment['LOCALAPPDATA'] ?? '';
+      return p.join(localAppData, tempDirName, 'audiosr', streamName);
+    } else {
+      // Linux
+      final home = Platform.environment['HOME'] ?? '';
+      return p.join(home, '.cache', tempDirName, 'audiosr', streamName);
+    }
+  }
+
+  /// Get the app cache directory.
+  static String getCacheDir() {
+    if (Platform.isMacOS) {
+      final home = Platform.environment['HOME'] ?? '';
+      return p.join(home, 'Library', 'Caches', tempDirName);
+    } else if (Platform.isWindows) {
+      final localAppData = Platform.environment['LOCALAPPDATA'] ?? '';
+      return p.join(localAppData, tempDirName);
+    } else {
+      // Linux
+      final home = Platform.environment['HOME'] ?? '';
+      return p.join(home, '.cache', tempDirName);
+    }
+  }
+
+  /// Get the app data directory for persistent settings.
+  static String getAppDataDir() {
+    if (Platform.isMacOS) {
+      final home = Platform.environment['HOME'] ?? '';
+      return p.join(home, 'Library', 'Application Support', tempDirName);
+    } else if (Platform.isWindows) {
+      final appData = Platform.environment['APPDATA'] ?? '';
+      return p.join(appData, tempDirName);
+    } else {
+      // Linux
+      final home = Platform.environment['HOME'] ?? '';
+      return p.join(home, '.config', tempDirName);
+    }
   }
 }

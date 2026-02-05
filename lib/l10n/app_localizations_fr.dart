@@ -108,4 +108,55 @@ class AppLocalizationsFr extends AppLocalizations {
   String convertingToMp3(String streamName) {
     return 'Conversion WAV en MP3 de $streamName...';
   }
+
+  @override
+  String enhancingAudio(String streamName) {
+    return 'Amélioration audio avec AudioSR de $streamName...';
+  }
+
+  @override
+  String get enableAudioSr => 'Améliorer la qualité audio (AudioSR)';
+
+  @override
+  String get audioSrNotFound => 'Veuillez spécifier l\'exécutable audiosr.';
+
+  @override
+  String get browseAudioSr => 'Parcourir...';
+
+  @override
+  String get settings => 'Paramètres';
+
+  @override
+  String get language => 'Langue';
+
+  @override
+  String get clearCache => 'Vider le cache';
+
+  @override
+  String get cacheCleared => 'Cache vidé';
+
+  @override
+  String get audioSrNote => 'Le traitement peut prendre très longtemps.';
+
+  @override
+  String get cacheFoundTitle => 'Données précédentes trouvées';
+
+  @override
+  String get cacheFoundMessage =>
+      'Des données d\'une construction précédemment interrompue ont été trouvées. Voulez-vous reprendre ou recommencer ?';
+
+  @override
+  String get continueFromCache => 'Reprendre';
+
+  @override
+  String get startFresh => 'Recommencer';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get licenses => 'Licences open source';
+
+  @override
+  String get licensesSection => 'Licences';
 }

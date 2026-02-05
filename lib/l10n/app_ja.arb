@@ -27,5 +27,21 @@
   "errorSmpqNotFound": "smpqコマンドが見つかりません。",
   "errorNoStreamFiles": "選択したフォルダにSTREAM*.DIRファイルが見つかりません。",
   "errorOutputDirectoryNotFound": "出力フォルダが存在しません。",
-  "convertingToMp3": "{streamName} の WAV を MP3 に変換中..."
+  "convertingToMp3": "{streamName} の WAV を MP3 に変換中...",
+  "enhancingAudio": "{streamName} のオーディオをAudioSRで高音質化中...",
+  "enableAudioSr": "オーディオ品質を向上 (AudioSR)",
+  "audioSrNotFound": "audiosrの実行ファイルを指定してください。",
+  "browseAudioSr": "参照...",
+  "settings": "設定",
+  "language": "言語",
+  "clearCache": "キャッシュを削除",
+  "cacheCleared": "キャッシュを削除しました",
+  "audioSrNote": "処理に非常に時間がかかる場合があります。",
+  "cacheFoundTitle": "中断データが見つかりました",
+  "cacheFoundMessage": "前回中断したビルドのデータが見つかりました。続きから再開しますか、それとも最初からやり直しますか？",
+  "continueFromCache": "続きから再開",
+  "startFresh": "最初からやり直す",
+  "version": "バージョン",
+  "licenses": "オープンソースライセンス",
+  "licensesSection": "ライセンス"
 }

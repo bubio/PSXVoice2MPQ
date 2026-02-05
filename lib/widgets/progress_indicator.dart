@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/build_progress.dart';
 import 'diablo_progress_bar.dart';
 
-class BuildProgressIndicator extends StatelessWidget {
+class BuildProgressIndicator extends StatefulWidget {
   final BuildProgress progress;
 
   const BuildProgressIndicator({
@@ -12,10 +14,47 @@ class BuildProgressIndicator extends StatelessWidget {
     required this.progress,
   });
 
-  String _getLocalizedStep(AppLocalizations l10n) {
-    final streamName = progress.streamName ?? '';
+  @override
+  State<BuildProgressIndicator> createState() =>
+      _BuildProgressIndicatorState();
+}
 
-    switch (progress.stepKey) {
+class _BuildProgressIndicatorState extends State<BuildProgressIndicator> {
+  late final DateTime _buildStartTime;
+  Timer? _timer;
+  Duration _elapsed = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _buildStartTime = DateTime.now();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _elapsed = DateTime.now().difference(_buildStartTime);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _formatDuration(Duration d) {
+    final h = d.inHours;
+    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    if (h > 0) {
+      return '$h:$m:$s';
+    }
+    return '$m:$s';
+  }
+
+  String _getLocalizedStep(AppLocalizations l10n) {
+    final streamName = widget.progress.streamName ?? '';
+
+    switch (widget.progress.stepKey) {
       case BuildStepKey.initializing:
         return l10n.initializing;
       case BuildStepKey.extractingBinaries:
@@ -26,6 +65,8 @@ class BuildProgressIndicator extends StatelessWidget {
         return l10n.extractingStream(streamName);
       case BuildStepKey.convertingVagFiles:
         return l10n.convertingVagFiles(streamName);
+      case BuildStepKey.enhancingAudio:
+        return l10n.enhancingAudio(streamName);
       case BuildStepKey.convertingToMp3:
         return l10n.convertingToMp3(streamName);
       case BuildStepKey.creatingMpq:
@@ -35,7 +76,7 @@ class BuildProgressIndicator extends StatelessWidget {
       case BuildStepKey.complete:
         return l10n.complete;
       case null:
-        return progress.currentStep;
+        return widget.progress.currentStep;
     }
   }
 
@@ -43,7 +84,16 @@ class BuildProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final progress = widget.progress;
     final hasError = progress.error != null || progress.errorKey != null;
+    final isComplete = progress.isComplete;
+
+    // Stop timer when build is done
+    if ((isComplete || hasError) && _timer != null) {
+      _timer?.cancel();
+      _timer = null;
+      _elapsed = DateTime.now().difference(_buildStartTime);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,7 +119,13 @@ class BuildProgressIndicator extends StatelessWidget {
           ),
         if (!hasError && progress.totalFiles > 0)
           Text(
-            l10n.filesProgress(progress.processedFiles, progress.totalFiles),
+            '${l10n.filesProgress(progress.processedFiles, progress.totalFiles)}'
+            '  ${_formatDuration(_elapsed)}',
+            style: theme.textTheme.bodySmall,
+          ),
+        if (!hasError && progress.totalFiles == 0)
+          Text(
+            _formatDuration(_elapsed),
             style: theme.textTheme.bodySmall,
           ),
       ],

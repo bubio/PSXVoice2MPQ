@@ -27,5 +27,21 @@
   "errorSmpqNotFound": "Commande smpq introuvable.",
   "errorNoStreamFiles": "Aucun fichier STREAM*.DIR trouvé dans le dossier sélectionné.",
   "errorOutputDirectoryNotFound": "Le dossier de sortie n'existe pas.",
-  "convertingToMp3": "Conversion WAV en MP3 de {streamName}..."
+  "convertingToMp3": "Conversion WAV en MP3 de {streamName}...",
+  "enhancingAudio": "Amélioration audio avec AudioSR de {streamName}...",
+  "enableAudioSr": "Améliorer la qualité audio (AudioSR)",
+  "audioSrNotFound": "Veuillez spécifier l'exécutable audiosr.",
+  "browseAudioSr": "Parcourir...",
+  "settings": "Paramètres",
+  "language": "Langue",
+  "clearCache": "Vider le cache",
+  "cacheCleared": "Cache vidé",
+  "audioSrNote": "Le traitement peut prendre très longtemps.",
+  "cacheFoundTitle": "Données précédentes trouvées",
+  "cacheFoundMessage": "Des données d'une construction précédemment interrompue ont été trouvées. Voulez-vous reprendre ou recommencer ?",
+  "continueFromCache": "Reprendre",
+  "startFresh": "Recommencer",
+  "version": "Version",
+  "licenses": "Licences open source",
+  "licensesSection": "Licences"
 }

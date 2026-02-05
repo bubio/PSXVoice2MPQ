@@ -104,4 +104,55 @@ class AppLocalizationsSv extends AppLocalizations {
   String convertingToMp3(String streamName) {
     return 'Konverterar WAV till MP3 från $streamName...';
   }
+
+  @override
+  String enhancingAudio(String streamName) {
+    return 'Förbättrar ljud med AudioSR från $streamName...';
+  }
+
+  @override
+  String get enableAudioSr => 'Förbättra ljudkvalitet (AudioSR)';
+
+  @override
+  String get audioSrNotFound => 'Ange sökvägen till audiosr.';
+
+  @override
+  String get browseAudioSr => 'Bläddra...';
+
+  @override
+  String get settings => 'Inställningar';
+
+  @override
+  String get language => 'Språk';
+
+  @override
+  String get clearCache => 'Rensa cache';
+
+  @override
+  String get cacheCleared => 'Cache rensad';
+
+  @override
+  String get audioSrNote => 'Bearbetningen kan ta mycket lång tid.';
+
+  @override
+  String get cacheFoundTitle => 'Tidigare data hittad';
+
+  @override
+  String get cacheFoundMessage =>
+      'Data från en tidigare avbruten byggnation hittades. Vill du fortsätta där det slutade eller börja om?';
+
+  @override
+  String get continueFromCache => 'Fortsätt';
+
+  @override
+  String get startFresh => 'Börja om';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get licenses => 'Öppen källkodslicenser';
+
+  @override
+  String get licensesSection => 'Licenser';
 }

@@ -15,8 +15,13 @@ class VagToWavConverter {
 
   /// Converts a VAG file to WAV format.
   ///
+  /// [gain] multiplies PCM sample amplitude (e.g. 2.0 = +6 dB).
   /// Returns a [VagConversionResult] indicating success or failure.
-  Future<VagConversionResult> convert(String vagPath, String wavPath) async {
+  Future<VagConversionResult> convert(
+    String vagPath,
+    String wavPath, {
+    double gain = 1.0,
+  }) async {
     final vagFile = File(vagPath);
 
     if (!await vagFile.exists()) {
@@ -25,7 +30,7 @@ class VagToWavConverter {
 
     try {
       final vagData = await vagFile.readAsBytes();
-      final wavData = _convertVagToWav(vagData);
+      final wavData = _convertVagToWav(vagData, gain: gain);
 
       if (wavData == null) {
         return VagConversionResult.failure('Invalid VAG file format');
@@ -42,12 +47,13 @@ class VagToWavConverter {
 
   /// Converts VAG data to WAV data in memory.
   ///
+  /// [gain] multiplies PCM sample amplitude (e.g. 2.0 = +6 dB).
   /// Returns the WAV data as Uint8List, or null if the VAG data is invalid.
-  Uint8List? convertBytes(Uint8List vagData) {
-    return _convertVagToWav(vagData);
+  Uint8List? convertBytes(Uint8List vagData, {double gain = 1.0}) {
+    return _convertVagToWav(vagData, gain: gain);
   }
 
-  Uint8List? _convertVagToWav(Uint8List vagData) {
+  Uint8List? _convertVagToWav(Uint8List vagData, {double gain = 1.0}) {
     // Verify VAG header magic
     if (vagData.length < 64) {
       return null;
@@ -66,14 +72,14 @@ class VagToWavConverter {
     final pcmSamples = _decodeAdpcm(vagData, 64, dataSize);
 
     // Build WAV file
-    return _buildWav(pcmSamples, sampleRate);
+    return _buildWav(pcmSamples, sampleRate, gain: gain);
   }
 
   int _readBigEndian32(Uint8List data, int offset) {
     return (data[offset] << 24) |
-           (data[offset + 1] << 16) |
-           (data[offset + 2] << 8) |
-           data[offset + 3];
+        (data[offset + 1] << 16) |
+        (data[offset + 2] << 8) |
+        data[offset + 3];
   }
 
   List<int> _decodeAdpcm(Uint8List vagData, int startOffset, int dataSize) {
@@ -115,9 +121,10 @@ class VagToWavConverter {
 
       // Apply filter and output samples
       for (int i = 0; i < 28; i++) {
-        decodedSamples[i] = decodedSamples[i] +
-                           s1 * _filterCoeffs[filterIndex][0] +
-                           s2 * _filterCoeffs[filterIndex][1];
+        decodedSamples[i] =
+            decodedSamples[i] +
+            s1 * _filterCoeffs[filterIndex][0] +
+            s2 * _filterCoeffs[filterIndex][1];
         s2 = s1;
         s1 = decodedSamples[i];
 
@@ -139,7 +146,7 @@ class VagToWavConverter {
     return value;
   }
 
-  Uint8List _buildWav(List<int> samples, int sampleRate) {
+  Uint8List _buildWav(List<int> samples, int sampleRate, {double gain = 1.0}) {
     final numSamples = samples.length;
     final dataSize = numSamples * 2; // 16-bit samples
     final fileSize = 44 + dataSize;
@@ -209,7 +216,11 @@ class VagToWavConverter {
 
     // Write PCM samples
     for (final sample in samples) {
-      buffer.setInt16(offset, sample, Endian.little);
+      int s = sample;
+      if (gain != 1.0) {
+        s = _clipInt16((sample * gain).round());
+      }
+      buffer.setInt16(offset, s, Endian.little);
       offset += 2;
     }
 
