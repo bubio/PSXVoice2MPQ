@@ -151,7 +151,7 @@ flutter build linux --release  # Linux
 
 ## 謝辞
 
-- [DevilutionX](https://github.com/diasurgical/devilutionX) - Diabloソースポート
+- [DevilutionX](https://github.com/diasurgical/devilutionX) - DevilutionXは『ディアブロ』と『ヘルファイア』を多様なプラットフォームで動作
 - [psx-tools](https://github.com/diasurgical/psx-tools) - PS版Diabloデータ変換ツール
 - [StormLib](https://github.com/ladislav-zezula/StormLib) - MPQアーカイブライブラリ
 - [AudioSR](https://github.com/haoheliu/versatile_audio_super_resolution) - AI音声超解像
