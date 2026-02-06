@@ -204,6 +204,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
   @override
   void dispose() {
     _buildSubscription?.cancel();
+    _builderService.cancel();
     super.dispose();
   }
 }

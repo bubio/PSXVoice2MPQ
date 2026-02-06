@@ -588,6 +588,9 @@ class MpqBuilderService {
         error: 'Error: $e\n$stackTrace',
         isComplete: true,
       );
+    } finally {
+      _audioSrProcess?.kill();
+      _audioSrProcess = null;
     }
   }
 
@@ -707,7 +710,20 @@ class MpqBuilderService {
 
           if (_cancelled) break;
 
-          if (exitCode != 0) {
+          // Find the output WAV file (AudioSR may create subfolders or rename)
+          File? outputFile;
+          await for (final entity in audioSrOutDir.list(recursive: true)) {
+            if (entity is File &&
+                entity.path.toUpperCase().endsWith('.WAV')) {
+              outputFile = entity;
+              break;
+            }
+          }
+
+          if (outputFile != null) {
+            await outputFile.copy(p.join(cacheDir.path, fileName));
+            yield progress = progress.addLog('AudioSR: Cached $fileName');
+          } else if (exitCode != 0) {
             yield progress = progress.addLog(
               'AudioSR: Process exited with code $exitCode',
             );
@@ -715,29 +731,12 @@ class MpqBuilderService {
             if (errMsg.isNotEmpty) {
               yield progress = progress.addLog('AudioSR error: $errMsg');
             }
-            onProgress(progress);
+          } else {
+            yield progress = progress.addLog(
+              'AudioSR: Warning - no output file found for $fileName',
+            );
           }
-
-          // Find the output WAV file (AudioSR may create subfolders or rename)
-          if (exitCode == 0) {
-            File? outputFile;
-            await for (final entity in audioSrOutDir.list(recursive: true)) {
-              if (entity is File &&
-                  entity.path.toUpperCase().endsWith('.WAV')) {
-                outputFile = entity;
-                break;
-              }
-            }
-            if (outputFile != null) {
-              await outputFile.copy(p.join(cacheDir.path, fileName));
-              yield progress = progress.addLog('AudioSR: Cached $fileName');
-            } else {
-              yield progress = progress.addLog(
-                'AudioSR: Warning - no output file found for $fileName',
-              );
-            }
-            onProgress(progress);
-          }
+          onProgress(progress);
 
           processedCount++;
           yield progress = progress.copyWith(
