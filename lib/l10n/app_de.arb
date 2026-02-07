@@ -43,5 +43,7 @@
   "startFresh": "Neu beginnen",
   "version": "Version",
   "licenses": "Open-Source-Lizenzen",
-  "licensesSection": "Lizenzen"
+  "licensesSection": "Lizenzen",
+  "audioSrUseCpu": "Auf CPU verarbeiten",
+  "audioSrChunkSeconds": "Chunk-Dauer (Sekunden)"
 }

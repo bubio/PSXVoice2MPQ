@@ -159,4 +159,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get licensesSection => 'Licences';
+
+  @override
+  String get audioSrUseCpu => 'Traitement sur CPU';
+
+  @override
+  String get audioSrChunkSeconds => 'Durée des segments (secondes)';
 }

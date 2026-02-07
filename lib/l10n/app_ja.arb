@@ -43,5 +43,7 @@
   "startFresh": "最初からやり直す",
   "version": "バージョン",
   "licenses": "オープンソースライセンス",
-  "licensesSection": "ライセンス"
+  "licensesSection": "ライセンス",
+  "audioSrUseCpu": "CPUで処理",
+  "audioSrChunkSeconds": "チャンク分割秒数"
 }

@@ -367,6 +367,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Licenses'**
   String get licensesSection;
+
+  /// Checkbox label for running AudioSR on CPU
+  ///
+  /// In en, this message translates to:
+  /// **'Process on CPU'**
+  String get audioSrUseCpu;
+
+  /// Dropdown label for AudioSR chunk duration in seconds
+  ///
+  /// In en, this message translates to:
+  /// **'Chunk duration (seconds)'**
+  String get audioSrChunkSeconds;
 }
 
 class _AppLocalizationsDelegate

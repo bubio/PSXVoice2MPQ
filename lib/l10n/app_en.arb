@@ -221,5 +221,13 @@
   "licensesSection": "Licenses",
   "@licensesSection": {
     "description": "Section title for licenses in settings"
+  },
+  "audioSrUseCpu": "Process on CPU",
+  "@audioSrUseCpu": {
+    "description": "Checkbox label for running AudioSR on CPU"
+  },
+  "audioSrChunkSeconds": "Chunk duration (seconds)",
+  "@audioSrChunkSeconds": {
+    "description": "Dropdown label for AudioSR chunk duration in seconds"
   }
 }

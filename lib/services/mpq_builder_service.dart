@@ -12,6 +12,7 @@ import 'dstream_extractor.dart';
 import 'process_runner.dart';
 import 'stormlib_service.dart';
 import 'vag_to_wav_converter.dart';
+import 'wav_utils.dart' as wav_utils;
 
 class MpqBuilderService {
   final ProcessRunner _processRunner;
@@ -41,6 +42,8 @@ class MpqBuilderService {
     String ps1AssetsPath,
     String outputPath, {
     String? audioSrPath,
+    bool audioSrUseCpu = false,
+    int audioSrChunkSeconds = 5,
   }) async* {
     _cancelled = false;
     _audioSrProcess = null;
@@ -316,6 +319,8 @@ class MpqBuilderService {
             mappings: mappings,
             progress: progress,
             onProgress: (p) => progress = p,
+            useCpu: audioSrUseCpu,
+            chunkSeconds: audioSrChunkSeconds,
           );
 
           currentStepNum++;
@@ -602,6 +607,8 @@ class MpqBuilderService {
     required List<StreamMapping> mappings,
     required BuildProgress progress,
     required void Function(BuildProgress) onProgress,
+    required bool useCpu,
+    required int chunkSeconds,
   }) async* {
     // Get the set of WAV source files referenced in the map
     final mapWavFiles = mappings
@@ -671,71 +678,144 @@ class MpqBuilderService {
           yield progress = progress.addLog('AudioSR: Processing $fileName...');
           onProgress(progress);
 
-          // Clean output directory before each file
-          if (await audioSrOutDir.exists()) {
-            await audioSrOutDir.delete(recursive: true);
-          }
-          await audioSrOutDir.create(recursive: true);
-
           final inputFile = p.join(streamWorkDir.path, fileName);
 
-          _audioSrProcess = await _processRunner.startProcess(audioSrPath, [
-            '-i',
-            inputFile,
-            '-s',
-            audioSrOutDir.path,
-            '--model_name',
-            'speech',
-          ]);
-
-          // Collect stderr into a buffer
-          final stderrBuffer = StringBuffer();
-          _audioSrProcess!.stderr
-              .transform(utf8.decoder)
-              .listen((data) => stderrBuffer.write(data));
-
-          // Stream stdout lines to GUI log in real-time
-          await for (final line
-              in _audioSrProcess!.stdout
-                  .transform(utf8.decoder)
-                  .transform(const LineSplitter())) {
-            if (line.trim().isNotEmpty) {
-              yield progress = progress.addLog('AudioSR: $line');
-              onProgress(progress);
-            }
+          // Split input WAV into 5-second chunks
+          final splitDir = Directory(
+            p.join(streamWorkDir.path, 'audiosr_split'),
+          );
+          if (await splitDir.exists()) {
+            await splitDir.delete(recursive: true);
           }
+          await splitDir.create(recursive: true);
 
-          final exitCode = await _audioSrProcess!.exitCode;
-          _audioSrProcess = null;
+          const overlapSeconds = 0.1;
+          final chunks = await wav_utils.splitWav(
+            inputFile,
+            splitDir.path,
+            chunkSeconds,
+            overlapSeconds: overlapSeconds,
+          );
+          yield progress = progress.addLog(
+            'AudioSR: Split $fileName into ${chunks.length} chunk(s)',
+          );
+          onProgress(progress);
 
-          if (_cancelled) break;
+          // Process each chunk with AudioSR
+          final outputChunks = <String>[];
+          bool chunkFailed = false;
 
-          // Find the output WAV file (AudioSR may create subfolders or rename)
-          File? outputFile;
-          await for (final entity in audioSrOutDir.list(recursive: true)) {
-            if (entity is File &&
-                entity.path.toUpperCase().endsWith('.WAV')) {
-              outputFile = entity;
+          for (int i = 0; i < chunks.length; i++) {
+            if (_cancelled) break;
+
+            yield progress = progress.addLog(
+              'AudioSR: Processing chunk ${i + 1}/${chunks.length} of $fileName...',
+            );
+            onProgress(progress);
+
+            // Clean output directory before each chunk
+            if (await audioSrOutDir.exists()) {
+              await audioSrOutDir.delete(recursive: true);
+            }
+            await audioSrOutDir.create(recursive: true);
+
+            // Pre-resample chunk to 48kHz to avoid AudioSR internal
+            // resampling issues (tensor dimension mismatch)
+            final resampledPath = p.join(splitDir.path, 'chunk_resampled.WAV');
+            await wav_utils.resampleWav(chunks[i], resampledPath, 48000);
+
+            final audioSrArgs = [
+              '-i',
+              resampledPath,
+              '-s',
+              audioSrOutDir.path,
+              '--model_name',
+              'speech',
+              if (useCpu) ...['-d', 'cpu'],
+            ];
+            _audioSrProcess = await _processRunner.startProcess(
+              audioSrPath,
+              audioSrArgs,
+            );
+
+            // Collect stderr into a buffer
+            final stderrBuffer = StringBuffer();
+            _audioSrProcess!.stderr
+                .transform(utf8.decoder)
+                .listen((data) => stderrBuffer.write(data));
+
+            // Stream stdout lines to GUI log in real-time
+            await for (final line
+                in _audioSrProcess!.stdout
+                    .transform(utf8.decoder)
+                    .transform(const LineSplitter())) {
+              if (line.trim().isNotEmpty) {
+                yield progress = progress.addLog('AudioSR: $line');
+                onProgress(progress);
+              }
+            }
+
+            final exitCode = await _audioSrProcess!.exitCode;
+            _audioSrProcess = null;
+
+            if (_cancelled) break;
+
+            // Find the output WAV file
+            File? outputFile;
+            await for (final entity in audioSrOutDir.list(recursive: true)) {
+              if (entity is File &&
+                  entity.path.toUpperCase().endsWith('.WAV')) {
+                outputFile = entity;
+                break;
+              }
+            }
+
+            if (outputFile != null) {
+              // Copy output to splitDir so it survives audioSrOutDir cleanup
+              final savedPath = p.join(
+                splitDir.path,
+                'out_${i.toString().padLeft(3, '0')}.WAV',
+              );
+              await outputFile.copy(savedPath);
+              outputChunks.add(savedPath);
+            } else {
+              chunkFailed = true;
+              if (exitCode != 0) {
+                yield progress = progress.addLog(
+                  'AudioSR: Chunk ${i + 1} failed with code $exitCode',
+                );
+                final errMsg = stderrBuffer.toString().trim();
+                if (errMsg.isNotEmpty) {
+                  yield progress = progress.addLog('AudioSR error: $errMsg');
+                }
+              } else {
+                yield progress = progress.addLog(
+                  'AudioSR: Warning - no output for chunk ${i + 1} of $fileName',
+                );
+              }
               break;
             }
           }
 
-          if (outputFile != null) {
-            await outputFile.copy(p.join(cacheDir.path, fileName));
-            yield progress = progress.addLog('AudioSR: Cached $fileName');
-          } else if (exitCode != 0) {
-            yield progress = progress.addLog(
-              'AudioSR: Process exited with code $exitCode',
+          // Concatenate output chunks and cache
+          if (!_cancelled && !chunkFailed && outputChunks.isNotEmpty) {
+            final cachedPath = p.join(cacheDir.path, fileName);
+            final crossfadeFrames = (overlapSeconds * 48000).round();
+            await wav_utils.concatenateWavCrossfade(
+              outputChunks,
+              cachedPath,
+              crossfadeFrames,
             );
-            final errMsg = stderrBuffer.toString().trim();
-            if (errMsg.isNotEmpty) {
-              yield progress = progress.addLog('AudioSR error: $errMsg');
-            }
-          } else {
             yield progress = progress.addLog(
-              'AudioSR: Warning - no output file found for $fileName',
+              'AudioSR: Concatenated ${outputChunks.length} chunk(s) with crossfade and cached $fileName',
             );
           }
+
+          // Clean up split directory
+          if (await splitDir.exists()) {
+            await splitDir.delete(recursive: true);
+          }
+
           onProgress(progress);
 
           processedCount++;

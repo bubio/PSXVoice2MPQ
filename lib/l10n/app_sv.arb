@@ -43,5 +43,7 @@
   "startFresh": "Börja om",
   "version": "Version",
   "licenses": "Öppen källkodslicenser",
-  "licensesSection": "Licenser"
+  "licensesSection": "Licenser",
+  "audioSrUseCpu": "Bearbeta på CPU",
+  "audioSrChunkSeconds": "Segmentlängd (sekunder)"
 }

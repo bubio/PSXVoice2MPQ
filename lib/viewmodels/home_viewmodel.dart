@@ -22,6 +22,8 @@ class HomeState {
   final bool useAudioSr;
   final bool audioSrAvailable;
   final String? audioSrPath;
+  final bool audioSrUseCpu;
+  final int audioSrChunkSeconds;
 
   const HomeState({
     required this.assetsPath,
@@ -32,6 +34,8 @@ class HomeState {
     this.useAudioSr = false,
     this.audioSrAvailable = false,
     this.audioSrPath,
+    this.audioSrUseCpu = false,
+    this.audioSrChunkSeconds = 5,
   });
 
   factory HomeState.initial() {
@@ -58,6 +62,8 @@ class HomeState {
     bool? useAudioSr,
     bool? audioSrAvailable,
     String? audioSrPath,
+    bool? audioSrUseCpu,
+    int? audioSrChunkSeconds,
     bool clearProgress = false,
     bool clearAudioSrPath = false,
   }) {
@@ -70,6 +76,8 @@ class HomeState {
       useAudioSr: useAudioSr ?? this.useAudioSr,
       audioSrAvailable: audioSrAvailable ?? this.audioSrAvailable,
       audioSrPath: clearAudioSrPath ? null : (audioSrPath ?? this.audioSrPath),
+      audioSrUseCpu: audioSrUseCpu ?? this.audioSrUseCpu,
+      audioSrChunkSeconds: audioSrChunkSeconds ?? this.audioSrChunkSeconds,
     );
   }
 }
@@ -90,6 +98,14 @@ class HomeViewModel extends StateNotifier<HomeState> {
   }
 
   Future<void> _initAudioSr() async {
+    // Load AudioSR CPU and chunk settings
+    final useCpu = await _settingsService.getAudioSrUseCpu();
+    final chunkSeconds = await _settingsService.getAudioSrChunkSeconds();
+    state = state.copyWith(
+      audioSrUseCpu: useCpu,
+      audioSrChunkSeconds: chunkSeconds,
+    );
+
     // Load saved path from settings
     final savedPath = await _settingsService.getAudioSrPath();
     if (savedPath != null && await _processRunner.isValidAudioSr(savedPath)) {
@@ -125,6 +141,16 @@ class HomeViewModel extends StateNotifier<HomeState> {
   void setUseAudioSr(bool value) {
     if (!state.audioSrAvailable) return;
     state = state.copyWith(useAudioSr: value);
+  }
+
+  Future<void> setAudioSrUseCpu(bool value) async {
+    state = state.copyWith(audioSrUseCpu: value);
+    await _settingsService.setAudioSrUseCpu(value);
+  }
+
+  Future<void> setAudioSrChunkSeconds(int value) async {
+    state = state.copyWith(audioSrChunkSeconds: value);
+    await _settingsService.setAudioSrChunkSeconds(value);
   }
 
   Future<void> setAudioSrPath(String? path) async {
@@ -169,7 +195,13 @@ class HomeViewModel extends StateNotifier<HomeState> {
 
     _buildSubscription?.cancel();
     _buildSubscription = _builderService
-        .build(state.assetsPath, state.outputPath, audioSrPath: audioSrPath)
+        .build(
+          state.assetsPath,
+          state.outputPath,
+          audioSrPath: audioSrPath,
+          audioSrUseCpu: state.audioSrUseCpu,
+          audioSrChunkSeconds: state.audioSrChunkSeconds,
+        )
         .listen(
           (progress) {
             state = state.copyWith(progress: progress);

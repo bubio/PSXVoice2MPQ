@@ -46,6 +46,32 @@ class SettingsService {
     await _writeSettings(settings);
   }
 
+  /// Get the audioSrUseCpu setting (default: false).
+  Future<bool> getAudioSrUseCpu() async {
+    final settings = await _readSettings();
+    return settings['audioSrUseCpu'] as bool? ?? false;
+  }
+
+  /// Save the audioSrUseCpu setting.
+  Future<void> setAudioSrUseCpu(bool value) async {
+    final settings = await _readSettings();
+    settings['audioSrUseCpu'] = value;
+    await _writeSettings(settings);
+  }
+
+  /// Get the audioSrChunkSeconds setting (default: 5).
+  Future<int> getAudioSrChunkSeconds() async {
+    final settings = await _readSettings();
+    return settings['audioSrChunkSeconds'] as int? ?? 5;
+  }
+
+  /// Save the audioSrChunkSeconds setting.
+  Future<void> setAudioSrChunkSeconds(int value) async {
+    final settings = await _readSettings();
+    settings['audioSrChunkSeconds'] = value;
+    await _writeSettings(settings);
+  }
+
   /// Get the saved locale key (e.g. 'ja', 'system'), or null if not set.
   Future<String?> getLocale() async {
     final settings = await _readSettings();

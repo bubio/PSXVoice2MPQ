@@ -43,5 +43,7 @@
   "startFresh": "Recommencer",
   "version": "Version",
   "licenses": "Licences open source",
-  "licensesSection": "Licences"
+  "licensesSection": "Licences",
+  "audioSrUseCpu": "Traitement sur CPU",
+  "audioSrChunkSeconds": "Durée des segments (secondes)"
 }
