@@ -60,11 +60,12 @@ class _DiabloButtonState extends State<DiabloButton> {
               child: Padding(
                 padding: widget.padding,
                 child: DefaultTextStyle(
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    shadows: [
+                    fontFamilyFallback: Theme.of(context).textTheme.bodyMedium?.fontFamilyFallback,
+                    shadows: const [
                       Shadow(
                         color: Colors.black54,
                         offset: Offset(1, 1),
