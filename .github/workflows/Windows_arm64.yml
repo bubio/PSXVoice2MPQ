@@ -1,0 +1,66 @@
+name: Windows arm64
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: '3.38.7'
+
+jobs:
+  build:
+    runs-on: windows-11-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        run: |
+          git clone https://github.com/flutter/flutter.git -b ${{ env.FLUTTER_VERSION }} --depth 1 C:\flutter
+          echo "C:\flutter\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Verify Flutter
+        run: |
+          flutter --version
+          flutter precache --windows
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Find build output
+        id: build_output
+        run: |
+          $archDir = (Get-ChildItem -Path "build\windows" -Directory).Name
+          Write-Host "Build architecture directory: $archDir"
+          echo "arch_dir=$archDir" >> $env:GITHUB_OUTPUT
+
+      - name: Create ZIP
+        run: |
+          Compress-Archive -Path "build\windows\${{ steps.build_output.outputs.arch_dir }}\runner\Release\*" -DestinationPath "PSXVoice2MPQ-Windows-arm64.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSXVoice2MPQ-Windows-arm64.zip
+          path: PSXVoice2MPQ-Windows-arm64.zip
+
+      - name: Update Release
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: PSXVoice2MPQ-Windows-arm64.zip
+          tag: ${{ github.event.release.tag_name }}
+          overwrite: true

@@ -1,0 +1,233 @@
+{
+  "@@locale": "en",
+  "appTitle": "PSXVoice2MPQ",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "inputFolder": "Input Folder",
+  "@inputFolder": {
+    "description": "Label for input folder selection"
+  },
+  "outputFolder": "Output Folder",
+  "@outputFolder": {
+    "description": "Label for output folder selection"
+  },
+  "selectInputFolder": "Select ps1_assets folder",
+  "@selectInputFolder": {
+    "description": "Dialog title for selecting input folder"
+  },
+  "selectOutputFolder": "Select output folder for MPQ files",
+  "@selectOutputFolder": {
+    "description": "Dialog title for selecting output folder"
+  },
+  "buildMpq": "Build MPQ",
+  "@buildMpq": {
+    "description": "Build button label"
+  },
+  "building": "Building...",
+  "@building": {
+    "description": "Building in progress label"
+  },
+  "browse": "Browse",
+  "@browse": {
+    "description": "Browse button label"
+  },
+  "notSelected": "Not selected",
+  "@notSelected": {
+    "description": "Placeholder when no folder is selected"
+  },
+  "inputFolderHint": "Folder containing STREAM*.DIR/BIN files from PS1 disc",
+  "@inputFolderHint": {
+    "description": "Hint text for input folder"
+  },
+  "outputFolderHint": "Destination folder for generated MPQ files",
+  "@outputFolderHint": {
+    "description": "Hint text for output folder"
+  },
+  "clickBuildToStart": "Click Build to start",
+  "@clickBuildToStart": {
+    "description": "Initial help message"
+  },
+  "starting": "Starting...",
+  "@starting": {
+    "description": "Initial build step"
+  },
+  "processing": "Processing: {fileName}",
+  "@processing": {
+    "description": "Processing file message",
+    "placeholders": {
+      "fileName": {
+        "type": "String",
+        "example": "file.vag"
+      }
+    }
+  },
+  "filesProgress": "{processed} / {total} files",
+  "@filesProgress": {
+    "description": "File progress counter",
+    "placeholders": {
+      "processed": {
+        "type": "int",
+        "example": "5"
+      },
+      "total": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "initializing": "Initializing...",
+  "@initializing": {
+    "description": "Initialization step"
+  },
+  "extractingBinaries": "Extracting binaries...",
+  "@extractingBinaries": {
+    "description": "Binary extraction step"
+  },
+  "findingStreamFiles": "Finding stream files...",
+  "@findingStreamFiles": {
+    "description": "Finding stream files step"
+  },
+  "extractingStream": "Extracting {streamName}...",
+  "@extractingStream": {
+    "description": "Extracting stream step",
+    "placeholders": {
+      "streamName": {
+        "type": "String",
+        "example": "STREAM1"
+      }
+    }
+  },
+  "convertingVagFiles": "Converting VAG files from {streamName}...",
+  "@convertingVagFiles": {
+    "description": "Converting VAG files step",
+    "placeholders": {
+      "streamName": {
+        "type": "String",
+        "example": "STREAM1"
+      }
+    }
+  },
+  "creatingMpq": "Creating MPQ for {streamName}...",
+  "@creatingMpq": {
+    "description": "Creating MPQ step",
+    "placeholders": {
+      "streamName": {
+        "type": "String",
+        "example": "STREAM1"
+      }
+    }
+  },
+  "cleaningUp": "Cleaning up...",
+  "@cleaningUp": {
+    "description": "Cleanup step"
+  },
+  "complete": "Complete!",
+  "@complete": {
+    "description": "Completion message"
+  },
+  "buildFailed": "Build Failed",
+  "@buildFailed": {
+    "description": "Message shown when build fails"
+  },
+  "errorSmpqNotFound": "smpq command not found.",
+  "@errorSmpqNotFound": {
+    "description": "Error when smpq is not found"
+  },
+  "errorNoStreamFiles": "No STREAM*.DIR files found in the selected folder.",
+  "@errorNoStreamFiles": {
+    "description": "Error when no stream files are found"
+  },
+  "errorOutputDirectoryNotFound": "Output directory does not exist.",
+  "@errorOutputDirectoryNotFound": {
+    "description": "Error when output directory is not found"
+  },
+  "convertingToMp3": "Converting WAV to MP3 from {streamName}...",
+  "@convertingToMp3": {
+    "description": "Converting WAV to MP3 step",
+    "placeholders": {
+      "streamName": {
+        "type": "String",
+        "example": "STREAM1"
+      }
+    }
+  },
+  "enhancingAudio": "Enhancing audio with AudioSR from {streamName}...",
+  "@enhancingAudio": {
+    "description": "AudioSR enhancement step",
+    "placeholders": {
+      "streamName": {
+        "type": "String",
+        "example": "STREAM1"
+      }
+    }
+  },
+  "enableAudioSr": "Enhance audio quality (AudioSR)",
+  "@enableAudioSr": {
+    "description": "Checkbox label for enabling AudioSR"
+  },
+  "audioSrNotFound": "Please specify the audiosr executable.",
+  "@audioSrNotFound": {
+    "description": "Message when audiosr is not found"
+  },
+  "browseAudioSr": "Browse...",
+  "@browseAudioSr": {
+    "description": "Button to browse for audiosr executable"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings dialog title"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language section label in settings"
+  },
+  "clearCache": "Clear Cache",
+  "@clearCache": {
+    "description": "Button to clear intermediate/cache files"
+  },
+  "cacheCleared": "Cache cleared",
+  "@cacheCleared": {
+    "description": "Message shown after cache is cleared"
+  },
+  "audioSrNote": "Processing may take a very long time.",
+  "@audioSrNote": {
+    "description": "Note about AudioSR processing time"
+  },
+  "cacheFoundTitle": "Previous data found",
+  "@cacheFoundTitle": {
+    "description": "Title for cache found dialog"
+  },
+  "cacheFoundMessage": "Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?",
+  "@cacheFoundMessage": {
+    "description": "Message for cache found dialog"
+  },
+  "continueFromCache": "Continue",
+  "@continueFromCache": {
+    "description": "Button to continue from cached data"
+  },
+  "startFresh": "Start Fresh",
+  "@startFresh": {
+    "description": "Button to clear cache and start fresh"
+  },
+  "version": "Version",
+  "@version": {
+    "description": "Version label in settings"
+  },
+  "licenses": "Open Source Licenses",
+  "@licenses": {
+    "description": "Button to show open source licenses"
+  },
+  "licensesSection": "Licenses",
+  "@licensesSection": {
+    "description": "Section title for licenses in settings"
+  },
+  "audioSrUseCpu": "Process on CPU",
+  "@audioSrUseCpu": {
+    "description": "Checkbox label for running AudioSR on CPU"
+  },
+  "audioSrChunkSeconds": "Chunk duration (seconds)",
+  "@audioSrChunkSeconds": {
+    "description": "Dropdown label for AudioSR chunk duration in seconds"
+  }
+}

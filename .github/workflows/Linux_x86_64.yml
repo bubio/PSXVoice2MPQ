@@ -1,0 +1,213 @@
+name: Linux x86_64
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: '3.38.7'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev rpm libfuse2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Linux
+        run: flutter build linux --release
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create .desktop file
+        run: |
+          mkdir -p packaging
+          cat > packaging/psxvoice2mpq.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=PSXVoice2MPQ
+          Comment=PSX Voice to MPQ converter
+          Exec=/usr/lib/psxvoice2mpq/PSXVoice2MPQ
+          Icon=psxvoice2mpq
+          Categories=Utility;AudioVideo;
+          Terminal=false
+          EOF
+
+      - name: Package DEB
+        run: |
+          BUNDLE_DIR=build/linux/x64/release/bundle
+          VERSION=${{ steps.version.outputs.version }}
+          PKG=packaging/deb
+
+          mkdir -p $PKG/DEBIAN
+          mkdir -p $PKG/usr/lib/psxvoice2mpq
+          mkdir -p $PKG/usr/bin
+          mkdir -p $PKG/usr/share/applications
+          mkdir -p $PKG/usr/share/pixmaps
+
+          cp -r $BUNDLE_DIR/* $PKG/usr/lib/psxvoice2mpq/
+          chmod 755 $PKG/usr/lib/psxvoice2mpq/PSXVoice2MPQ
+          ln -sf /usr/lib/psxvoice2mpq/PSXVoice2MPQ $PKG/usr/bin/psxvoice2mpq
+          cp packaging/psxvoice2mpq.desktop $PKG/usr/share/applications/
+          cp assets/icon/app_icon.png $PKG/usr/share/pixmaps/psxvoice2mpq.png
+
+          cat > $PKG/DEBIAN/control << CTRL
+          Package: psxvoice2mpq
+          Version: ${VERSION}
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Depends: libgtk-3-0
+          Maintainer: bubio
+          Description: PSX Voice to MPQ converter
+           Convert PSX voice files to MPQ format.
+          CTRL
+
+          dpkg-deb --build $PKG PSXVoice2MPQ-Linux-x86_64.deb
+
+      - name: Package RPM
+        run: |
+          BUNDLE_DIR=$(pwd)/build/linux/x64/release/bundle
+          VERSION=${{ steps.version.outputs.version }}
+          TOPDIR=$(pwd)/rpmbuild
+
+          mkdir -p $TOPDIR/{BUILD,RPMS,SOURCES,SPECS,BUILDROOT}
+
+          cat > $TOPDIR/SPECS/psxvoice2mpq.spec << SPEC
+          Name:           psxvoice2mpq
+          Version:        ${VERSION}
+          Release:        1
+          Summary:        PSX Voice to MPQ converter
+          License:        MIT
+          AutoReqProv:    no
+          Requires:       gtk3
+
+          %description
+          Convert PSX voice files to MPQ format.
+
+          %install
+          mkdir -p %{buildroot}/usr/lib/psxvoice2mpq
+          cp -r ${BUNDLE_DIR}/* %{buildroot}/usr/lib/psxvoice2mpq/
+          chmod 755 %{buildroot}/usr/lib/psxvoice2mpq/PSXVoice2MPQ
+          mkdir -p %{buildroot}/usr/bin
+          ln -sf /usr/lib/psxvoice2mpq/PSXVoice2MPQ %{buildroot}/usr/bin/psxvoice2mpq
+          mkdir -p %{buildroot}/usr/share/applications
+          cp $(pwd)/packaging/psxvoice2mpq.desktop %{buildroot}/usr/share/applications/
+          mkdir -p %{buildroot}/usr/share/pixmaps
+          cp $(pwd)/assets/icon/app_icon.png %{buildroot}/usr/share/pixmaps/psxvoice2mpq.png
+
+          %files
+          %defattr(-,root,root)
+          /usr/lib/psxvoice2mpq
+          /usr/bin/psxvoice2mpq
+          /usr/share/applications/psxvoice2mpq.desktop
+          /usr/share/pixmaps/psxvoice2mpq.png
+          SPEC
+
+          rpmbuild --define "_topdir $TOPDIR" --target x86_64 -bb $TOPDIR/SPECS/psxvoice2mpq.spec
+          cp $TOPDIR/RPMS/x86_64/*.rpm PSXVoice2MPQ-Linux-x86_64.rpm
+
+      - name: Package AppImage
+        run: |
+          BUNDLE_DIR=build/linux/x64/release/bundle
+
+          wget -q "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool
+          chmod +x appimagetool
+
+          APPDIR=PSXVoice2MPQ.AppDir
+          mkdir -p $APPDIR/usr/bin
+          cp -r $BUNDLE_DIR/* $APPDIR/usr/bin/
+
+          cat > $APPDIR/psxvoice2mpq.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=PSXVoice2MPQ
+          Comment=PSX Voice to MPQ converter
+          Exec=PSXVoice2MPQ
+          Icon=psxvoice2mpq
+          Categories=Utility;AudioVideo;
+          Terminal=false
+          EOF
+
+          cp assets/icon/app_icon.png $APPDIR/psxvoice2mpq.png
+
+          cat > $APPDIR/AppRun << 'APPRUN'
+          #!/bin/bash
+          SELF=$(readlink -f "$0")
+          HERE=${SELF%/*}
+          exec "${HERE}/usr/bin/PSXVoice2MPQ" "$@"
+          APPRUN
+          chmod +x $APPDIR/AppRun
+
+          APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool $APPDIR PSXVoice2MPQ-Linux-x86_64.AppImage
+
+      - name: Upload artifact DEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSXVoice2MPQ-Linux-x86_64.deb
+          path: PSXVoice2MPQ-Linux-x86_64.deb
+
+      - name: Upload artifact RPM
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSXVoice2MPQ-Linux-x86_64.rpm
+          path: PSXVoice2MPQ-Linux-x86_64.rpm
+
+      - name: Upload artifact AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSXVoice2MPQ-Linux-x86_64.AppImage
+          path: PSXVoice2MPQ-Linux-x86_64.AppImage
+
+      - name: Update Release DEB
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: PSXVoice2MPQ-Linux-x86_64.deb
+          tag: ${{ github.event.release.tag_name }}
+          overwrite: true
+
+      - name: Update Release RPM
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: PSXVoice2MPQ-Linux-x86_64.rpm
+          tag: ${{ github.event.release.tag_name }}
+          overwrite: true
+
+      - name: Update Release AppImage
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: PSXVoice2MPQ-Linux-x86_64.AppImage
+          tag: ${{ github.event.release.tag_name }}
+          overwrite: true

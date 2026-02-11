@@ -1,0 +1,70 @@
+name: Update Homebrew Formula
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-homebrew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for release assets
+        run: sleep 60
+
+      - name: Get release info
+        id: release
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download macOS DMG and calculate SHA256
+        id: sha256
+        run: |
+          curl -L -o PSXVoice2MPQ-macOS-universal.dmg "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/PSXVoice2MPQ-macOS-universal.dmg"
+          SHA256=$(sha256sum PSXVoice2MPQ-macOS-universal.dmg | cut -d ' ' -f 1)
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+
+      - name: Checkout homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/homebrew-psxvoice2mpq
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update Cask formula
+        run: |
+          cd homebrew-tap
+          mkdir -p Casks
+          cat > Casks/psxvoice2mpq.rb << 'EOF'
+          cask "psxvoice2mpq" do
+            version "${{ steps.release.outputs.version }}"
+            sha256 "${{ steps.sha256.outputs.sha256 }}"
+
+            url "https://github.com/${{ github.repository }}/releases/download/v#{version}/PSXVoice2MPQ-macOS-universal.dmg"
+            name "PSXVoice2MPQ"
+            desc "Convert PlayStation 1 voice files to MPQ format for Diablo mods"
+            homepage "https://github.com/${{ github.repository }}"
+
+            livecheck do
+              url :url
+              strategy :github_latest
+            end
+
+            app "PSXVoice2MPQ.app"
+
+            zap trash: [
+              "~/Library/Application Support/com.github.bubio.PSXVoice2MPQ",
+              "~/Library/Preferences/com.github.bubio.PSXVoice2MPQ.plist",
+              "~/Library/Caches/com.github.bubio.PSXVoice2MPQ",
+            ]
+          end
+          EOF
+
+      - name: Commit and push
+        run: |
+          cd homebrew-tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/psxvoice2mpq.rb
+          git commit -m "Update psxvoice2mpq to v${{ steps.release.outputs.version }}"
+          git push

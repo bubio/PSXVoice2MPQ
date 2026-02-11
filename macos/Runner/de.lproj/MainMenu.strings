@@ -1,0 +1,80 @@
+/* Application menu */
+"5kV-Vb-QxS.title" = "Über APP_NAME";
+"BOF-NM-1cW.title" = "Einstellungen …";
+"NMo-om-nkz.title" = "Dienste";
+"hz9-B4-Xy5.title" = "Dienste";
+"Olw-nP-bQN.title" = "APP_NAME ausblenden";
+"Vdr-fp-XzO.title" = "Andere ausblenden";
+"Kd2-mp-pUS.title" = "Alle einblenden";
+"4sb-4s-VLi.title" = "APP_NAME beenden";
+
+/* Edit menu */
+"5QF-Oa-p0T.title" = "Bearbeiten";
+"W48-6f-4Dl.title" = "Bearbeiten";
+"dRJ-4n-Yzg.title" = "Widerrufen";
+"6dh-zS-Vam.title" = "Wiederholen";
+"uRl-iY-unG.title" = "Ausschneiden";
+"x3v-GG-iWU.title" = "Kopieren";
+"gVA-U4-sdL.title" = "Einsetzen";
+"WeT-3V-zwk.title" = "Einsetzen und Stil anpassen";
+"pa3-QI-u2k.title" = "Löschen";
+"Ruw-6m-B2m.title" = "Alles auswählen";
+
+/* Find submenu */
+"4EN-yA-p0u.title" = "Suchen";
+"1b7-l0-nxx.title" = "Suchen";
+"Xz5-n4-O0W.title" = "Suchen …";
+"YEy-JH-Tfz.title" = "Suchen und Ersetzen …";
+"q09-fT-Sye.title" = "Weitersuchen (vorwärts)";
+"OwM-mh-QMV.title" = "Weitersuchen (rückwärts)";
+"buJ-ug-pKt.title" = "Auswahl suchen";
+"S0p-oC-mLd.title" = "Auswahl anzeigen";
+
+/* Spelling and Grammar submenu */
+"Dv1-io-Yv7.title" = "Rechtschreibung und Grammatik";
+"3IN-sU-3Bg.title" = "Rechtschreibung und Grammatik";
+"HFo-cy-zxI.title" = "Rechtschreibung und Grammatik einblenden";
+"hz2-CU-CR7.title" = "Dokument jetzt prüfen";
+"rbD-Rh-wIN.title" = "Während der Texteingabe prüfen";
+"mK6-2p-4JG.title" = "Grammatik zusammen mit Rechtschreibung prüfen";
+"78Y-hA-62v.title" = "Rechtschreibung automatisch korrigieren";
+
+/* Substitutions submenu */
+"9ic-FL-obx.title" = "Ersetzungen";
+"FeM-D8-WVr.title" = "Ersetzungen";
+"z6F-FW-3nz.title" = "Ersetzungen einblenden";
+"9yt-4B-nSM.title" = "Intelligentes Kopieren/Einsetzen";
+"hQb-2v-fYv.title" = "Intelligente Anführungszeichen";
+"rgM-f4-ycn.title" = "Intelligente Bindestriche";
+"cwL-P1-jid.title" = "Intelligente Links";
+"tRr-pd-1PS.title" = "Datenerkennung";
+"HFQ-gK-NFA.title" = "Text ersetzen";
+
+/* Transformations submenu */
+"2oI-Rn-ZJC.title" = "Transformationen";
+"c8a-y6-VQd.title" = "Transformationen";
+"vmV-6d-7jI.title" = "Großbuchstaben";
+"d9M-CD-aMd.title" = "Kleinbuchstaben";
+"UEZ-Bs-lqG.title" = "Erster Buchstabe groß";
+
+/* Speech submenu */
+"xrE-MZ-jX0.title" = "Sprachausgabe";
+"3rS-ZA-NoH.title" = "Sprachausgabe";
+"Ynk-f8-cLZ.title" = "Sprachausgabe starten";
+"Oyz-dy-DGm.title" = "Sprachausgabe stoppen";
+
+/* View menu */
+"H8h-7b-M4v.title" = "Darstellung";
+"HyV-fh-RgO.title" = "Darstellung";
+"4J7-dP-txa.title" = "Vollbild ein";
+
+/* Window menu */
+"aUF-d1-5bR.title" = "Fenster";
+"Td7-aD-5lo.title" = "Fenster";
+"OY7-WF-poV.title" = "Im Dock ablegen";
+"R4o-n2-Eq4.title" = "Zoomen";
+"LE2-aR-0XJ.title" = "Alle nach vorne bringen";
+
+/* Help menu */
+"EPT-qC-fAb.title" = "Hilfe";
+"rJ0-wn-3NY.title" = "Hilfe";

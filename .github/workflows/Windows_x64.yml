@@ -1,0 +1,56 @@
+name: Windows x64
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: '3.38.7'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Create ZIP
+        run: |
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "PSXVoice2MPQ-Windows-x64.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSXVoice2MPQ-Windows-x64.zip
+          path: PSXVoice2MPQ-Windows-x64.zip
+
+      - name: Update Release
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: PSXVoice2MPQ-Windows-x64.zip
+          tag: ${{ github.event.release.tag_name }}
+          overwrite: true

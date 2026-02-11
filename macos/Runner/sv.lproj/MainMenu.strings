@@ -1,0 +1,80 @@
+/* Application menu */
+"5kV-Vb-QxS.title" = "Om APP_NAME";
+"BOF-NM-1cW.title" = "Inställningar…";
+"NMo-om-nkz.title" = "Tjänster";
+"hz9-B4-Xy5.title" = "Tjänster";
+"Olw-nP-bQN.title" = "Göm APP_NAME";
+"Vdr-fp-XzO.title" = "Göm övriga";
+"Kd2-mp-pUS.title" = "Visa alla";
+"4sb-4s-VLi.title" = "Avsluta APP_NAME";
+
+/* Edit menu */
+"5QF-Oa-p0T.title" = "Redigera";
+"W48-6f-4Dl.title" = "Redigera";
+"dRJ-4n-Yzg.title" = "Ångra";
+"6dh-zS-Vam.title" = "Gör om";
+"uRl-iY-unG.title" = "Klipp ut";
+"x3v-GG-iWU.title" = "Kopiera";
+"gVA-U4-sdL.title" = "Klistra in";
+"WeT-3V-zwk.title" = "Klistra in och anpassa stil";
+"pa3-QI-u2k.title" = "Radera";
+"Ruw-6m-B2m.title" = "Markera allt";
+
+/* Find submenu */
+"4EN-yA-p0u.title" = "Sök";
+"1b7-l0-nxx.title" = "Sök";
+"Xz5-n4-O0W.title" = "Sök…";
+"YEy-JH-Tfz.title" = "Sök och ersätt…";
+"q09-fT-Sye.title" = "Sök nästa";
+"OwM-mh-QMV.title" = "Sök föregående";
+"buJ-ug-pKt.title" = "Sök markerat";
+"S0p-oC-mLd.title" = "Hoppa till markering";
+
+/* Spelling and Grammar submenu */
+"Dv1-io-Yv7.title" = "Stavning och grammatik";
+"3IN-sU-3Bg.title" = "Stavning och grammatik";
+"HFo-cy-zxI.title" = "Visa stavning och grammatik";
+"hz2-CU-CR7.title" = "Kontrollera dokument nu";
+"rbD-Rh-wIN.title" = "Kontrollera stavning medan du skriver";
+"mK6-2p-4JG.title" = "Kontrollera grammatik med stavning";
+"78Y-hA-62v.title" = "Rätta stavning automatiskt";
+
+/* Substitutions submenu */
+"9ic-FL-obx.title" = "Ersättningar";
+"FeM-D8-WVr.title" = "Ersättningar";
+"z6F-FW-3nz.title" = "Visa ersättningar";
+"9yt-4B-nSM.title" = "Smart kopiering/inklistring";
+"hQb-2v-fYv.title" = "Smarta citattecken";
+"rgM-f4-ycn.title" = "Smarta bindestreck";
+"cwL-P1-jid.title" = "Smarta länkar";
+"tRr-pd-1PS.title" = "Dataidentifiering";
+"HFQ-gK-NFA.title" = "Textersättning";
+
+/* Transformations submenu */
+"2oI-Rn-ZJC.title" = "Omvandlingar";
+"c8a-y6-VQd.title" = "Omvandlingar";
+"vmV-6d-7jI.title" = "Stora bokstäver";
+"d9M-CD-aMd.title" = "Små bokstäver";
+"UEZ-Bs-lqG.title" = "Stor begynnelsebokstav";
+
+/* Speech submenu */
+"xrE-MZ-jX0.title" = "Tal";
+"3rS-ZA-NoH.title" = "Tal";
+"Ynk-f8-cLZ.title" = "Börja tala";
+"Oyz-dy-DGm.title" = "Sluta tala";
+
+/* View menu */
+"H8h-7b-M4v.title" = "Visa";
+"HyV-fh-RgO.title" = "Visa";
+"4J7-dP-txa.title" = "Använd helskärm";
+
+/* Window menu */
+"aUF-d1-5bR.title" = "Fönster";
+"Td7-aD-5lo.title" = "Fönster";
+"OY7-WF-poV.title" = "Minimera";
+"R4o-n2-Eq4.title" = "Zooma";
+"LE2-aR-0XJ.title" = "Lägg alla överst";
+
+/* Help menu */
+"EPT-qC-fAb.title" = "Hjälp";
+"rJ0-wn-3NY.title" = "Hjälp";

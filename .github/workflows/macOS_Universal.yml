@@ -1,0 +1,65 @@
+name: macOS Universal
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: '3.38.7'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build macOS
+        run: flutter build macos --release
+
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "PSXVoice2MPQ" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "PSXVoice2MPQ.app" 150 185 \
+            --app-drop-link 450 185 \
+            "PSXVoice2MPQ-macOS-universal.dmg" \
+            "build/macos/Build/Products/Release/PSXVoice2MPQ.app"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSXVoice2MPQ-macOS-universal.dmg
+          path: PSXVoice2MPQ-macOS-universal.dmg
+
+      - name: Update Release
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: PSXVoice2MPQ-macOS-universal.dmg
+          tag: ${{ github.event.release.tag_name }}
+          overwrite: true
