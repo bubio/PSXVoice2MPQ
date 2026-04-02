@@ -161,7 +161,8 @@ class MpqBuilderService {
         if (_cancelled) break;
 
         final streamName = p.basenameWithoutExtension(streamDir.path);
-        final streamBin = streamDir.path.replaceAll('.DIR', '.BIN');
+        final streamBin = streamDir.path.replaceFirst(
+            RegExp(r'\.dir$', caseSensitive: false), '.BIN');
 
         // Create stream work directory
         final streamWorkDir = Directory(
@@ -186,8 +187,10 @@ class MpqBuilderService {
 
         if (!dstreamResult.isSuccess) {
           yield progress = progress.addLog(
-            'Extraction warning: ${dstreamResult.errorMessage}',
+            'Error: ${dstreamResult.errorMessage}. Skipping $streamName.',
           );
+          currentStepNum += stepsPerStream; // Skip all steps for this stream
+          continue;
         }
 
         yield progress = progress.addLog(
@@ -481,6 +484,13 @@ class MpqBuilderService {
 
         // Collect files to add
         final filesToAdd = await _listFilesRecursive(mpqDir);
+        if (filesToAdd.isEmpty) {
+          yield progress = progress.addLog(
+            'Warning: No files to add for $streamName. Skipping MPQ creation.',
+          );
+          currentStepNum++;
+          continue;
+        }
         yield progress = progress.addLog(
           'Adding ${filesToAdd.length} files to MPQ...',
         );
