@@ -107,17 +107,19 @@ brew install --cask psxvoice2mpq
 - **Windows**: `%APPDATA%\diasurgical\devilution\`
 - **Linux**: `~/.local/share/diasurgical/devilution/`、またはFlatpackでインストールした場合は、`~/.var/app/org.diasurgical.DevilutionX/data/diasurgical/devilution/`
 
+DevilutionXを起動したことがあれば、出力先として自動的に設定されます。
+
 <!-- ## AudioSR による音声品質向上
 
 PS1版Diabloの音声ファイルは11kHzという低いサンプルレートで収録されています。PSXVoice2MPQは[AudioSR](https://github.com/haoheliu/versatile_audio_super_resolution)を使用して、AIによる音声超解像技術でこれを48kHzに高品質化することができます。
 
-PSXVoice2MPQの設定画面でAudioSRを有効にできます。実行ファイルのパスを手動で指定してください。 -->
+PSXVoice2MPQの設定画面でAudioSRを有効にできます。実行ファイルのパスを手動で指定してください。 
 
 ### 処理時間の目安
 
 AudioSRによる処理は、ハードウェア性能に大きく依存しますが、いずれにせよ非常に時間がかかります。CPUのみの場合は数十時間かかる可能性があります。
 
-ビルド中にアプリを終了しても、キャッシュされたファイルは保持されるため、次回の変換時に続きから処理できます。
+ビルド中にアプリを終了しても、キャッシュされたファイルは保持されるため、次回の変換時に続きから処理できます。 -->
 
 ## ソースからのビルド
 
