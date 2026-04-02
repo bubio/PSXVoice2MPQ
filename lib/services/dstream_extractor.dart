@@ -118,7 +118,9 @@ class DstreamExtractor {
         await _extractRegularFile(entry, binData, outputPath);
       }
 
-      extractedFiles.add(entry.name);
+      if (await File(outputPath).exists()) {
+        extractedFiles.add(entry.name);
+      }
     }
 
     return DstreamResult.success(
