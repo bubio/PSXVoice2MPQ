@@ -4,24 +4,47 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: update-homebrew
+  cancel-in-progress: false
+
 jobs:
   update-homebrew:
-    runs-on: ubuntu-latest
+    if: github.event.release.prerelease == false && github.event.release.draft == false
+    runs-on: macos-latest
     steps:
-      - name: Wait for release assets
-        run: sleep 60
-
       - name: Get release info
         id: release
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ] || [ "$VERSION" = "$GITHUB_REF_NAME" ]; then
+            echo "Error: tag name must start with 'v' (got: $GITHUB_REF_NAME)"
+            exit 1
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Wait for release asset
+        id: wait
+        run: |
+          ASSET_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/PSXVoice2MPQ-macOS-universal.dmg"
+          for i in $(seq 1 20); do
+            if curl -sfLI "$ASSET_URL" > /dev/null; then
+              echo "Asset available after $i attempt(s)"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Error: asset not available after 5 minutes"
+          exit 1
 
       - name: Download macOS DMG and calculate SHA256
         id: sha256
         run: |
-          curl -L -o PSXVoice2MPQ-macOS-universal.dmg "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/PSXVoice2MPQ-macOS-universal.dmg"
-          SHA256=$(sha256sum PSXVoice2MPQ-macOS-universal.dmg | cut -d ' ' -f 1)
+          curl -fL -o PSXVoice2MPQ-macOS-universal.dmg "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/PSXVoice2MPQ-macOS-universal.dmg"
+          SHA256=$(shasum -a 256 PSXVoice2MPQ-macOS-universal.dmg | cut -d ' ' -f 1)
           echo "sha256=$SHA256" >> $GITHUB_OUTPUT
 
       - name: Checkout homebrew tap
@@ -32,18 +55,22 @@ jobs:
           path: homebrew-tap
 
       - name: Update Cask formula
+        env:
+          CASK_VERSION: ${{ steps.release.outputs.version }}
+          CASK_SHA256: ${{ steps.sha256.outputs.sha256 }}
+          CASK_REPO: ${{ github.repository }}
         run: |
           cd homebrew-tap
           mkdir -p Casks
-          cat > Casks/psxvoice2mpq.rb << 'EOF'
+          cat > Casks/psxvoice2mpq.rb << EOF
           cask "psxvoice2mpq" do
-            version "${{ steps.release.outputs.version }}"
-            sha256 "${{ steps.sha256.outputs.sha256 }}"
+            version "${CASK_VERSION}"
+            sha256 "${CASK_SHA256}"
 
-            url "https://github.com/${{ github.repository }}/releases/download/v#{version}/PSXVoice2MPQ-macOS-universal.dmg"
+            url "https://github.com/${CASK_REPO}/releases/download/v#{version}/PSXVoice2MPQ-macOS-universal.dmg"
             name "PSXVoice2MPQ"
             desc "Convert PlayStation 1 voice files to MPQ format for Diablo mods"
-            homepage "https://github.com/${{ github.repository }}"
+            homepage "https://github.com/${CASK_REPO}"
 
             livecheck do
               url :url
@@ -60,11 +87,21 @@ jobs:
           end
           EOF
 
+      - name: Validate Cask
+        run: |
+          cd homebrew-tap
+          brew style Casks/psxvoice2mpq.rb
+          brew audit --cask --online Casks/psxvoice2mpq.rb
+
       - name: Commit and push
         run: |
           cd homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Casks/psxvoice2mpq.rb
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
           git commit -m "Update psxvoice2mpq to v${{ steps.release.outputs.version }}"
           git push
