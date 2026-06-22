@@ -37,7 +37,7 @@ dependencies:
   get_it: ^7.6.0
   file_picker: ^8.0.0
   path: ^1.9.0
-  ffi: ^2.1.0
+  ffi: ^2.2.0
   package_info_plus: ^8.0.0
 
 dev_dependencies:
