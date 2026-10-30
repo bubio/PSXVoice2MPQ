@@ -103,6 +103,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ausgabeverzeichnis existiert nicht.';
 
   @override
+  String get errorFilePicker => 'Der Dateidialog konnte nicht geöffnet werden.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'Konvertiere WAV zu MP3 von $streamName...';
   }

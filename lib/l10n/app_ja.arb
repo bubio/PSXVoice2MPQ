@@ -27,6 +27,7 @@
   "errorSmpqNotFound": "smpqコマンドが見つかりません。",
   "errorNoStreamFiles": "選択したフォルダにSTREAM*.DIRファイルが見つかりません。",
   "errorOutputDirectoryNotFound": "出力フォルダが存在しません。",
+  "errorFilePicker": "ファイル選択ダイアログを開けませんでした。",
   "convertingToMp3": "{streamName} の WAV を MP3 に変換中...",
   "enhancingAudio": "{streamName} のオーディオをAudioSRで高音質化中...",
   "enableAudioSr": "オーディオ品質を向上 (AudioSR)",

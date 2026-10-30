@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import '../models/build_state.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../widgets/diablo_button.dart';
+import '../widgets/error_dialog.dart';
 import '../widgets/folder_selector.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/settings_dialog.dart';
@@ -57,26 +58,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   void _showErrorDialog(String title, String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: Icon(
-          Icons.error_outline,
-          color: Theme.of(context).colorScheme.error,
-          size: 48,
-        ),
-        title: Text(title),
-        content: SingleChildScrollView(
-          child: SelectableText(errorMessage),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+    showErrorDialog(context, title, errorMessage);
   }
 
   void _onAssetsPathChanged() {
@@ -100,11 +82,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
     super.dispose();
   }
 
+  /// Opens the native folder picker; shows an error dialog if it fails
+  Future<String?> _pickDirectory(String dialogTitle) async {
+    try {
+      return await FilePicker.getDirectoryPath(dialogTitle: dialogTitle);
+    } catch (e) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        _showErrorDialog(l10n.errorFilePicker, e.toString());
+      }
+      return null;
+    }
+  }
+
   Future<void> _selectAssetsFolder() async {
     final l10n = AppLocalizations.of(context)!;
-    final result = await FilePicker.getDirectoryPath(
-      dialogTitle: l10n.selectInputFolder,
-    );
+    final result = await _pickDirectory(l10n.selectInputFolder);
     if (result != null) {
       _assetsPathController.text = result;
     }
@@ -112,9 +105,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   Future<void> _selectOutputFolder() async {
     final l10n = AppLocalizations.of(context)!;
-    final result = await FilePicker.getDirectoryPath(
-      dialogTitle: l10n.selectOutputFolder,
-    );
+    final result = await _pickDirectory(l10n.selectOutputFolder);
     if (result != null) {
       _outputPathController.text = result;
     }

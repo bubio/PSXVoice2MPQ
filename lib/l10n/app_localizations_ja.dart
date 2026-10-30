@@ -100,6 +100,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get errorOutputDirectoryNotFound => '出力フォルダが存在しません。';
 
   @override
+  String get errorFilePicker => 'ファイル選択ダイアログを開けませんでした。';
+
+  @override
   String convertingToMp3(String streamName) {
     return '$streamName の WAV を MP3 に変換中...';
   }

@@ -101,6 +101,9 @@ class AppLocalizationsSv extends AppLocalizations {
   String get errorOutputDirectoryNotFound => 'Utdatamappen finns inte.';
 
   @override
+  String get errorFilePicker => 'Det gick inte att öppna fildialogen.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'Konverterar WAV till MP3 från $streamName...';
   }

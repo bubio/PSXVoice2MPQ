@@ -10,6 +10,7 @@ import '../core/constants/path_constants.dart';
 import '../core/constants/stream_constants.dart';
 import '../l10n/app_localizations.dart';
 import '../viewmodels/home_viewmodel.dart';
+import 'error_dialog.dart';
 
 class SettingsDialog extends ConsumerStatefulWidget {
   final String currentLocaleKey;
@@ -138,10 +139,23 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
                                 alignment: Alignment.centerLeft,
                                 child: TextButton(
                                   onPressed: () async {
-                                    final file = await FilePicker.pickFile(
-                                      dialogTitle: 'Select audiosr executable',
-                                      type: FileType.any,
-                                    );
+                                    final PlatformFile? file;
+                                    try {
+                                      file = await FilePicker.pickFile(
+                                        dialogTitle:
+                                            'Select audiosr executable',
+                                        type: FileType.any,
+                                      );
+                                    } catch (e) {
+                                      if (mounted) {
+                                        showErrorDialog(
+                                          context,
+                                          l10n.errorFilePicker,
+                                          e.toString(),
+                                        );
+                                      }
+                                      return;
+                                    }
                                     final path = file?.path;
                                     if (path != null && mounted) {
                                       ref

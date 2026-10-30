@@ -266,6 +266,12 @@ abstract class AppLocalizations {
   /// **'Output directory does not exist.'**
   String get errorOutputDirectoryNotFound;
 
+  /// Error title when the native file or folder picker fails to open
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the file dialog.'**
+  String get errorFilePicker;
+
   /// Converting WAV to MP3 step
   ///
   /// In en, this message translates to:

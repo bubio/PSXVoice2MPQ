@@ -105,6 +105,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le dossier de sortie n\'existe pas.';
 
   @override
+  String get errorFilePicker =>
+      'Impossible d\'ouvrir la boîte de dialogue de fichiers.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'Conversion WAV en MP3 de $streamName...';
   }

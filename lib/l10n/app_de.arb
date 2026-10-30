@@ -27,6 +27,7 @@
   "errorSmpqNotFound": "smpq-Befehl nicht gefunden.",
   "errorNoStreamFiles": "Keine STREAM*.DIR-Dateien im ausgewählten Ordner gefunden.",
   "errorOutputDirectoryNotFound": "Ausgabeverzeichnis existiert nicht.",
+  "errorFilePicker": "Der Dateidialog konnte nicht geöffnet werden.",
   "convertingToMp3": "Konvertiere WAV zu MP3 von {streamName}...",
   "enhancingAudio": "Audio mit AudioSR von {streamName} wird verbessert...",
   "enableAudioSr": "Audioqualität verbessern (AudioSR)",

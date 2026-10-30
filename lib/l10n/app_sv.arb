@@ -27,6 +27,7 @@
   "errorSmpqNotFound": "smpq-kommandot hittades inte.",
   "errorNoStreamFiles": "Inga STREAM*.DIR-filer hittades i den valda mappen.",
   "errorOutputDirectoryNotFound": "Utdatamappen finns inte.",
+  "errorFilePicker": "Det gick inte att öppna fildialogen.",
   "convertingToMp3": "Konverterar WAV till MP3 från {streamName}...",
   "enhancingAudio": "Förbättrar ljud med AudioSR från {streamName}...",
   "enableAudioSr": "Förbättra ljudkvalitet (AudioSR)",

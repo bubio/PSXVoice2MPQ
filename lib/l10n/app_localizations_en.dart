@@ -102,6 +102,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorOutputDirectoryNotFound => 'Output directory does not exist.';
 
   @override
+  String get errorFilePicker => 'Could not open the file dialog.';
+
+  @override
   String convertingToMp3(String streamName) {
     return 'Converting WAV to MP3 from $streamName...';
   }

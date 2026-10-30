@@ -149,7 +149,6 @@ Future<void> concatenateWavCrossfade(
   final sampleRate = firstData.getUint32(24, Endian.little);
   final bitsPerSample = firstData.getUint16(34, Endian.little);
   final bytesPerSample = bitsPerSample ~/ 8;
-  final blockAlign = numChannels * bytesPerSample;
 
   // Helper: extract PCM as Int16 sample list from a WAV file
   Future<List<int>> readPcmSamples(String path) async {

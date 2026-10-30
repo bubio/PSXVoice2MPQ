@@ -142,6 +142,10 @@
   "@errorOutputDirectoryNotFound": {
     "description": "Error when output directory is not found"
   },
+  "errorFilePicker": "Could not open the file dialog.",
+  "@errorFilePicker": {
+    "description": "Error title when the native file or folder picker fails to open"
+  },
   "convertingToMp3": "Converting WAV to MP3 from {streamName}...",
   "@convertingToMp3": {
     "description": "Converting WAV to MP3 step",
