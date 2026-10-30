@@ -138,19 +138,15 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
                                 alignment: Alignment.centerLeft,
                                 child: TextButton(
                                   onPressed: () async {
-                                    final result = await FilePicker.platform
-                                        .pickFiles(
-                                          dialogTitle:
-                                              'Select audiosr executable',
-                                          type: FileType.any,
-                                        );
-                                    if (result != null &&
-                                        result.files.single.path != null) {
+                                    final file = await FilePicker.pickFile(
+                                      dialogTitle: 'Select audiosr executable',
+                                      type: FileType.any,
+                                    );
+                                    final path = file?.path;
+                                    if (path != null && mounted) {
                                       ref
                                           .read(homeViewModelProvider.notifier)
-                                          .setAudioSrPath(
-                                            result.files.single.path!,
-                                          );
+                                          .setAudioSrPath(path);
                                     }
                                   },
                                   child: Text(l10n.browseAudioSr),

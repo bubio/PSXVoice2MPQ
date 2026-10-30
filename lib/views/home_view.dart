@@ -102,7 +102,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   Future<void> _selectAssetsFolder() async {
     final l10n = AppLocalizations.of(context)!;
-    final result = await FilePicker.platform.getDirectoryPath(
+    final result = await FilePicker.getDirectoryPath(
       dialogTitle: l10n.selectInputFolder,
     );
     if (result != null) {
@@ -112,7 +112,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   Future<void> _selectOutputFolder() async {
     final l10n = AppLocalizations.of(context)!;
-    final result = await FilePicker.platform.getDirectoryPath(
+    final result = await FilePicker.getDirectoryPath(
       dialogTitle: l10n.selectOutputFolder,
     );
     if (result != null) {

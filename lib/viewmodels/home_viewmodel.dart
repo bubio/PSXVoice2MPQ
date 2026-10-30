@@ -83,8 +83,8 @@ class HomeState {
   }
 }
 
-/// HomeViewModel using Riverpod StateNotifier
-class HomeViewModel extends StateNotifier<HomeState> {
+/// HomeViewModel using Riverpod Notifier
+class HomeViewModel extends Notifier<HomeState> {
   final MpqBuilderService _builderService;
   final ProcessRunner _processRunner;
   final SettingsService _settingsService;
@@ -94,10 +94,15 @@ class HomeViewModel extends StateNotifier<HomeState> {
     this._builderService,
     this._processRunner,
     this._settingsService,
-  ) : super(HomeState.initial()) {
+  );
+
+  @override
+  HomeState build() {
+    ref.onDispose(_dispose);
     if (AppConstants.enableAudioSr) {
       _initAudioSr();
     }
+    return HomeState.initial();
   }
 
   Future<void> _initAudioSr() async {
@@ -239,21 +244,17 @@ class HomeViewModel extends StateNotifier<HomeState> {
     state = state.copyWith(status: BuildStatus.idle, clearProgress: true);
   }
 
-  @override
-  void dispose() {
+  void _dispose() {
     _buildSubscription?.cancel();
     _builderService.cancel();
-    super.dispose();
   }
 }
 
 /// Provider for HomeViewModel
-final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
-  ref,
-) {
-  return HomeViewModel(
+final homeViewModelProvider = NotifierProvider<HomeViewModel, HomeState>(
+  () => HomeViewModel(
     getIt<MpqBuilderService>(),
     getIt<ProcessRunner>(),
     getIt<SettingsService>(),
-  );
-});
+  ),
+);
