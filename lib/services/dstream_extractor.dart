@@ -39,7 +39,7 @@ class DstreamExtractor {
       final dirData = await dirFile.readAsBytes();
       final binData = await binFile.readAsBytes();
 
-      return extractFromBytes(
+      return await extractFromBytes(
         dirData: dirData,
         binData: binData,
         outputDir: outputDir,
