@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:psxvoice2mpq/services/vag_to_wav_converter.dart';
 
+import '../support/local_test_data.dart';
+
 void main() {
   group('VagToWavConverter', () {
     late VagToWavConverter converter;
@@ -157,5 +159,5 @@ void main() {
         }
       }
     });
-  });
+  }, skip: skipWithoutLocalTestData);
 }

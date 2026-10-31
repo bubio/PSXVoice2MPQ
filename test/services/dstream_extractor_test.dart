@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:psxvoice2mpq/services/dstream_extractor.dart';
 
+import '../support/local_test_data.dart';
+
 void main() {
   group('DstreamExtractor', () {
     late DstreamExtractor extractor;
@@ -298,5 +300,5 @@ void main() {
         }
       }
     });
-  });
+  }, skip: skipWithoutLocalTestData);
 }

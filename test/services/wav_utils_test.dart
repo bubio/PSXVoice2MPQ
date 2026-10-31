@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:psxvoice2mpq/services/wav_utils.dart' as wav_utils;
 
+import '../support/local_test_data.dart';
+
 void main() {
   group('wav_utils', () {
     final testInputPath = 'assets/test/J019B.WAV';
@@ -457,5 +459,5 @@ void main() {
         }
       }
     });
-  });
+  }, skip: skipWithoutLocalTestData);
 }
