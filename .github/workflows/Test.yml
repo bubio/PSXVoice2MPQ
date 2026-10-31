@@ -42,10 +42,27 @@ jobs:
         run: flutter test
 
   e2e:
-    runs-on: macos-latest
+    name: e2e (${{ matrix.device }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            device: macos
+          - os: ubuntu-latest
+            device: linux
+          - os: windows-latest
+            device: windows
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Install Linux dependencies
+        if: matrix.device == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev xvfb
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -57,6 +74,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Runs the real app with the bundled StormLib against synthetic data
+      # Runs the real app with the bundled StormLib against synthetic data.
+      # Linux runners have no display, so the app runs on a virtual one.
       - name: Integration tests
-        run: flutter test integration_test -d macos
+        shell: bash
+        run: |
+          if [ "${{ matrix.device }}" = linux ]; then
+            xvfb-run -a flutter test integration_test -d linux
+          else
+            flutter test integration_test -d ${{ matrix.device }}
+          fi
