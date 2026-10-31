@@ -174,19 +174,19 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN=1 ./appimagetool $APPDIR PSXVoice2MPQ-Linux-arm64.AppImage
 
       - name: Upload artifact DEB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PSXVoice2MPQ-Linux-arm64.deb
           path: PSXVoice2MPQ-Linux-arm64.deb
 
       - name: Upload artifact RPM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PSXVoice2MPQ-Linux-arm64.rpm
           path: PSXVoice2MPQ-Linux-arm64.rpm
 
       - name: Upload artifact AppImage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PSXVoice2MPQ-Linux-arm64.AppImage
           path: PSXVoice2MPQ-Linux-arm64.AppImage

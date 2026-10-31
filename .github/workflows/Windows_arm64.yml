@@ -52,7 +52,7 @@ jobs:
           Compress-Archive -Path "build\windows\${{ steps.build_output.outputs.arch_dir }}\runner\Release\*" -DestinationPath "PSXVoice2MPQ-Windows-arm64.zip"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PSXVoice2MPQ-Windows-arm64.zip
           path: PSXVoice2MPQ-Windows-arm64.zip
