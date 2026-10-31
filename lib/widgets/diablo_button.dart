@@ -57,7 +57,7 @@ class _DiabloButtonState extends State<DiabloButton> {
   @override
   Widget build(BuildContext context) {
     final isEnabled = widget.onPressed != null;
-    final image = _imageInfo?.image;
+    final imageInfo = _imageInfo;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -73,10 +73,11 @@ class _DiabloButtonState extends State<DiabloButton> {
         child: Opacity(
           opacity: isEnabled ? 1.0 : 0.5,
           child: CustomPaint(
-            painter: image == null
+            painter: imageInfo == null
                 ? null
                 : _NineSlicePainter(
-                    image: image,
+                    image: imageInfo.image,
+                    scale: imageInfo.scale,
                     centerSlice: _centerSlice,
                     colorFilter: _isPressed
                         ? const ColorFilter.mode(
@@ -126,14 +127,17 @@ class _DiabloButtonState extends State<DiabloButton> {
 /// Impeller garbles the top and bottom edges when it draws the image scaled
 /// down (DecorationImage.centerSlice does this for buttons narrower than
 /// the image), so a middle cell that would shrink is cropped from the
-/// center of its slice instead.
+/// center of its slice instead. [centerSlice] is in logical pixels, so
+/// resolution variants (2.0x/ assets) use the same slice.
 class _NineSlicePainter extends CustomPainter {
   final ui.Image image;
+  final double scale;
   final Rect centerSlice;
   final ColorFilter? colorFilter;
 
   _NineSlicePainter({
     required this.image,
+    required this.scale,
     required this.centerSlice,
     required this.colorFilter,
   });
@@ -141,8 +145,8 @@ class _NineSlicePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..filterQuality = FilterQuality.medium;
-    final w = image.width.toDouble();
-    final h = image.height.toDouble();
+    final w = image.width / scale;
+    final h = image.height / scale;
     final c = centerSlice;
 
     // Grid lines of the 3x3 cells on the button
@@ -154,30 +158,37 @@ class _NineSlicePainter extends CustomPainter {
     // Filter the assembled button as one layer; filtering each cell would
     // also tint the anti-aliased seams between cells into visible lines.
     // The clip keeps the filter from tinting the rest of the window.
-    final bounds = Offset.zero & size;
-    canvas.save();
-    canvas.clipRect(bounds);
-    if (colorFilter != null) {
-      canvas.saveLayer(bounds, Paint()..colorFilter = colorFilter);
+    final filter = colorFilter;
+    if (filter != null) {
+      final bounds = Offset.zero & size;
+      canvas.save();
+      canvas.clipRect(bounds);
+      canvas.saveLayer(bounds, Paint()..colorFilter = filter);
     }
     for (int row = 0; row < 3; row++) {
       for (int col = 0; col < 3; col++) {
         canvas.drawImageRect(
           image,
-          Rect.fromLTRB(srcX[col].$1, srcY[row].$1, srcX[col].$2, srcY[row].$2),
+          Rect.fromLTRB(
+            srcX[col].$1 * scale,
+            srcY[row].$1 * scale,
+            srcX[col].$2 * scale,
+            srcY[row].$2 * scale,
+          ),
           Rect.fromLTRB(dstX[col], dstY[row], dstX[col + 1], dstY[row + 1]),
           paint,
         );
       }
     }
-    if (colorFilter != null) {
+    if (filter != null) {
+      canvas.restore();
       canvas.restore();
     }
-    canvas.restore();
   }
 
   /// Source spans of the three cells along one axis. The middle span is
-  /// cropped around its center to [dstMiddle] when it would otherwise shrink.
+  /// cropped around its center to [dstMiddle] when it would otherwise shrink,
+  /// starting on a whole pixel so the crop is not resampled.
   static List<(double, double)> _sourceSpans(
     double start,
     double end,
@@ -185,13 +196,15 @@ class _NineSlicePainter extends CustomPainter {
     double dstMiddle,
   ) {
     final excess = (end - start) - dstMiddle;
-    final inset = excess > 0 ? excess / 2 : 0.0;
-    return [(0, start), (start + inset, end - inset), (end, length)];
+    if (excess <= 0) return [(0, start), (start, end), (end, length)];
+    final cropStart = (start + excess / 2).floorToDouble();
+    return [(0, start), (cropStart, cropStart + dstMiddle), (end, length)];
   }
 
   @override
   bool shouldRepaint(_NineSlicePainter oldDelegate) =>
       image != oldDelegate.image ||
+      scale != oldDelegate.scale ||
       centerSlice != oldDelegate.centerSlice ||
       colorFilter != oldDelegate.colorFilter;
 }
