@@ -24,12 +24,11 @@ class MpqBuilderService {
   bool _cancelled = false;
 
   MpqBuilderService({
-    required ProcessRunner processRunner,
+    required this._processRunner,
     VagToWavConverter? vagToWavConverter,
     DstreamExtractor? dstreamExtractor,
     StormLibService? stormLibService,
-  }) : _processRunner = processRunner,
-       _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
+  }) : _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
        _dstreamExtractor = dstreamExtractor ?? DstreamExtractor(),
        _stormLibService = stormLibService ?? StormLibService();
 
@@ -162,7 +161,9 @@ class MpqBuilderService {
 
         final streamName = p.basenameWithoutExtension(streamDir.path);
         final streamBin = streamDir.path.replaceFirst(
-            RegExp(r'\.dir$', caseSensitive: false), '.BIN');
+          RegExp(r'\.dir$', caseSensitive: false),
+          '.BIN',
+        );
 
         // Create stream work directory
         final streamWorkDir = Directory(

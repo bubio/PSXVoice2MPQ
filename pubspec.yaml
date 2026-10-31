@@ -16,10 +16,11 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
-  sdk: ^3.10.7
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -69,7 +70,7 @@ flutter_launcher_icons:
   image_path: "assets/icon/app_icon.png"
   windows:
     generate: true
-    icon_size: 48 # min:48, max:256, default: 48dart run flutter_launcher_icons:generate -o
+    icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
   linux:
