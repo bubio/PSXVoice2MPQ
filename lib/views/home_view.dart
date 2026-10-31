@@ -249,6 +249,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         _outputPathController.text.trim().isNotEmpty &&
                         !state.isBuilding;
                 return DiabloButton(
+                  key: const Key('buildButton'),
                   onPressed: canBuild ? _startBuild : null,
                   height: 40,
                   child: Row(
