@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 
-import '../core/constants/path_constants.dart';
 import '../l10n/app_localizations.dart';
 import '../models/build_state.dart';
 import '../viewmodels/home_viewmodel.dart';
@@ -124,55 +121,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     );
   }
 
-  Future<void> _startBuild() async {
-    final state = ref.read(homeViewModelProvider);
-    if (!state.useAudioSr) {
-      ref.read(homeViewModelProvider.notifier).startBuild();
-      return;
-    }
-
-    // Check if AudioSR cache exists
-    final cacheDir = Directory(PathConstants.getCacheDir());
-    final hasCache = await cacheDir.exists() &&
-        await cacheDir.list().any((e) => e is Directory || e is File);
-
-    if (!hasCache || !mounted) {
-      ref.read(homeViewModelProvider.notifier).startBuild();
-      return;
-    }
-
-    final l10n = AppLocalizations.of(context)!;
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.cacheFoundTitle),
-        content: Text(l10n.cacheFoundMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(null),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.startFresh),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.continueFromCache),
-          ),
-        ],
-      ),
-    );
-
-    if (result == null || !mounted) return;
-
-    if (!result) {
-      // Clear cache before starting
-      if (await cacheDir.exists()) {
-        await cacheDir.delete(recursive: true);
-      }
-    }
-
+  void _startBuild() {
     ref.read(homeViewModelProvider.notifier).startBuild();
   }
 
@@ -184,7 +133,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
     // Listen for error state changes and show alert
     ref.listen<HomeState>(homeViewModelProvider, (previous, next) {
-      if (next.status == BuildStatus.error && previous?.status != BuildStatus.error) {
+      if (next.status == BuildStatus.error &&
+          previous?.status != BuildStatus.error) {
         final progress = next.progress;
         if (progress != null) {
           String errorMessage;
@@ -246,8 +196,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
               builder: (context, _) {
                 final canBuild =
                     _assetsPathController.text.trim().isNotEmpty &&
-                        _outputPathController.text.trim().isNotEmpty &&
-                        !state.isBuilding;
+                    _outputPathController.text.trim().isNotEmpty &&
+                    !state.isBuilding;
                 return DiabloButton(
                   key: const Key('buildButton'),
                   onPressed: canBuild ? _startBuild : null,

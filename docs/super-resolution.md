@@ -5,7 +5,7 @@
 VoiceFixer は低域まで作り直すので、子音やアタックが欠ける。このため、出力のうち 4.8kHz 以下を元の音声に差し替え、VoiceFixer からは高域だけを使う（聴き比べで採用）。
 実行環境はローカル（ONNX Runtime、Dart FFI）と Google Colab（同じ ONNX モデルを GPU で実行し、zip で受け渡し）から選べる。FlashSR は検証してから追加する。
 
-変換スクリプトとリファレンス実装: `tools/voicefixer_onnx/`（M4 の CPU で RTF 約 0.3、ピークメモリ 3.7GB 以下）
+変換スクリプトとリファレンス実装: `tools/voicefixer_onnx/`（M4 の CPU で、STREAM5 の 732 ファイル・約 2 時間分が 63 分。ピークメモリは 3.7GB 以下）
 
 ---
 
@@ -51,24 +51,18 @@ VoiceFixer は低域まで作り直すので、子音やアタックが欠ける
 
 ### 配布
 
-- 2 つの ONNX ファイルは、このリポジトリの GitHub Releases に置く（専用のタグ、例 `model-voicefixer-v1`）。アプリには同梱しない。
+- 3 つの ONNX ファイルは、このリポジトリの GitHub Releases に置く（タグ `model-data-voicefixer-1`。プレリリース扱いで Latest にはしない。ビルド用ワークフローは `v` で始まるタグのリリースでだけ動く）。アプリには同梱しない。
 - 初めて超解像を有効にしたときにダウンロードする。進捗を表示し、途中から再開できるようにし、SHA-256 で検証してからアプリのデータディレクトリに置く。
 - 重みのライセンス（CC-BY-4.0）の表記は、アプリの「ライセンス」画面と Releases の説明に載せる。
 
 ## ONNX Runtime の組み込み
 
-- ONNX Runtime の C API を `dart:ffi` から呼ぶ（StormLib と同じ方式）。バインディングは `ffigen` で `onnxruntime_c_api.h` から生成する。
-- 公式の配布物を各プラットフォームのパッケージに同梱する。
-
-| OS | 同梱するライブラリ |
-|---|---|
-| macOS | `libonnxruntime.dylib`（universal2） |
-| Windows x64 / ARM64 | `onnxruntime.dll` |
-| Linux x64 / ARM64 | `libonnxruntime.so` |
-
+- ONNX Runtime の C API を `dart:ffi` から呼ぶ。バインディングは `tool/ffigen_onnxruntime.dart` で `third_party/onnxruntime/onnxruntime_c_api.h` から生成する（`lib/src/third_party/onnxruntime.g.dart`）。
+- 同梱には Dart の native assets を使う。`hook/build.dart` が、ターゲットの OS と CPU に合った公式リリースのアーカイブ（1.23.2、macOS・Windows・Linux の x64 と arm64）をダウンロードし、固定した SHA-256 で検証してから、ライブラリを code asset として登録する。Flutter がこれを各 OS のアプリに同梱する（macOS のリリースビルドではユニバーサルバイナリになる）。Xcode のプロジェクトファイルや CMake は変更しない。
+- オフラインでビルドするときは、user define の `onnxruntime_library` で、展開済みのライブラリを指定する。
 - 実行プロバイダは CPU だけにする（CoreML は可変長入力でモデル構築に失敗した。CUDA や DirectML は配布サイズが増えるので見送る）。
-- 推論は専用の Isolate で 1 ファイルずつ行う。セッションは 1 つ作って使い回す。`intra_op_num_threads` は物理コア数にする。
-- キャンセルは `OrtRunOptions` の terminate フラグで行う。
+- 推論は専用の Isolate で 1 ファイルずつ行う。セッションは 1 つ作って使い回す。スレッド数は ONNX Runtime の既定（物理コア数）にする。
+- キャンセルは、メインの Isolate から `OrtRunOptions` の terminate フラグを立てて行う（実測では 4ms で止まる）。結果は一時ファイルに書いてからリネームするので、キャンセルしても書きかけのキャッシュは残らない。
 
 ## 設定
 
@@ -79,17 +73,18 @@ VoiceFixer は低域まで作り直すので、子音やアタックが欠ける
 | `sr.engine` | `none` / `voicefixer` | `none` |
 | `sr.backend` | `local` / `colab` | `local` |
 
-- エンジンを `none` 以外にしたときだけ backend を表示する。local でモデルがまだない場合は、ダウンロードボタンとサイズ（2 ファイルで計 432MB）を表示する。
-- 所要時間の目安を表示する（ローカル CPU で、音声の長さの約 1/3）。
+- エンジンを `none` 以外にしたときだけ backend を表示する。local でモデルがまだない場合は、ダウンロードボタンとサイズ（3 ファイルで計 432MB）を表示する。
+- 所要時間の目安を表示する（ローカル CPU で、音声の長さの約半分。M4 で 1 言語あたり約 1 時間）。
 - 超解像が有効なときの MP3 品質（`-V 4`）は現行のまま。AudioSR 用だった「VAG→WAV 変換時の gain 2.0」は廃止する（VoiceFixer の本家は gain をかけない）。
 
 ## キャッシュ
 
 `<cacheDir>/sr/<モデルID>/<入力WAVのSHA-256>.wav`
 
-- モデル ID は、2 つの ONNX ファイルの SHA-256 をつないでハッシュしたものの先頭 12 文字。モデルを更新すると別のキャッシュになる。
+- モデル ID は固定の文字列 `voicefixer-v1`（`SuperResolutionService.modelVersion`）。モデルを作り直したときはこれを変えて、古いキャッシュを使わないようにする。毎回 432MB のハッシュを計算しないための判断。
 - 入力のハッシュをキーにするので、言語（STREAM）が違っても同じ音声なら再利用できる。
-- 現行の「ビルドが成功したらキャッシュを消す」動作はやめる。代わりに設定画面に「キャッシュ削除」ボタンを置く。
+- 現行の「ビルドが成功したらキャッシュを消す」動作はやめる。削除は、設定画面に既存の「キャッシュを削除」ボタンで行う。
+- キャッシュは入力の内容をキーにしているので、いつ再利用しても正しい。そのため、ビルド開始時の「中断データが見つかりました（続きから再開／最初からやり直す）」ダイアログは廃止する。中断したビルドは、もう一度ビルドすれば終わったところから自動で続く。
 
 ## Colab 連携
 

@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/constants/app_constants.dart';
 import '../core/constants/path_constants.dart';
 import '../core/di/service_locator.dart';
 import '../models/build_progress.dart';
 import '../services/mpq_builder_service.dart';
-import '../services/process_runner.dart';
 import '../services/settings_service.dart';
+import '../services/super_resolution/model_downloader.dart';
+import '../services/super_resolution/super_resolution_service.dart';
 
 /// Build status enum
 enum BuildStatus { idle, building, completed, error }
@@ -20,11 +21,18 @@ class HomeState {
   final BuildStatus status;
   final BuildProgress? progress;
   final Locale? locale;
-  final bool useAudioSr;
-  final bool audioSrAvailable;
-  final String? audioSrPath;
-  final bool audioSrUseCpu;
-  final int audioSrChunkSeconds;
+
+  /// Whether the user turned super-resolution on.
+  final bool useSuperResolution;
+
+  /// Whether the super-resolution model is installed.
+  final bool superResolutionAvailable;
+
+  /// Download progress (0..1) of the model, or null when not downloading.
+  final double? modelDownloadProgress;
+
+  /// Error from the last model download, if it failed.
+  final String? modelDownloadError;
 
   const HomeState({
     required this.assetsPath,
@@ -32,11 +40,10 @@ class HomeState {
     required this.status,
     this.progress,
     this.locale,
-    this.useAudioSr = false,
-    this.audioSrAvailable = false,
-    this.audioSrPath,
-    this.audioSrUseCpu = false,
-    this.audioSrChunkSeconds = 5,
+    this.useSuperResolution = false,
+    this.superResolutionAvailable = false,
+    this.modelDownloadProgress,
+    this.modelDownloadError,
   });
 
   factory HomeState.initial() {
@@ -54,19 +61,22 @@ class HomeState {
 
   bool get isBuilding => status == BuildStatus.building;
 
+  /// Whether the next build runs super-resolution.
+  bool get superResolutionActive =>
+      useSuperResolution && superResolutionAvailable;
+
   HomeState copyWith({
     String? assetsPath,
     String? outputPath,
     BuildStatus? status,
     BuildProgress? progress,
     Locale? locale,
-    bool? useAudioSr,
-    bool? audioSrAvailable,
-    String? audioSrPath,
-    bool? audioSrUseCpu,
-    int? audioSrChunkSeconds,
+    bool? useSuperResolution,
+    bool? superResolutionAvailable,
+    double? modelDownloadProgress,
+    String? modelDownloadError,
     bool clearProgress = false,
-    bool clearAudioSrPath = false,
+    bool clearModelDownload = false,
   }) {
     return HomeState(
       assetsPath: assetsPath ?? this.assetsPath,
@@ -74,11 +84,15 @@ class HomeState {
       status: status ?? this.status,
       progress: clearProgress ? null : (progress ?? this.progress),
       locale: locale ?? this.locale,
-      useAudioSr: useAudioSr ?? this.useAudioSr,
-      audioSrAvailable: audioSrAvailable ?? this.audioSrAvailable,
-      audioSrPath: clearAudioSrPath ? null : (audioSrPath ?? this.audioSrPath),
-      audioSrUseCpu: audioSrUseCpu ?? this.audioSrUseCpu,
-      audioSrChunkSeconds: audioSrChunkSeconds ?? this.audioSrChunkSeconds,
+      useSuperResolution: useSuperResolution ?? this.useSuperResolution,
+      superResolutionAvailable:
+          superResolutionAvailable ?? this.superResolutionAvailable,
+      modelDownloadProgress: clearModelDownload
+          ? null
+          : (modelDownloadProgress ?? this.modelDownloadProgress),
+      modelDownloadError: clearModelDownload
+          ? null
+          : (modelDownloadError ?? this.modelDownloadError),
     );
   }
 }
@@ -86,94 +100,73 @@ class HomeState {
 /// HomeViewModel using Riverpod Notifier
 class HomeViewModel extends Notifier<HomeState> {
   final MpqBuilderService _builderService;
-  final ProcessRunner _processRunner;
   final SettingsService _settingsService;
+  final SuperResolutionService _superResolution;
   StreamSubscription<BuildProgress>? _buildSubscription;
+  ModelDownloader? _modelDownloader;
 
   HomeViewModel(
     this._builderService,
-    this._processRunner,
     this._settingsService,
+    this._superResolution,
   );
 
   @override
   HomeState build() {
     ref.onDispose(_dispose);
-    if (AppConstants.enableAudioSr) {
-      _initAudioSr();
-    }
+    _initSuperResolution();
     return HomeState.initial();
   }
 
-  Future<void> _initAudioSr() async {
-    // Load AudioSR CPU and chunk settings
-    final useCpu = await _settingsService.getAudioSrUseCpu();
-    final chunkSeconds = await _settingsService.getAudioSrChunkSeconds();
+  Future<void> _initSuperResolution() async {
+    final enabled = await _settingsService.getSuperResolutionEnabled();
     state = state.copyWith(
-      audioSrUseCpu: useCpu,
-      audioSrChunkSeconds: chunkSeconds,
+      useSuperResolution: enabled,
+      superResolutionAvailable: _superResolution.isModelInstalled,
     );
+  }
 
-    // Load saved path from settings
-    final savedPath = await _settingsService.getAudioSrPath();
-    if (savedPath != null && await _processRunner.isValidAudioSr(savedPath)) {
-      state = state.copyWith(
-        audioSrPath: savedPath,
-        audioSrAvailable: true,
-        useAudioSr: true,
+  /// Re-checks whether the model is installed (e.g. after a download).
+  void refreshSuperResolutionAvailability() {
+    state = state.copyWith(
+      superResolutionAvailable: _superResolution.isModelInstalled,
+    );
+  }
+
+  /// Downloads the super-resolution model and enables it on success.
+  Future<void> downloadModel() async {
+    if (_modelDownloader != null) return;
+    final downloader = _modelDownloader = ModelDownloader(
+      _superResolution.modelDir,
+    );
+    state = state.copyWith(clearModelDownload: true, modelDownloadProgress: 0);
+    try {
+      await downloader.download(
+        onProgress: (v) => state = state.copyWith(modelDownloadProgress: v),
       );
-      return;
+      state = state.copyWith(
+        clearModelDownload: true,
+        superResolutionAvailable: _superResolution.isModelInstalled,
+      );
+      await setUseSuperResolution(true);
+    } on ModelDownloadCancelled {
+      state = state.copyWith(clearModelDownload: true);
+    } catch (e) {
+      state = state.copyWith(
+        clearModelDownload: true,
+        modelDownloadError: e.toString(),
+      );
+    } finally {
+      _modelDownloader = null;
     }
-
-    // Try auto-detection via PATH
-    await checkAudioSrAvailability();
   }
 
-  Future<void> checkAudioSrAvailability() async {
-    final path = await _processRunner.findAudioSr();
-    if (path != null) {
-      state = state.copyWith(
-        audioSrPath: path,
-        audioSrAvailable: true,
-        useAudioSr: true,
-      );
-    } else {
-      state = state.copyWith(
-        audioSrAvailable: false,
-        useAudioSr: false,
-        clearAudioSrPath: true,
-      );
-    }
-  }
+  /// Stops [downloadModel]; the next download resumes where it stopped.
+  void cancelModelDownload() => _modelDownloader?.cancel();
 
-  void setUseAudioSr(bool value) {
-    if (!state.audioSrAvailable) return;
-    state = state.copyWith(useAudioSr: value);
-  }
-
-  Future<void> setAudioSrUseCpu(bool value) async {
-    state = state.copyWith(audioSrUseCpu: value);
-    await _settingsService.setAudioSrUseCpu(value);
-  }
-
-  Future<void> setAudioSrChunkSeconds(int value) async {
-    state = state.copyWith(audioSrChunkSeconds: value);
-    await _settingsService.setAudioSrChunkSeconds(value);
-  }
-
-  Future<void> setAudioSrPath(String? path) async {
-    if (path != null && await _processRunner.isValidAudioSr(path)) {
-      await _settingsService.setAudioSrPath(path);
-      state = state.copyWith(
-        audioSrPath: path,
-        audioSrAvailable: true,
-        useAudioSr: true,
-      );
-    } else {
-      await _settingsService.setAudioSrPath(null);
-      // Re-check auto-detection
-      await checkAudioSrAvailability();
-    }
+  Future<void> setUseSuperResolution(bool value) async {
+    state = state.copyWith(useSuperResolution: value);
+    await _settingsService.setSuperResolutionEnabled(value);
   }
 
   void setAssetsPath(String path) {
@@ -199,19 +192,12 @@ class HomeViewModel extends Notifier<HomeState> {
       ),
     );
 
-    final audioSrPath =
-        AppConstants.enableAudioSr && state.useAudioSr
-            ? state.audioSrPath
-            : null;
-
     _buildSubscription?.cancel();
     _buildSubscription = _builderService
         .build(
           state.assetsPath,
           state.outputPath,
-          audioSrPath: audioSrPath,
-          audioSrUseCpu: state.audioSrUseCpu,
-          audioSrChunkSeconds: state.audioSrChunkSeconds,
+          superResolution: state.superResolutionActive,
         )
         .listen(
           (progress) {
@@ -247,6 +233,7 @@ class HomeViewModel extends Notifier<HomeState> {
   void _dispose() {
     _buildSubscription?.cancel();
     _builderService.cancel();
+    _modelDownloader?.cancel();
   }
 }
 
@@ -254,7 +241,7 @@ class HomeViewModel extends Notifier<HomeState> {
 final homeViewModelProvider = NotifierProvider<HomeViewModel, HomeState>(
   () => HomeViewModel(
     getIt<MpqBuilderService>(),
-    getIt<ProcessRunner>(),
     getIt<SettingsService>(),
+    getIt<SuperResolutionService>(),
   ),
 );

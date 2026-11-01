@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -111,17 +112,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String enhancingAudio(String streamName) {
-    return 'Enhancing audio with AudioSR from $streamName...';
+    return 'Enhancing voices in $streamName with VoiceFixer...';
   }
-
-  @override
-  String get enableAudioSr => 'Enhance audio quality (AudioSR)';
-
-  @override
-  String get audioSrNotFound => 'Please specify the audiosr executable.';
-
-  @override
-  String get browseAudioSr => 'Browse...';
 
   @override
   String get settings => 'Settings';
@@ -136,22 +128,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cacheCleared => 'Cache cleared';
 
   @override
-  String get audioSrNote => 'Processing may take a very long time.';
-
-  @override
-  String get cacheFoundTitle => 'Previous data found';
-
-  @override
-  String get cacheFoundMessage =>
-      'Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?';
-
-  @override
-  String get continueFromCache => 'Continue';
-
-  @override
-  String get startFresh => 'Start Fresh';
-
-  @override
   String get version => 'Version';
 
   @override
@@ -161,8 +137,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get licensesSection => 'Licenses';
 
   @override
-  String get audioSrUseCpu => 'Process on CPU';
+  String get superResolutionSection => 'Voice enhancement';
 
   @override
-  String get audioSrChunkSeconds => 'Chunk duration (seconds)';
+  String get enableSuperResolution => 'Enhance voice quality (VoiceFixer)';
+
+  @override
+  String get superResolutionNote =>
+      'Converts the 11 kHz voices to 44.1 kHz. This takes a while (about half the audio length on a fast PC; about an hour per language).';
+
+  @override
+  String get superResolutionModelMissing =>
+      'The VoiceFixer model is not installed.';
+
+  @override
+  String downloadModel(String size) {
+    return 'Download model ($size)';
+  }
+
+  @override
+  String downloadingModel(int percent) {
+    return 'Downloading model... $percent%';
+  }
+
+  @override
+  String modelDownloadFailed(String error) {
+    return 'Download failed: $error';
+  }
 }

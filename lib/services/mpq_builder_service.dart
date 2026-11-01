@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 
@@ -11,16 +11,16 @@ import '../models/stream_mapping.dart';
 import 'dstream_extractor.dart';
 import 'process_runner.dart';
 import 'stormlib_service.dart';
+import 'super_resolution/super_resolution_service.dart';
 import 'vag_to_wav_converter.dart';
-import 'wav_utils.dart' as wav_utils;
 
 class MpqBuilderService {
   final ProcessRunner _processRunner;
   final VagToWavConverter _vagToWavConverter;
   final DstreamExtractor _dstreamExtractor;
   final StormLibService _stormLibService;
+  final SuperResolutionService _superResolution;
 
-  Process? _audioSrProcess;
   bool _cancelled = false;
 
   MpqBuilderService({
@@ -28,24 +28,23 @@ class MpqBuilderService {
     VagToWavConverter? vagToWavConverter,
     DstreamExtractor? dstreamExtractor,
     StormLibService? stormLibService,
+    SuperResolutionService? superResolutionService,
   }) : _vagToWavConverter = vagToWavConverter ?? VagToWavConverter(),
        _dstreamExtractor = dstreamExtractor ?? DstreamExtractor(),
-       _stormLibService = stormLibService ?? StormLibService();
+       _stormLibService = stormLibService ?? StormLibService(),
+       _superResolution = superResolutionService ?? SuperResolutionService();
 
   void cancel() {
     _cancelled = true;
-    _audioSrProcess?.kill();
+    _superResolution.cancel();
   }
 
   Stream<BuildProgress> build(
     String ps1AssetsPath,
     String outputPath, {
-    String? audioSrPath,
-    bool audioSrUseCpu = false,
-    int audioSrChunkSeconds = 5,
+    bool superResolution = false,
   }) async* {
     _cancelled = false;
-    _audioSrProcess = null;
 
     var progress = BuildProgress(
       currentStep: '',
@@ -109,10 +108,9 @@ class MpqBuilderService {
         );
       }
 
-      // Log AudioSR status
-      if (audioSrPath != null) {
+      if (superResolution) {
         yield progress = progress.addLog(
-          'audiosr found at: $audioSrPath - audio enhancement enabled',
+          'Super-resolution: VoiceFixer (${_superResolution.modelDir})',
         );
       }
 
@@ -151,8 +149,8 @@ class MpqBuilderService {
       );
 
       // Step 4: Process each STREAM*.DIR
-      // Steps: extract + vag conversion + [audiosr] + [mp3] + mpq
-      final stepsPerStream = 3 + (audioSrPath != null ? 1 : 0);
+      // Steps: extract + vag conversion + [super-resolution] + [mp3] + mpq
+      final stepsPerStream = 3 + (superResolution ? 1 : 0);
       int totalSteps = streamDirs.length * stepsPerStream;
       int currentStepNum = 0;
 
@@ -277,7 +275,6 @@ class MpqBuilderService {
             final result = await _vagToWavConverter.convert(
               vagFile.path,
               wavPath,
-              gain: audioSrPath != null ? 2.0 : 1.0,
             );
             return (vagFile.path, result);
           }).toList();
@@ -308,23 +305,19 @@ class MpqBuilderService {
         currentStepNum++;
         if (_cancelled) break;
 
-        // AudioSR enhancement step (optional)
-        if (audioSrPath != null && mappings.isNotEmpty) {
+        // Super-resolution step (optional)
+        if (superResolution && mappings.isNotEmpty) {
           yield progress = progress.copyWith(
             stepKey: BuildStepKey.enhancingAudio,
             streamName: streamName,
             percentage: currentStepNum / totalSteps,
           );
 
-          yield* _runAudioSr(
-            audioSrPath: audioSrPath,
-            streamName: streamName,
+          yield* _runSuperResolution(
             streamWorkDir: streamWorkDir,
-            mappings: mappings,
+            mapSourceFiles: mapSourceFiles,
             progress: progress,
             onProgress: (p) => progress = p,
-            useCpu: audioSrUseCpu,
-            chunkSeconds: audioSrChunkSeconds,
           );
 
           currentStepNum++;
@@ -358,8 +351,8 @@ class MpqBuilderService {
             processedFiles: 0,
           );
 
-          // MP3 quality: -V 4 for AudioSR-enhanced (48kHz), -V 7 for original (11kHz)
-          final mp3Quality = audioSrPath != null ? '4' : '7';
+          // MP3 quality: -V 4 for super-resolved (44.1kHz), -V 7 for original (11kHz)
+          final mp3Quality = superResolution ? '4' : '7';
 
           final mp3BatchSize = (Platform.numberOfProcessors ~/ 2).clamp(1, 8);
           int mp3ProcessedCount = 0;
@@ -577,17 +570,6 @@ class MpqBuilderService {
       yield progress = progress.copyWith(stepKey: BuildStepKey.cleaningUp);
       await workDir.delete(recursive: true);
 
-      // Delete AudioSR cache after successful build
-      if (!_cancelled && audioSrPath != null) {
-        final audioCacheDir = Directory(
-          p.join(PathConstants.getCacheDir(), 'audiosr'),
-        );
-        if (await audioCacheDir.exists()) {
-          await audioCacheDir.delete(recursive: true);
-          yield progress = progress.addLog('AudioSR cache cleared.');
-        }
-      }
-
       if (_cancelled) {
         yield progress.copyWith(isComplete: true).addLog('Build cancelled.');
       } else {
@@ -604,266 +586,59 @@ class MpqBuilderService {
         error: 'Error: $e\n$stackTrace',
         isComplete: true,
       );
-    } finally {
-      _audioSrProcess?.kill();
-      _audioSrProcess = null;
     }
   }
 
-  /// Run AudioSR enhancement on map-filtered WAV files with persistent caching.
-  Stream<BuildProgress> _runAudioSr({
-    required String audioSrPath,
-    required String streamName,
+  /// Replaces the map-referenced WAV files in [streamWorkDir] with their
+  /// super-resolved 44.1kHz versions.
+  Stream<BuildProgress> _runSuperResolution({
     required Directory streamWorkDir,
-    required List<StreamMapping> mappings,
+    required Set<String> mapSourceFiles,
     required BuildProgress progress,
     required void Function(BuildProgress) onProgress,
-    required bool useCpu,
-    required int chunkSeconds,
   }) async* {
-    // Get the set of WAV source files referenced in the map
-    final mapWavFiles = mappings
-        .map((m) => m.sourceFile)
-        .where((f) => f.toUpperCase().endsWith('.WAV'))
-        .toSet();
+    final wavFiles = await streamWorkDir
+        .list()
+        .where(
+          (e) =>
+              e is File &&
+              e.path.toUpperCase().endsWith('.WAV') &&
+              mapSourceFiles.contains(p.basename(e.path).toUpperCase()),
+        )
+        .map((e) => e.path)
+        .toList();
+    wavFiles.sort();
 
-    if (mapWavFiles.isEmpty) {
-      yield progress = progress.addLog(
-        'No WAV files in map, skipping AudioSR.',
-      );
-      onProgress(progress);
-      return;
-    }
-
-    yield progress = progress.addLog(
-      'AudioSR: ${mapWavFiles.length} WAV files in map for $streamName',
-    );
-
-    // Set up cache directory
-    final cacheDir = Directory(PathConstants.getAudioSrCacheDir(streamName));
-    await cacheDir.create(recursive: true);
-
-    // Determine which files need processing (not yet cached)
-    final filesToProcess = <String>[];
-    final cachedFiles = <String>[];
-
-    for (final fileName in mapWavFiles) {
-      final cachedFile = File(p.join(cacheDir.path, fileName));
-      if (await cachedFile.exists()) {
-        cachedFiles.add(fileName);
-      } else {
-        filesToProcess.add(fileName);
-      }
-    }
-
-    if (cachedFiles.isNotEmpty) {
-      yield progress = progress.addLog(
-        'AudioSR: ${cachedFiles.length} files already cached, skipping.',
-      );
-    }
-
-    final totalFiles = mapWavFiles.length;
     yield progress = progress.copyWith(
-      totalFiles: totalFiles,
-      processedFiles: cachedFiles.length,
+      totalFiles: wavFiles.length,
+      processedFiles: 0,
     );
     onProgress(progress);
 
-    // Process uncached files with AudioSR (one file at a time)
-    if (filesToProcess.isNotEmpty && !_cancelled) {
-      yield progress = progress.addLog(
-        'AudioSR: Processing ${filesToProcess.length} files...',
-      );
-
-      // Create output directory for AudioSR
-      final audioSrOutDir = Directory(
-        p.join(streamWorkDir.path, 'audiosr_out'),
-      );
-      await audioSrOutDir.create(recursive: true);
-
-      try {
-        int processedCount = 0;
-        for (final fileName in filesToProcess) {
-          if (_cancelled) break;
-
-          yield progress = progress.addLog('AudioSR: Processing $fileName...');
-          onProgress(progress);
-
-          final inputFile = p.join(streamWorkDir.path, fileName);
-
-          // Split input WAV into 5-second chunks
-          final splitDir = Directory(
-            p.join(streamWorkDir.path, 'audiosr_split'),
-          );
-          if (await splitDir.exists()) {
-            await splitDir.delete(recursive: true);
-          }
-          await splitDir.create(recursive: true);
-
-          const overlapSeconds = 0.1;
-          final chunks = await wav_utils.splitWav(
-            inputFile,
-            splitDir.path,
-            chunkSeconds,
-            overlapSeconds: overlapSeconds,
-          );
-          yield progress = progress.addLog(
-            'AudioSR: Split $fileName into ${chunks.length} chunk(s)',
-          );
-          onProgress(progress);
-
-          // Process each chunk with AudioSR
-          final outputChunks = <String>[];
-          bool chunkFailed = false;
-
-          for (int i = 0; i < chunks.length; i++) {
-            if (_cancelled) break;
-
-            yield progress = progress.addLog(
-              'AudioSR: Processing chunk ${i + 1}/${chunks.length} of $fileName...',
-            );
-            onProgress(progress);
-
-            // Clean output directory before each chunk
-            if (await audioSrOutDir.exists()) {
-              await audioSrOutDir.delete(recursive: true);
-            }
-            await audioSrOutDir.create(recursive: true);
-
-            // Pre-resample chunk to 48kHz to avoid AudioSR internal
-            // resampling issues (tensor dimension mismatch)
-            final resampledPath = p.join(splitDir.path, 'chunk_resampled.WAV');
-            await wav_utils.resampleWav(chunks[i], resampledPath, 48000);
-
-            final audioSrArgs = [
-              '-i',
-              resampledPath,
-              '-s',
-              audioSrOutDir.path,
-              '--model_name',
-              'speech',
-              if (useCpu) ...['-d', 'cpu'],
-            ];
-            _audioSrProcess = await _processRunner.startProcess(
-              audioSrPath,
-              audioSrArgs,
-            );
-
-            // Collect stderr into a buffer
-            final stderrBuffer = StringBuffer();
-            _audioSrProcess!.stderr
-                .transform(utf8.decoder)
-                .listen((data) => stderrBuffer.write(data));
-
-            // Stream stdout lines to GUI log in real-time
-            await for (final line
-                in _audioSrProcess!.stdout
-                    .transform(utf8.decoder)
-                    .transform(const LineSplitter())) {
-              if (line.trim().isNotEmpty) {
-                yield progress = progress.addLog('AudioSR: $line');
-                onProgress(progress);
-              }
-            }
-
-            final exitCode = await _audioSrProcess!.exitCode;
-            _audioSrProcess = null;
-
-            if (_cancelled) break;
-
-            // Find the output WAV file
-            File? outputFile;
-            await for (final entity in audioSrOutDir.list(recursive: true)) {
-              if (entity is File &&
-                  entity.path.toUpperCase().endsWith('.WAV')) {
-                outputFile = entity;
-                break;
-              }
-            }
-
-            if (outputFile != null) {
-              // Copy output to splitDir so it survives audioSrOutDir cleanup
-              final savedPath = p.join(
-                splitDir.path,
-                'out_${i.toString().padLeft(3, '0')}.WAV',
-              );
-              await outputFile.copy(savedPath);
-              outputChunks.add(savedPath);
-            } else {
-              chunkFailed = true;
-              if (exitCode != 0) {
-                yield progress = progress.addLog(
-                  'AudioSR: Chunk ${i + 1} failed with code $exitCode',
-                );
-                final errMsg = stderrBuffer.toString().trim();
-                if (errMsg.isNotEmpty) {
-                  yield progress = progress.addLog('AudioSR error: $errMsg');
-                }
-              } else {
-                yield progress = progress.addLog(
-                  'AudioSR: Warning - no output for chunk ${i + 1} of $fileName',
-                );
-              }
-              break;
-            }
-          }
-
-          // Concatenate output chunks and cache
-          if (!_cancelled && !chunkFailed && outputChunks.isNotEmpty) {
-            final cachedPath = p.join(cacheDir.path, fileName);
-            final crossfadeFrames = (overlapSeconds * 48000).round();
-            await wav_utils.concatenateWavCrossfade(
-              outputChunks,
-              cachedPath,
-              crossfadeFrames,
-            );
-            yield progress = progress.addLog(
-              'AudioSR: Concatenated ${outputChunks.length} chunk(s) with crossfade and cached $fileName',
-            );
-          }
-
-          // Clean up split directory
-          if (await splitDir.exists()) {
-            await splitDir.delete(recursive: true);
-          }
-
-          onProgress(progress);
-
-          processedCount++;
-          yield progress = progress.copyWith(
-            processedFiles: cachedFiles.length + processedCount,
-          );
-          onProgress(progress);
-        }
-
-        if (_cancelled) {
-          _audioSrProcess?.kill();
-          yield progress = progress.addLog('AudioSR: Cancelled by user.');
-        }
-      } catch (e) {
-        _audioSrProcess = null;
-        yield progress = progress.addLog('AudioSR error: $e');
+    var processed = 0;
+    var fromCache = 0;
+    await for (final event in _superResolution.enhance(wavFiles)) {
+      final name = p.basename(wavFiles[event.index]);
+      switch (event) {
+        case SuperResolutionProgress():
+          yield progress = progress.copyWith(currentFile: name);
+        case SuperResolutionDone(:final cached):
+          processed++;
+          if (cached) fromCache++;
+          yield progress = progress.copyWith(processedFiles: processed);
+        case SuperResolutionSkipped(:final reason):
+          processed++;
+          yield progress = progress
+              .copyWith(processedFiles: processed)
+              .addLog('Super-resolution skipped $name: $reason');
       }
+      onProgress(progress);
     }
-
-    // Copy all cached files to workDir (overwrite 11kHz WAV with 48kHz WAV)
-    int copiedCount = 0;
-    if (await cacheDir.exists()) {
-      await for (final entity in cacheDir.list()) {
-        if (entity is File && entity.path.toUpperCase().endsWith('.WAV')) {
-          final fileName = p.basename(entity.path);
-          final destFile = File(p.join(streamWorkDir.path, fileName));
-          await entity.copy(destFile.path);
-          copiedCount++;
-        }
-      }
-    }
-
-    yield progress = progress.copyWith(processedFiles: totalFiles);
-    onProgress(progress);
 
     yield progress = progress.addLog(
-      'AudioSR: Copied $copiedCount enhanced files to work directory.',
+      _cancelled
+          ? 'Super-resolution cancelled.'
+          : 'Super-resolution: $processed files ($fromCache from cache).',
     );
     onProgress(progress);
   }

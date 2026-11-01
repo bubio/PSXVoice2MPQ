@@ -278,29 +278,11 @@ abstract class AppLocalizations {
   /// **'Converting WAV to MP3 from {streamName}...'**
   String convertingToMp3(String streamName);
 
-  /// AudioSR enhancement step
+  /// Super-resolution step
   ///
   /// In en, this message translates to:
-  /// **'Enhancing audio with AudioSR from {streamName}...'**
+  /// **'Enhancing voices in {streamName} with VoiceFixer...'**
   String enhancingAudio(String streamName);
-
-  /// Checkbox label for enabling AudioSR
-  ///
-  /// In en, this message translates to:
-  /// **'Enhance audio quality (AudioSR)'**
-  String get enableAudioSr;
-
-  /// Message when audiosr is not found
-  ///
-  /// In en, this message translates to:
-  /// **'Please specify the audiosr executable.'**
-  String get audioSrNotFound;
-
-  /// Button to browse for audiosr executable
-  ///
-  /// In en, this message translates to:
-  /// **'Browse...'**
-  String get browseAudioSr;
 
   /// Settings dialog title
   ///
@@ -326,36 +308,6 @@ abstract class AppLocalizations {
   /// **'Cache cleared'**
   String get cacheCleared;
 
-  /// Note about AudioSR processing time
-  ///
-  /// In en, this message translates to:
-  /// **'Processing may take a very long time.'**
-  String get audioSrNote;
-
-  /// Title for cache found dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Previous data found'**
-  String get cacheFoundTitle;
-
-  /// Message for cache found dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?'**
-  String get cacheFoundMessage;
-
-  /// Button to continue from cached data
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get continueFromCache;
-
-  /// Button to clear cache and start fresh
-  ///
-  /// In en, this message translates to:
-  /// **'Start Fresh'**
-  String get startFresh;
-
   /// Version label in settings
   ///
   /// In en, this message translates to:
@@ -374,17 +326,47 @@ abstract class AppLocalizations {
   /// **'Licenses'**
   String get licensesSection;
 
-  /// Checkbox label for running AudioSR on CPU
+  /// Settings section title for super-resolution
   ///
   /// In en, this message translates to:
-  /// **'Process on CPU'**
-  String get audioSrUseCpu;
+  /// **'Voice enhancement'**
+  String get superResolutionSection;
 
-  /// Dropdown label for AudioSR chunk duration in seconds
+  /// Checkbox label for enabling super-resolution
   ///
   /// In en, this message translates to:
-  /// **'Chunk duration (seconds)'**
-  String get audioSrChunkSeconds;
+  /// **'Enhance voice quality (VoiceFixer)'**
+  String get enableSuperResolution;
+
+  /// Note about what super-resolution does and how long it takes
+  ///
+  /// In en, this message translates to:
+  /// **'Converts the 11 kHz voices to 44.1 kHz. This takes a while (about half the audio length on a fast PC; about an hour per language).'**
+  String get superResolutionNote;
+
+  /// Shown when the super-resolution model files are missing
+  ///
+  /// In en, this message translates to:
+  /// **'The VoiceFixer model is not installed.'**
+  String get superResolutionModelMissing;
+
+  /// Button that downloads the super-resolution model
+  ///
+  /// In en, this message translates to:
+  /// **'Download model ({size})'**
+  String downloadModel(String size);
+
+  /// Progress text while the model downloads
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading model... {percent}%'**
+  String downloadingModel(int percent);
+
+  /// Shown when the model download fails
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed: {error}'**
+  String modelDownloadFailed(String error);
 }
 
 class _AppLocalizationsDelegate

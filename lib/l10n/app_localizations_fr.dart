@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -115,17 +116,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String enhancingAudio(String streamName) {
-    return 'Amélioration audio avec AudioSR de $streamName...';
+    return 'Amélioration des voix de $streamName avec VoiceFixer...';
   }
-
-  @override
-  String get enableAudioSr => 'Améliorer la qualité audio (AudioSR)';
-
-  @override
-  String get audioSrNotFound => 'Veuillez spécifier l\'exécutable audiosr.';
-
-  @override
-  String get browseAudioSr => 'Parcourir...';
 
   @override
   String get settings => 'Paramètres';
@@ -140,22 +132,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cacheCleared => 'Cache vidé';
 
   @override
-  String get audioSrNote => 'Le traitement peut prendre très longtemps.';
-
-  @override
-  String get cacheFoundTitle => 'Données précédentes trouvées';
-
-  @override
-  String get cacheFoundMessage =>
-      'Des données d\'une construction précédemment interrompue ont été trouvées. Voulez-vous reprendre ou recommencer ?';
-
-  @override
-  String get continueFromCache => 'Reprendre';
-
-  @override
-  String get startFresh => 'Recommencer';
-
-  @override
   String get version => 'Version';
 
   @override
@@ -165,8 +141,32 @@ class AppLocalizationsFr extends AppLocalizations {
   String get licensesSection => 'Licences';
 
   @override
-  String get audioSrUseCpu => 'Traitement sur CPU';
+  String get superResolutionSection => 'Amélioration de la voix';
 
   @override
-  String get audioSrChunkSeconds => 'Durée des segments (secondes)';
+  String get enableSuperResolution =>
+      'Améliorer la qualité des voix (VoiceFixer)';
+
+  @override
+  String get superResolutionNote =>
+      'Convertit les voix de 11 kHz en 44,1 kHz. Le traitement prend du temps (environ la moitié de la durée audio sur un PC rapide, soit environ une heure par langue).';
+
+  @override
+  String get superResolutionModelMissing =>
+      'Le modèle VoiceFixer n\'est pas installé.';
+
+  @override
+  String downloadModel(String size) {
+    return 'Télécharger le modèle ($size)';
+  }
+
+  @override
+  String downloadingModel(int percent) {
+    return 'Téléchargement du modèle... $percent %';
+  }
+
+  @override
+  String modelDownloadFailed(String error) {
+    return 'Échec du téléchargement : $error';
+  }
 }

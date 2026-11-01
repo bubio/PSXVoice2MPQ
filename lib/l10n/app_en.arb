@@ -156,27 +156,15 @@
       }
     }
   },
-  "enhancingAudio": "Enhancing audio with AudioSR from {streamName}...",
+  "enhancingAudio": "Enhancing voices in {streamName} with VoiceFixer...",
   "@enhancingAudio": {
-    "description": "AudioSR enhancement step",
+    "description": "Super-resolution step",
     "placeholders": {
       "streamName": {
         "type": "String",
         "example": "STREAM1"
       }
     }
-  },
-  "enableAudioSr": "Enhance audio quality (AudioSR)",
-  "@enableAudioSr": {
-    "description": "Checkbox label for enabling AudioSR"
-  },
-  "audioSrNotFound": "Please specify the audiosr executable.",
-  "@audioSrNotFound": {
-    "description": "Message when audiosr is not found"
-  },
-  "browseAudioSr": "Browse...",
-  "@browseAudioSr": {
-    "description": "Button to browse for audiosr executable"
   },
   "settings": "Settings",
   "@settings": {
@@ -194,26 +182,6 @@
   "@cacheCleared": {
     "description": "Message shown after cache is cleared"
   },
-  "audioSrNote": "Processing may take a very long time.",
-  "@audioSrNote": {
-    "description": "Note about AudioSR processing time"
-  },
-  "cacheFoundTitle": "Previous data found",
-  "@cacheFoundTitle": {
-    "description": "Title for cache found dialog"
-  },
-  "cacheFoundMessage": "Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?",
-  "@cacheFoundMessage": {
-    "description": "Message for cache found dialog"
-  },
-  "continueFromCache": "Continue",
-  "@continueFromCache": {
-    "description": "Button to continue from cached data"
-  },
-  "startFresh": "Start Fresh",
-  "@startFresh": {
-    "description": "Button to clear cache and start fresh"
-  },
   "version": "Version",
   "@version": {
     "description": "Version label in settings"
@@ -226,12 +194,50 @@
   "@licensesSection": {
     "description": "Section title for licenses in settings"
   },
-  "audioSrUseCpu": "Process on CPU",
-  "@audioSrUseCpu": {
-    "description": "Checkbox label for running AudioSR on CPU"
+  "superResolutionSection": "Voice enhancement",
+  "@superResolutionSection": {
+    "description": "Settings section title for super-resolution"
   },
-  "audioSrChunkSeconds": "Chunk duration (seconds)",
-  "@audioSrChunkSeconds": {
-    "description": "Dropdown label for AudioSR chunk duration in seconds"
+  "enableSuperResolution": "Enhance voice quality (VoiceFixer)",
+  "@enableSuperResolution": {
+    "description": "Checkbox label for enabling super-resolution"
+  },
+  "superResolutionNote": "Converts the 11 kHz voices to 44.1 kHz. This takes a while (about half the audio length on a fast PC; about an hour per language).",
+  "@superResolutionNote": {
+    "description": "Note about what super-resolution does and how long it takes"
+  },
+  "superResolutionModelMissing": "The VoiceFixer model is not installed.",
+  "@superResolutionModelMissing": {
+    "description": "Shown when the super-resolution model files are missing"
+  },
+  "downloadModel": "Download model ({size})",
+  "@downloadModel": {
+    "description": "Button that downloads the super-resolution model",
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "432 MB"
+      }
+    }
+  },
+  "downloadingModel": "Downloading model... {percent}%",
+  "@downloadingModel": {
+    "description": "Progress text while the model downloads",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "modelDownloadFailed": "Download failed: {error}",
+  "@modelDownloadFailed": {
+    "description": "Shown when the model download fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "HTTP 404"
+      }
+    }
   }
 }

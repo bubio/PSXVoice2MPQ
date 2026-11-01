@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -112,17 +113,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String enhancingAudio(String streamName) {
-    return 'Audio mit AudioSR von $streamName wird verbessert...';
+    return 'Stimmen in $streamName werden mit VoiceFixer verbessert...';
   }
-
-  @override
-  String get enableAudioSr => 'Audioqualität verbessern (AudioSR)';
-
-  @override
-  String get audioSrNotFound => 'Bitte geben Sie die audiosr-Programmdatei an.';
-
-  @override
-  String get browseAudioSr => 'Durchsuchen...';
 
   @override
   String get settings => 'Einstellungen';
@@ -137,22 +129,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cacheCleared => 'Cache gelöscht';
 
   @override
-  String get audioSrNote => 'Die Verarbeitung kann sehr lange dauern.';
-
-  @override
-  String get cacheFoundTitle => 'Vorherige Daten gefunden';
-
-  @override
-  String get cacheFoundMessage =>
-      'Es wurden Daten eines zuvor abgebrochenen Builds gefunden. Möchten Sie fortfahren oder neu beginnen?';
-
-  @override
-  String get continueFromCache => 'Fortfahren';
-
-  @override
-  String get startFresh => 'Neu beginnen';
-
-  @override
   String get version => 'Version';
 
   @override
@@ -162,8 +138,31 @@ class AppLocalizationsDe extends AppLocalizations {
   String get licensesSection => 'Lizenzen';
 
   @override
-  String get audioSrUseCpu => 'Auf CPU verarbeiten';
+  String get superResolutionSection => 'Sprachverbesserung';
 
   @override
-  String get audioSrChunkSeconds => 'Chunk-Dauer (Sekunden)';
+  String get enableSuperResolution => 'Sprachqualität verbessern (VoiceFixer)';
+
+  @override
+  String get superResolutionNote =>
+      'Wandelt die 11-kHz-Sprachaufnahmen in 44,1 kHz um. Das dauert eine Weile (auf einem schnellen PC etwa die Hälfte der Audiolänge, rund eine Stunde pro Sprache).';
+
+  @override
+  String get superResolutionModelMissing =>
+      'Das VoiceFixer-Modell ist nicht installiert.';
+
+  @override
+  String downloadModel(String size) {
+    return 'Modell herunterladen ($size)';
+  }
+
+  @override
+  String downloadingModel(int percent) {
+    return 'Modell wird heruntergeladen... $percent %';
+  }
+
+  @override
+  String modelDownloadFailed(String error) {
+    return 'Download fehlgeschlagen: $error';
+  }
 }
