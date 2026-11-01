@@ -1,7 +1,7 @@
 // Runs VoiceFixer on one WAV file, for checking the Dart port against
 // tools/voicefixer_onnx/pipeline.py.
 //
-// fvm dart run tool/voicefixer_cli.dart <libonnxruntime> <model dir> <in.wav> <out.f32>
+// fvm dart run tool/voicefixer_cli.dart <model dir> <in.wav> <out.f32>
 //
 // <in.wav> must be 16-bit mono 11025Hz. <out.f32> is raw little-endian
 // float32 at 44100Hz.
@@ -37,17 +37,15 @@ Float32List readPcm16Mono(String path) {
 }
 
 void main(List<String> args) {
-  if (args.length != 4) {
-    stderr.writeln(
-      'usage: voicefixer_cli <libonnxruntime> <model dir> <in.wav> <out.f32>',
-    );
+  if (args.length != 3) {
+    stderr.writeln('usage: voicefixer_cli <model dir> <in.wav> <out.f32>');
     exit(64);
   }
-  final [libPath, modelDir, inPath, outPath] = args;
+  final [modelDir, inPath, outPath] = args;
   final input = readPcm16Mono(inPath);
 
   final sw = Stopwatch()..start();
-  final runtime = OnnxRuntime.open(libPath);
+  final runtime = OnnxRuntime.open();
   final fixer = VoiceFixer.load(runtime, modelDir);
   final loadMs = sw.elapsedMilliseconds;
 

@@ -14,35 +14,11 @@
 // ignore_for_file: unused_import, unused_element, deprecated_member_use_from_same_package
 import 'dart:ffi' as ffi;
 
-/// /// Bindings for the ONNX Runtime C API.
-class OnnxRuntimeBindings {
-  /// Holds the symbol lookup function.
-  final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-  _lookup;
-
-  /// The symbols are looked up in [dynamicLibrary].
-  OnnxRuntimeBindings(ffi.DynamicLibrary dynamicLibrary)
-    : _lookup = dynamicLibrary.lookup;
-
-  /// The symbols are looked up with [lookup].
-  OnnxRuntimeBindings.fromLookup(
-    ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
-  ) : _lookup = lookup;
-
-  /// \brief The Onnxruntime library's entry point to access the C API
-  ///
-  /// Call this to get the a pointer to an ::OrtApiBase
-  ffi.Pointer<OrtApiBase> OrtGetApiBase() {
-    return _OrtGetApiBase();
-  }
-
-  late final _OrtGetApiBasePtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<OrtApiBase> Function()>>(
-        'OrtGetApiBase',
-      );
-  late final _OrtGetApiBase =
-      _OrtGetApiBasePtr.asFunction<ffi.Pointer<OrtApiBase> Function()>();
-}
+/// \brief The Onnxruntime library's entry point to access the C API
+///
+/// Call this to get the a pointer to an ::OrtApiBase
+@ffi.Native<ffi.Pointer<OrtApiBase> Function()>()
+external ffi.Pointer<OrtApiBase> OrtGetApiBase();
 
 enum ExecutionMode {
   ORT_SEQUENTIAL(0),

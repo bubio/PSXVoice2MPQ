@@ -170,19 +170,19 @@ final class _Api {
     throw OrtException(message);
   }
 
-  static _Api load(String libraryPath) {
-    final bindings = OnnxRuntimeBindings(DynamicLibrary.open(libraryPath));
-    final base = bindings.OrtGetApiBase();
-    final getApi = base.ref.GetApi.asFunction<Pointer<OrtApi> Function(int)>();
+  /// The process-wide API table. ONNX Runtime is bundled as a code asset
+  /// (see hook/build.dart), so it resolves without a library path.
+  static final _Api instance = () {
+    final getApi = OrtGetApiBase().ref.GetApi
+        .asFunction<Pointer<OrtApi> Function(int)>();
     final api = getApi(_ortApiVersion);
     if (api == nullptr) {
-      throw OrtException(
-        'ONNX Runtime at $libraryPath does not support API version '
-        '$_ortApiVersion',
+      throw const OrtException(
+        'The bundled ONNX Runtime does not support API version $_ortApiVersion',
       );
     }
     return _Api(api);
-  }
+  }();
 }
 
 /// An ONNX Runtime environment running models on the CPU.
@@ -205,11 +205,10 @@ final class OnnxRuntime {
     this._threads,
   );
 
-  /// Loads the ONNX Runtime shared library at [libraryPath].
-  ///
-  /// [threads] is the intra-op thread count; 0 lets ONNX Runtime decide.
-  factory OnnxRuntime.open(String libraryPath, {int threads = 0}) {
-    final api = _Api.load(libraryPath);
+  /// Creates a runtime. [threads] is the intra-op thread count; 0 lets ONNX
+  /// Runtime decide.
+  factory OnnxRuntime.open({int threads = 0}) {
+    final api = _Api.instance;
     return using((arena) {
       final env = arena<Pointer<OrtEnv>>();
       api.check(
@@ -244,8 +243,8 @@ final class OnnxRuntime {
 
   /// Makes the run in progress (and later runs) on the runtime identified by
   /// [handle] fail with an [OrtException]. Safe to call from any isolate.
-  static void requestTerminate(String libraryPath, int handle) {
-    final api = _Api.load(libraryPath);
+  static void requestTerminate(int handle) {
+    final api = _Api.instance;
     api.check(
       api.runOptionsSetTerminate(Pointer<OrtRunOptions>.fromAddress(handle)),
     );

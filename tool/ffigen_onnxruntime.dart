@@ -42,10 +42,9 @@ Future<void> main() async {
       dart: DartOutput(
         path: root.resolve('lib/src/third_party/onnxruntime.g.dart'),
       ),
-      style: const DynamicLibraryBindings(
-        wrapperName: 'OnnxRuntimeBindings',
-        wrapperDocComment: '/// Bindings for the ONNX Runtime C API.',
-      ),
+      // Resolved through the code asset registered in hook/build.dart, whose
+      // asset id is this library's URI.
+      style: const NativeExternalBindings(),
       preamble: '''
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
