@@ -74,13 +74,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Runs the real app with the bundled StormLib against synthetic data.
-      # Linux runners have no display, so the app runs on a virtual one.
+      # Runs the real app with the bundled StormLib and ONNX Runtime against
+      # synthetic data. Linux runners have no display, so the app runs on a
+      # virtual one. One file per run: on desktop, the app fails to start for
+      # the second file of a multi-file run.
       - name: Integration tests
         shell: bash
         run: |
-          if [ "${{ matrix.device }}" = linux ]; then
-            xvfb-run -a flutter test integration_test -d linux
-          else
-            flutter test integration_test -d ${{ matrix.device }}
-          fi
+          for test in integration_test/*_test.dart; do
+            if [ "${{ matrix.device }}" = linux ]; then
+              xvfb-run -a flutter test "$test" -d linux
+            else
+              flutter test "$test" -d ${{ matrix.device }}
+            fi
+          done
