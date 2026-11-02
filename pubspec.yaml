@@ -70,6 +70,8 @@ flutter:
     - assets/maps/
     - assets/icon/
     - assets/images/
+    - third_party/onnxruntime/LICENSE
+    - third_party/onnxruntime/ThirdPartyNotices.txt
 
 flutter_launcher_icons:
   image_path: "assets/icon/app_icon.png"
