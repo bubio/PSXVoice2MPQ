@@ -79,7 +79,11 @@ void main() {
       );
 
       final progress = await service
-          .build(inputDir.path, outputDir.path, superResolution: true)
+          .build(
+            inputDir.path,
+            outputDir.path,
+            superResolution: SuperResolutionMode.local,
+          )
           .last;
 
       expect(progress.error, isNull);

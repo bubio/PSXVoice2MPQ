@@ -163,4 +163,33 @@ class AppLocalizationsSv extends AppLocalizations {
   String modelDownloadFailed(String error) {
     return 'Nedladdningen misslyckades: $error';
   }
+
+  @override
+  String get superResolutionBackend => 'Kör på:';
+
+  @override
+  String get backendLocal => 'Den här datorn';
+
+  @override
+  String get superResolutionColabNote =>
+      'Körs på en gratis Google Colab-GPU. Exportera rösterna, bearbeta dem i notebooken, importera resultatet och bygg sedan.';
+
+  @override
+  String get exportForColab => 'Exportera för Colab';
+
+  @override
+  String get openColabNotebook => 'Öppna notebook';
+
+  @override
+  String get importColabResult => 'Importera Colab-resultat';
+
+  @override
+  String colabImportDone(int count) {
+    return 'Importerade $count förbättrade röster. De används när du bygger.';
+  }
+
+  @override
+  String colabImportFailed(String error) {
+    return 'Importen misslyckades: $error';
+  }
 }

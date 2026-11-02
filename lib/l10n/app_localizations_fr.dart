@@ -169,4 +169,33 @@ class AppLocalizationsFr extends AppLocalizations {
   String modelDownloadFailed(String error) {
     return 'Échec du téléchargement : $error';
   }
+
+  @override
+  String get superResolutionBackend => 'Exécuter sur :';
+
+  @override
+  String get backendLocal => 'Ce PC';
+
+  @override
+  String get superResolutionColabNote =>
+      'S\'exécute sur un GPU Google Colab gratuit. Exportez les voix, traitez-les dans le notebook, importez le résultat, puis lancez la construction.';
+
+  @override
+  String get exportForColab => 'Exporter pour Colab';
+
+  @override
+  String get openColabNotebook => 'Ouvrir le notebook';
+
+  @override
+  String get importColabResult => 'Importer le résultat Colab';
+
+  @override
+  String colabImportDone(int count) {
+    return '$count voix améliorées importées. Elles seront utilisées à la prochaine construction.';
+  }
+
+  @override
+  String colabImportFailed(String error) {
+    return 'Échec de l\'importation : $error';
+  }
 }

@@ -43,5 +43,13 @@
   "superResolutionModelMissing": "VoiceFixerのモデルがインストールされていません。",
   "downloadModel": "モデルをダウンロード（{size}）",
   "downloadingModel": "モデルをダウンロード中... {percent}%",
-  "modelDownloadFailed": "ダウンロードに失敗しました: {error}"
+  "modelDownloadFailed": "ダウンロードに失敗しました: {error}",
+  "superResolutionBackend": "実行場所:",
+  "backendLocal": "このPC",
+  "superResolutionColabNote": "Google Colab の無料 GPU で処理します。音声をエクスポートし、ノートブックで処理して、結果をインポートしてからビルドしてください。",
+  "exportForColab": "Colab 用にエクスポート",
+  "openColabNotebook": "ノートブックを開く",
+  "importColabResult": "Colab の結果をインポート",
+  "colabImportDone": "高音質化した音声を {count} 件取り込みました。ビルドすると使われます。",
+  "colabImportFailed": "インポートに失敗しました: {error}"
 }

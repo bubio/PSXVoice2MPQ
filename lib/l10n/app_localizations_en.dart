@@ -164,4 +164,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String modelDownloadFailed(String error) {
     return 'Download failed: $error';
   }
+
+  @override
+  String get superResolutionBackend => 'Run on:';
+
+  @override
+  String get backendLocal => 'This PC';
+
+  @override
+  String get superResolutionColabNote =>
+      'Runs on a free Google Colab GPU. Export the voices, process them in the notebook, import the result, then build.';
+
+  @override
+  String get exportForColab => 'Export for Colab';
+
+  @override
+  String get openColabNotebook => 'Open notebook';
+
+  @override
+  String get importColabResult => 'Import Colab result';
+
+  @override
+  String colabImportDone(int count) {
+    return 'Imported $count enhanced voices. Build to use them.';
+  }
+
+  @override
+  String colabImportFailed(String error) {
+    return 'Import failed: $error';
+  }
 }

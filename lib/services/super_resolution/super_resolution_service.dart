@@ -40,6 +40,12 @@ final class SuperResolutionSkipped extends SuperResolutionEvent {
   const SuperResolutionSkipped(super.index, this.reason);
 }
 
+/// The file was left unchanged because `cacheOnly` was set and the cache
+/// has no result for it.
+final class SuperResolutionNotCached extends SuperResolutionEvent {
+  const SuperResolutionNotCached(super.index);
+}
+
 /// Enhances 11025Hz voice WAV files to 44100Hz with VoiceFixer.
 ///
 /// Results are cached by the SHA-256 of the input file, so files shared
@@ -70,7 +76,13 @@ class SuperResolutionService {
   );
 
   /// Replaces each file in [wavPaths] with its enhanced 44100Hz version.
-  Stream<SuperResolutionEvent> enhance(List<String> wavPaths) async* {
+  ///
+  /// With [cacheOnly] (results imported from Colab), files missing from the
+  /// cache are left as they are instead of running the model.
+  Stream<SuperResolutionEvent> enhance(
+    List<String> wavPaths, {
+    bool cacheOnly = false,
+  }) async* {
     _cancelled = false;
     await Directory(cacheDir).create(recursive: true);
 
@@ -88,6 +100,8 @@ class SuperResolutionService {
       if (await File(cached).exists()) {
         await File(cached).copy(path);
         yield SuperResolutionDone(i, cached: true);
+      } else if (cacheOnly) {
+        yield SuperResolutionNotCached(i);
       } else {
         jobs.add(_Job(i, path, cached));
       }

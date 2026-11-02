@@ -80,6 +80,16 @@ void main() {
       await tester.pumpAndSettle();
       await _screenshot(tester, '1_settings');
 
+      // Turning it on shows the download button while the model is missing.
+      if (!state().useSuperResolution) {
+        await tester.tap(find.byType(CheckboxListTile));
+        await tester.pumpAndSettle();
+      }
+      if (state().superResolutionOnColab) {
+        await tester.tap(find.byType(Radio<bool>).first);
+        await tester.pumpAndSettle();
+      }
+
       if (!state().superResolutionAvailable) {
         await tester.tap(find.byIcon(Icons.download));
         await _pumpUntil(
@@ -102,10 +112,6 @@ void main() {
       await tester.pumpAndSettle();
       await _screenshot(tester, '3_installed');
 
-      if (!state().superResolutionActive) {
-        await tester.tap(find.byType(CheckboxListTile));
-        await tester.pumpAndSettle();
-      }
       expect(state().superResolutionActive, isTrue);
       await _screenshot(tester, '4_enabled');
       final close = MaterialLocalizations.of(

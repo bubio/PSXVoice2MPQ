@@ -43,5 +43,13 @@
   "superResolutionModelMissing": "VoiceFixer-modellen är inte installerad.",
   "downloadModel": "Ladda ned modellen ({size})",
   "downloadingModel": "Laddar ned modellen... {percent} %",
-  "modelDownloadFailed": "Nedladdningen misslyckades: {error}"
+  "modelDownloadFailed": "Nedladdningen misslyckades: {error}",
+  "superResolutionBackend": "Kör på:",
+  "backendLocal": "Den här datorn",
+  "superResolutionColabNote": "Körs på en gratis Google Colab-GPU. Exportera rösterna, bearbeta dem i notebooken, importera resultatet och bygg sedan.",
+  "exportForColab": "Exportera för Colab",
+  "openColabNotebook": "Öppna notebook",
+  "importColabResult": "Importera Colab-resultat",
+  "colabImportDone": "Importerade {count} förbättrade röster. De används när du bygger.",
+  "colabImportFailed": "Importen misslyckades: {error}"
 }

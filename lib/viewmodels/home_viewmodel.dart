@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/constants/path_constants.dart';
 import '../core/di/service_locator.dart';
 import '../models/build_progress.dart';
 import '../services/mpq_builder_service.dart';
 import '../services/settings_service.dart';
+import '../services/super_resolution/colab_exchange.dart';
 import '../services/super_resolution/model_downloader.dart';
 import '../services/super_resolution/super_resolution_service.dart';
 
@@ -28,6 +30,10 @@ class HomeState {
   /// Whether the super-resolution model is installed.
   final bool superResolutionAvailable;
 
+  /// Whether super-resolution runs on Google Colab (results are imported
+  /// into the cache) instead of in the app.
+  final bool superResolutionOnColab;
+
   /// Download progress (0..1) of the model, or null when not downloading.
   final double? modelDownloadProgress;
 
@@ -42,6 +48,7 @@ class HomeState {
     this.locale,
     this.useSuperResolution = false,
     this.superResolutionAvailable = false,
+    this.superResolutionOnColab = false,
     this.modelDownloadProgress,
     this.modelDownloadError,
   });
@@ -63,7 +70,14 @@ class HomeState {
 
   /// Whether the next build runs super-resolution.
   bool get superResolutionActive =>
-      useSuperResolution && superResolutionAvailable;
+      useSuperResolution &&
+      (superResolutionOnColab || superResolutionAvailable);
+
+  SuperResolutionMode get superResolutionMode => !superResolutionActive
+      ? SuperResolutionMode.off
+      : superResolutionOnColab
+      ? SuperResolutionMode.colab
+      : SuperResolutionMode.local;
 
   HomeState copyWith({
     String? assetsPath,
@@ -73,6 +87,7 @@ class HomeState {
     Locale? locale,
     bool? useSuperResolution,
     bool? superResolutionAvailable,
+    bool? superResolutionOnColab,
     double? modelDownloadProgress,
     String? modelDownloadError,
     bool clearProgress = false,
@@ -87,6 +102,8 @@ class HomeState {
       useSuperResolution: useSuperResolution ?? this.useSuperResolution,
       superResolutionAvailable:
           superResolutionAvailable ?? this.superResolutionAvailable,
+      superResolutionOnColab:
+          superResolutionOnColab ?? this.superResolutionOnColab,
       modelDownloadProgress: clearModelDownload
           ? null
           : (modelDownloadProgress ?? this.modelDownloadProgress),
@@ -120,8 +137,10 @@ class HomeViewModel extends Notifier<HomeState> {
 
   Future<void> _initSuperResolution() async {
     final enabled = await _settingsService.getSuperResolutionEnabled();
+    final onColab = await _settingsService.getSuperResolutionOnColab();
     state = state.copyWith(
       useSuperResolution: enabled,
+      superResolutionOnColab: onColab,
       superResolutionAvailable: _superResolution.isModelInstalled,
     );
   }
@@ -169,6 +188,30 @@ class HomeViewModel extends Notifier<HomeState> {
     await _settingsService.setSuperResolutionEnabled(value);
   }
 
+  Future<void> setSuperResolutionOnColab(bool value) async {
+    state = state.copyWith(superResolutionOnColab: value);
+    await _settingsService.setSuperResolutionOnColab(value);
+  }
+
+  /// Writes the voices that still need super-resolution to `sr_input.zip`
+  /// in the output folder, for the Colab notebook.
+  Future<void> exportForColab() async {
+    if (!state.canBuild) return;
+    final info = await PackageInfo.fromPlatform();
+    _listenToBuild(
+      _builderService.exportForColab(
+        state.assetsPath,
+        state.outputPath,
+        appVersion: info.version,
+      ),
+    );
+  }
+
+  /// Copies the results in the notebook's `sr_output.zip` into the cache, so
+  /// the next build uses them. Returns the number of files imported.
+  Future<int> importColabResult(String zipPath) =>
+      ColabExchange(cacheDir: _superResolution.cacheDir).importResult(zipPath);
+
   void setAssetsPath(String path) {
     state = state.copyWith(assetsPath: path);
   }
@@ -183,7 +226,16 @@ class HomeViewModel extends Notifier<HomeState> {
 
   Future<void> startBuild() async {
     if (!state.canBuild) return;
+    _listenToBuild(
+      _builderService.build(
+        state.assetsPath,
+        state.outputPath,
+        superResolution: state.superResolutionMode,
+      ),
+    );
+  }
 
+  void _listenToBuild(Stream<BuildProgress> stream) {
     state = state.copyWith(
       status: BuildStatus.building,
       progress: BuildProgress(
@@ -193,35 +245,28 @@ class HomeViewModel extends Notifier<HomeState> {
     );
 
     _buildSubscription?.cancel();
-    _buildSubscription = _builderService
-        .build(
-          state.assetsPath,
-          state.outputPath,
-          superResolution: state.superResolutionActive,
-        )
-        .listen(
-          (progress) {
-            state = state.copyWith(progress: progress);
-          },
-          onDone: () {
-            final currentProgress = state.progress;
-            final hasError =
-                currentProgress?.error != null ||
-                currentProgress?.errorKey != null;
-            state = state.copyWith(
-              status: hasError ? BuildStatus.error : BuildStatus.completed,
-            );
-          },
-          onError: (error) {
-            state = state.copyWith(
-              status: BuildStatus.error,
-              progress: state.progress?.copyWith(
-                error: error.toString(),
-                isComplete: true,
-              ),
-            );
-          },
+    _buildSubscription = stream.listen(
+      (progress) {
+        state = state.copyWith(progress: progress);
+      },
+      onDone: () {
+        final currentProgress = state.progress;
+        final hasError =
+            currentProgress?.error != null || currentProgress?.errorKey != null;
+        state = state.copyWith(
+          status: hasError ? BuildStatus.error : BuildStatus.completed,
         );
+      },
+      onError: (error) {
+        state = state.copyWith(
+          status: BuildStatus.error,
+          progress: state.progress?.copyWith(
+            error: error.toString(),
+            isComplete: true,
+          ),
+        );
+      },
+    );
   }
 
   void reset() {

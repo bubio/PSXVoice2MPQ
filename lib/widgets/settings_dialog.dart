@@ -73,6 +73,8 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final state = ref.watch(homeViewModelProvider);
+    final modelMissing =
+        !state.superResolutionOnColab && !state.superResolutionAvailable;
 
     return AlertDialog(
       title: Text(l10n.settings),
@@ -103,25 +105,50 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
                           contentPadding: EdgeInsets.zero,
                           title: Text(l10n.enableSuperResolution),
                           subtitle: Text(
-                            state.superResolutionAvailable
-                                ? l10n.superResolutionNote
-                                : l10n.superResolutionModelMissing,
+                            modelMissing
+                                ? l10n.superResolutionModelMissing
+                                : state.superResolutionOnColab
+                                ? l10n.superResolutionColabNote
+                                : l10n.superResolutionNote,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: state.superResolutionAvailable
-                                  ? theme.colorScheme.outline
-                                  : theme.colorScheme.error,
+                              color: modelMissing
+                                  ? theme.colorScheme.error
+                                  : theme.colorScheme.outline,
                             ),
                           ),
-                          value: state.superResolutionActive,
-                          onChanged: state.superResolutionAvailable
-                              ? (value) {
-                                  ref
-                                      .read(homeViewModelProvider.notifier)
-                                      .setUseSuperResolution(value ?? false);
-                                }
-                              : null,
+                          value: state.useSuperResolution,
+                          onChanged: (value) {
+                            ref
+                                .read(homeViewModelProvider.notifier)
+                                .setUseSuperResolution(value ?? false);
+                          },
                         ),
-                        if (!state.superResolutionAvailable)
+                        if (state.useSuperResolution)
+                          RadioGroup<bool>(
+                            groupValue: state.superResolutionOnColab,
+                            onChanged: (value) {
+                              ref
+                                  .read(homeViewModelProvider.notifier)
+                                  .setSuperResolutionOnColab(value ?? false);
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  l10n.superResolutionBackend,
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                                const SizedBox(width: 8),
+                                const Radio<bool>(value: false),
+                                Text(l10n.backendLocal),
+                                const SizedBox(width: 8),
+                                const Radio<bool>(value: true),
+                                const Text('Google Colab'),
+                              ],
+                            ),
+                          ),
+                        if (state.useSuperResolution &&
+                            !state.superResolutionOnColab &&
+                            !state.superResolutionAvailable)
                           _ModelDownloadControls(state: state),
                         // Cache section
                         TextButton.icon(

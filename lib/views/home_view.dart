@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/build_state.dart';
+import '../services/super_resolution/colab_exchange.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../widgets/diablo_button.dart';
 import '../widgets/error_dialog.dart';
@@ -106,6 +109,39 @@ class _HomeViewState extends ConsumerState<HomeView> {
     if (result != null) {
       _outputPathController.text = result;
     }
+  }
+
+  Future<void> _importColabResult() async {
+    final l10n = AppLocalizations.of(context)!;
+    final String? path;
+    try {
+      final result = await FilePicker.pickFiles(
+        dialogTitle: l10n.importColabResult,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+      );
+      path = result.isEmpty ? null : result.single.path;
+    } catch (e) {
+      _showErrorDialog(l10n.errorFilePicker, e.toString());
+      return;
+    }
+    if (path == null) return;
+    try {
+      final count = await ref
+          .read(homeViewModelProvider.notifier)
+          .importColabResult(path);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.colabImportDone(count))));
+      }
+    } catch (e) {
+      _showErrorDialog(l10n.importColabResult, l10n.colabImportFailed('$e'));
+    }
+  }
+
+  Future<void> _openColabNotebook() async {
+    final info = await PackageInfo.fromPlatform();
+    await launchUrl(Uri.parse(ColabExchange.notebookUrl(info.version)));
   }
 
   void _openSettings() {
@@ -224,6 +260,41 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 );
               },
             ),
+            if (state.useSuperResolution && state.superResolutionOnColab)
+              ListenableBuilder(
+                listenable: Listenable.merge([
+                  _assetsPathController,
+                  _outputPathController,
+                ]),
+                builder: (context, _) => Wrap(
+                  alignment: WrapAlignment.center,
+                  children: [
+                    TextButton.icon(
+                      key: const Key('colabExportButton'),
+                      onPressed:
+                          _assetsPathController.text.trim().isNotEmpty &&
+                              _outputPathController.text.trim().isNotEmpty &&
+                              !state.isBuilding
+                          ? ref
+                                .read(homeViewModelProvider.notifier)
+                                .exportForColab
+                          : null,
+                      icon: const Icon(Icons.upload_file),
+                      label: Text(l10n.exportForColab),
+                    ),
+                    TextButton.icon(
+                      onPressed: _openColabNotebook,
+                      icon: const Icon(Icons.open_in_new),
+                      label: Text(l10n.openColabNotebook),
+                    ),
+                    TextButton.icon(
+                      onPressed: state.isBuilding ? null : _importColabResult,
+                      icon: const Icon(Icons.download),
+                      label: Text(l10n.importColabResult),
+                    ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 16),
             if (state.progress != null) ...[
               BuildProgressIndicator(progress: state.progress!),

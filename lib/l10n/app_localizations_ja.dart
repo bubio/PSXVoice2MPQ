@@ -161,4 +161,33 @@ class AppLocalizationsJa extends AppLocalizations {
   String modelDownloadFailed(String error) {
     return 'ダウンロードに失敗しました: $error';
   }
+
+  @override
+  String get superResolutionBackend => '実行場所:';
+
+  @override
+  String get backendLocal => 'このPC';
+
+  @override
+  String get superResolutionColabNote =>
+      'Google Colab の無料 GPU で処理します。音声をエクスポートし、ノートブックで処理して、結果をインポートしてからビルドしてください。';
+
+  @override
+  String get exportForColab => 'Colab 用にエクスポート';
+
+  @override
+  String get openColabNotebook => 'ノートブックを開く';
+
+  @override
+  String get importColabResult => 'Colab の結果をインポート';
+
+  @override
+  String colabImportDone(int count) {
+    return '高音質化した音声を $count 件取り込みました。ビルドすると使われます。';
+  }
+
+  @override
+  String colabImportFailed(String error) {
+    return 'インポートに失敗しました: $error';
+  }
 }

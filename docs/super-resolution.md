@@ -73,7 +73,8 @@ VoiceFixer は低域まで作り直すので、子音やアタックが欠ける
 | `sr.engine` | `none` / `voicefixer` | `none` |
 | `sr.backend` | `local` / `colab` | `local` |
 
-- エンジンを `none` 以外にしたときだけ backend を表示する。local でモデルがまだない場合は、ダウンロードボタンとサイズ（3 ファイルで計 432MB）を表示する。
+- 超解像をオンにしたときだけ、実行場所（このPC / Google Colab）を表示する。local でモデルがまだない場合は、ダウンロードボタンとサイズ（3 ファイルで計 432MB）を表示する。
+- colab のときは、メイン画面のビルドボタンの下に「Colab 用にエクスポート」「ノートブックを開く」「Colab の結果をインポート」を表示する。ビルドはキャッシュにある結果だけを使い、モデルは不要。
 - 所要時間の目安を表示する（ローカル CPU で、音声の長さの約半分。M4 で 1 言語あたり約 1 時間）。
 - 超解像が有効なときの MP3 品質（`-V 4`）は現行のまま。AudioSR 用だった「VAG→WAV 変換時の gain 2.0」は廃止する（VoiceFixer の本家は gain をかけない）。
 
@@ -88,14 +89,19 @@ VoiceFixer は低域まで作り直すので、子音やアタックが欠ける
 
 ## Colab 連携
 
-1. アプリで「Colab 用にエクスポート」を実行する。抽出だけを行い、`sr_input.zip`（対象の WAV と `manifest.json`）を書き出す。
-2. アプリが表示するリンクからノートブックを開く: `https://colab.research.google.com/github/bubio/PSXVoice2MPQ/blob/v<アプリのバージョン>/colab/super_resolution.ipynb`
-3. ノートブックは `onnxruntime-gpu` と、アプリと同じ ONNX モデルを使う。zip をアップロードし、実行し、`sr_output.zip` をダウンロードする。
-4. アプリで「Colab の結果をインポート」を実行する。`manifest.json` のモデル ID と各ファイルのハッシュを確認してから、キャッシュに入れる。
+1. アプリで「Colab 用にエクスポート」を実行する。抽出と WAV 変換だけを行い、まだキャッシュにない音声を出力フォルダの `sr_input.zip` に書き出す。
+2. 「ノートブックを開く」で `https://colab.research.google.com/github/bubio/PSXVoice2MPQ/blob/v<アプリのバージョン>/colab/super_resolution.ipynb` を開く。
+3. ノートブックは `onnxruntime-gpu`（アプリと同じ 1.23.2）と、アプリと同じ ONNX モデルを Releases から取得し（SHA-256 を検証）、`pipeline.py` と同じ処理を GPU で実行して `sr_output.zip` を返す。`USE_DRIVE` をオンにすると Google Drive 上で入出力し、処理済みのファイルも Drive に残るので、接続が切れても続きから再開できる。
+4. アプリで「Colab の結果をインポート」を実行する。`manifest.json` のモデル ID が一致すること、各ファイルが 44.1kHz の WAV であることを確認してから、キャッシュに入れる。
+
+zip の中身は、入力も出力も `manifest.json` と `wav/<入力 WAV の SHA-256>.wav`。ファイル名がそのままキャッシュのキーになる。同じ音声が複数の STREAM にあっても 1 回だけ送る。
 
 ```json
-{"appVersion":"1.1.0","modelId":"3f2a9c...","files":[{"name":"J0079.WAV","sha256":"..."}]}
+{"appVersion":"1.1.0","modelId":"voicefixer-v1","files":[{"name":"J0079.WAV","sha256":"..."}]}
 ```
+
+- 確認済み: ノートブックをローカルの CPU で実行した結果は、`pipeline.py` の出力と 16bit で完全に一致した（30 秒を超えるファイルを含む 3 ファイル）。アプリはその `sr_output.zip` を正しくインポートできた。
+- 未確認: Colab の GPU 上での実行と処理時間。
 
 ## 検討した代替案
 
@@ -123,5 +129,6 @@ VoiceFixer は低域まで作り直すので、子音やアタックが欠ける
 ## 残っている課題
 
 - 処理時間の短縮: FP16 化や量子化の効果と、音質への影響を確認する。ボコーダが処理時間の 78% を占める
-- Windows と Linux の実機で速度とメモリを計測する（現在の数値は M4 の macOS のみ）
+- Windows と Linux の実機で速度とメモリを計測する（現在の数値は M4 の macOS のみ。ONNX Runtime の同梱と推論は CI の e2e で 3 OS とも確認済み）
+- Colab の GPU での動作確認と処理時間の計測
 - FlashSR: ライセンスの確認と、ONNX に変換できるか。できる場合は `sr.engine` に追加する

@@ -43,5 +43,13 @@
   "superResolutionModelMissing": "Das VoiceFixer-Modell ist nicht installiert.",
   "downloadModel": "Modell herunterladen ({size})",
   "downloadingModel": "Modell wird heruntergeladen... {percent} %",
-  "modelDownloadFailed": "Download fehlgeschlagen: {error}"
+  "modelDownloadFailed": "Download fehlgeschlagen: {error}",
+  "superResolutionBackend": "Ausführen auf:",
+  "backendLocal": "Diesem PC",
+  "superResolutionColabNote": "Läuft auf einer kostenlosen Google-Colab-GPU. Stimmen exportieren, im Notebook verarbeiten, Ergebnis importieren und dann erstellen.",
+  "exportForColab": "Für Colab exportieren",
+  "openColabNotebook": "Notebook öffnen",
+  "importColabResult": "Colab-Ergebnis importieren",
+  "colabImportDone": "{count} verbesserte Stimmen importiert. Beim Erstellen werden sie verwendet.",
+  "colabImportFailed": "Import fehlgeschlagen: {error}"
 }

@@ -367,6 +367,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download failed: {error}'**
   String modelDownloadFailed(String error);
+
+  /// Label before the choice of where super-resolution runs
+  ///
+  /// In en, this message translates to:
+  /// **'Run on:'**
+  String get superResolutionBackend;
+
+  /// Option: run super-resolution on this computer
+  ///
+  /// In en, this message translates to:
+  /// **'This PC'**
+  String get backendLocal;
+
+  /// Explains the Google Colab workflow
+  ///
+  /// In en, this message translates to:
+  /// **'Runs on a free Google Colab GPU. Export the voices, process them in the notebook, import the result, then build.'**
+  String get superResolutionColabNote;
+
+  /// Button that writes the voices to a zip for the Colab notebook
+  ///
+  /// In en, this message translates to:
+  /// **'Export for Colab'**
+  String get exportForColab;
+
+  /// Button that opens the Colab notebook in the browser
+  ///
+  /// In en, this message translates to:
+  /// **'Open notebook'**
+  String get openColabNotebook;
+
+  /// Button that imports the zip produced by the Colab notebook
+  ///
+  /// In en, this message translates to:
+  /// **'Import Colab result'**
+  String get importColabResult;
+
+  /// Shown after importing Colab results
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count} enhanced voices. Build to use them.'**
+  String colabImportDone(int count);
+
+  /// Shown when importing Colab results fails
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed: {error}'**
+  String colabImportFailed(String error);
 }
 
 class _AppLocalizationsDelegate

@@ -11,8 +11,20 @@ import '../models/stream_mapping.dart';
 import 'dstream_extractor.dart';
 import 'process_runner.dart';
 import 'stormlib_service.dart';
+import 'super_resolution/colab_exchange.dart';
 import 'super_resolution/super_resolution_service.dart';
 import 'vag_to_wav_converter.dart';
+
+/// How the build super-resolves the voices.
+enum SuperResolutionMode {
+  off,
+
+  /// Run VoiceFixer in the app.
+  local,
+
+  /// Use only results imported from the Colab notebook.
+  colab,
+}
 
 class MpqBuilderService {
   final ProcessRunner _processRunner;
@@ -39,12 +51,31 @@ class MpqBuilderService {
     _superResolution.cancel();
   }
 
+  /// Builds one MPQ per stream into [outputPath].
   Stream<BuildProgress> build(
     String ps1AssetsPath,
     String outputPath, {
-    bool superResolution = false,
+    SuperResolutionMode superResolution = SuperResolutionMode.off,
+  }) => _run(ps1AssetsPath, outputPath, superResolution: superResolution);
+
+  /// Extracts the voices and writes the ones not yet super-resolved to
+  /// `sr_input.zip` in [outputPath] for the Colab notebook, instead of
+  /// building MPQs.
+  Stream<BuildProgress> exportForColab(
+    String ps1AssetsPath,
+    String outputPath, {
+    required String appVersion,
+  }) => _run(ps1AssetsPath, outputPath, colabExportVersion: appVersion);
+
+  Stream<BuildProgress> _run(
+    String ps1AssetsPath,
+    String outputPath, {
+    SuperResolutionMode superResolution = SuperResolutionMode.off,
+    String? colabExportVersion,
   }) async* {
     _cancelled = false;
+    final exporting = colabExportVersion != null;
+    final colabWavs = <String>[];
 
     var progress = BuildProgress(
       currentStep: '',
@@ -108,10 +139,17 @@ class MpqBuilderService {
         );
       }
 
-      if (superResolution) {
-        yield progress = progress.addLog(
-          'Super-resolution: VoiceFixer (${_superResolution.modelDir})',
-        );
+      switch (superResolution) {
+        case SuperResolutionMode.off:
+          break;
+        case SuperResolutionMode.local:
+          yield progress = progress.addLog(
+            'Super-resolution: VoiceFixer (${_superResolution.modelDir})',
+          );
+        case SuperResolutionMode.colab:
+          yield progress = progress.addLog(
+            'Super-resolution: results imported from Colab',
+          );
       }
 
       // Step 2: Create temp directory
@@ -150,7 +188,8 @@ class MpqBuilderService {
 
       // Step 4: Process each STREAM*.DIR
       // Steps: extract + vag conversion + [super-resolution] + [mp3] + mpq
-      final stepsPerStream = 3 + (superResolution ? 1 : 0);
+      final enhancing = superResolution != SuperResolutionMode.off;
+      final stepsPerStream = exporting ? 2 : 3 + (enhancing ? 1 : 0);
       int totalSteps = streamDirs.length * stepsPerStream;
       int currentStepNum = 0;
 
@@ -305,8 +344,17 @@ class MpqBuilderService {
         currentStepNum++;
         if (_cancelled) break;
 
+        if (exporting) {
+          colabWavs.addAll(
+            vagFiles.map(
+              (f) => '${f.path.substring(0, f.path.length - 4)}.WAV',
+            ),
+          );
+          continue;
+        }
+
         // Super-resolution step (optional)
-        if (superResolution && mappings.isNotEmpty) {
+        if (enhancing && mappings.isNotEmpty) {
           yield progress = progress.copyWith(
             stepKey: BuildStepKey.enhancingAudio,
             streamName: streamName,
@@ -317,6 +365,7 @@ class MpqBuilderService {
             streamWorkDir: streamWorkDir,
             mapSourceFiles: mapSourceFiles,
             progress: progress,
+            cacheOnly: superResolution == SuperResolutionMode.colab,
             onProgress: (p) => progress = p,
           );
 
@@ -352,7 +401,7 @@ class MpqBuilderService {
           );
 
           // MP3 quality: -V 4 for super-resolved (44.1kHz), -V 7 for original (11kHz)
-          final mp3Quality = superResolution ? '4' : '7';
+          final mp3Quality = enhancing ? '4' : '7';
 
           final mp3BatchSize = (Platform.numberOfProcessors ~/ 2).clamp(1, 8);
           int mp3ProcessedCount = 0;
@@ -566,6 +615,15 @@ class MpqBuilderService {
         currentStepNum++;
       }
 
+      if (exporting && !_cancelled) {
+        final zipPath = p.join(outputPath, ColabExchange.inputZipName);
+        final count = await ColabExchange(cacheDir: _superResolution.cacheDir)
+            .writeInput(colabWavs, zipPath, appVersion: colabExportVersion);
+        yield progress = progress.addLog(
+          'Wrote $count files (not yet super-resolved) to $zipPath',
+        );
+      }
+
       // Cleanup
       yield progress = progress.copyWith(stepKey: BuildStepKey.cleaningUp);
       await workDir.delete(recursive: true);
@@ -579,7 +637,7 @@ class MpqBuilderService {
               percentage: 1.0,
               isComplete: true,
             )
-            .addLog('Build complete!');
+            .addLog(exporting ? 'Export complete!' : 'Build complete!');
       }
     } catch (e, stackTrace) {
       yield progress.copyWith(
@@ -595,6 +653,7 @@ class MpqBuilderService {
     required Directory streamWorkDir,
     required Set<String> mapSourceFiles,
     required BuildProgress progress,
+    required bool cacheOnly,
     required void Function(BuildProgress) onProgress,
   }) async* {
     final wavFiles = await streamWorkDir
@@ -617,7 +676,11 @@ class MpqBuilderService {
 
     var processed = 0;
     var fromCache = 0;
-    await for (final event in _superResolution.enhance(wavFiles)) {
+    var notCached = 0;
+    await for (final event in _superResolution.enhance(
+      wavFiles,
+      cacheOnly: cacheOnly,
+    )) {
       final name = p.basename(wavFiles[event.index]);
       switch (event) {
         case SuperResolutionProgress():
@@ -625,6 +688,10 @@ class MpqBuilderService {
         case SuperResolutionDone(:final cached):
           processed++;
           if (cached) fromCache++;
+          yield progress = progress.copyWith(processedFiles: processed);
+        case SuperResolutionNotCached():
+          processed++;
+          notCached++;
           yield progress = progress.copyWith(processedFiles: processed);
         case SuperResolutionSkipped(:final reason):
           processed++;
@@ -640,6 +707,12 @@ class MpqBuilderService {
           ? 'Super-resolution cancelled.'
           : 'Super-resolution: $processed files ($fromCache from cache).',
     );
+    if (notCached > 0) {
+      yield progress = progress.addLog(
+        'Super-resolution: $notCached files have no Colab result and keep '
+        'the original 11kHz audio.',
+      );
+    }
     onProgress(progress);
   }
 

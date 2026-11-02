@@ -51,6 +51,20 @@ class SettingsService {
     await _writeSettings(settings);
   }
 
+  /// Whether super-resolution runs on Google Colab instead of in the app
+  /// (default: false).
+  Future<bool> getSuperResolutionOnColab() async {
+    final settings = await _readSettings();
+    return settings['sr.backend'] == 'colab';
+  }
+
+  /// Saves where super-resolution runs.
+  Future<void> setSuperResolutionOnColab(bool value) async {
+    final settings = await _readSettings();
+    settings['sr.backend'] = value ? 'colab' : 'local';
+    await _writeSettings(settings);
+  }
+
   /// Get the saved locale key (e.g. 'ja', 'system'), or null if not set.
   Future<String?> getLocale() async {
     final settings = await _readSettings();

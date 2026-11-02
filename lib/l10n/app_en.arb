@@ -239,5 +239,49 @@
         "example": "HTTP 404"
       }
     }
+  },
+  "superResolutionBackend": "Run on:",
+  "@superResolutionBackend": {
+    "description": "Label before the choice of where super-resolution runs"
+  },
+  "backendLocal": "This PC",
+  "@backendLocal": {
+    "description": "Option: run super-resolution on this computer"
+  },
+  "superResolutionColabNote": "Runs on a free Google Colab GPU. Export the voices, process them in the notebook, import the result, then build.",
+  "@superResolutionColabNote": {
+    "description": "Explains the Google Colab workflow"
+  },
+  "exportForColab": "Export for Colab",
+  "@exportForColab": {
+    "description": "Button that writes the voices to a zip for the Colab notebook"
+  },
+  "openColabNotebook": "Open notebook",
+  "@openColabNotebook": {
+    "description": "Button that opens the Colab notebook in the browser"
+  },
+  "importColabResult": "Import Colab result",
+  "@importColabResult": {
+    "description": "Button that imports the zip produced by the Colab notebook"
+  },
+  "colabImportDone": "Imported {count} enhanced voices. Build to use them.",
+  "@colabImportDone": {
+    "description": "Shown after importing Colab results",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "730"
+      }
+    }
+  },
+  "colabImportFailed": "Import failed: {error}",
+  "@colabImportFailed": {
+    "description": "Shown when importing Colab results fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "manifest.json not found"
+      }
+    }
   }
 }
