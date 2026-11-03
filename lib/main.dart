@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
@@ -8,7 +9,7 @@ import 'core/di/service_locator.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   setupServiceLocator();
-  _registerExternalLicenses();
+  registerExternalLicenses();
 
   runApp(
     const ProviderScope(
@@ -17,7 +18,9 @@ void main() {
   );
 }
 
-void _registerExternalLicenses() {
+/// Adds the licenses of bundled native code and the downloadable model, which
+/// the Flutter license collector does not see.
+void registerExternalLicenses() {
   LicenseRegistry.addLicense(() async* {
     yield const LicenseEntryWithLineBreaks(
       ['StormLib'],
@@ -51,6 +54,49 @@ https://github.com/diasurgical/psx-tools
 
 License information was not explicitly provided in the original repository.
 Please refer to the repository for the most up-to-date licensing information.''',
+    );
+    yield const LicenseEntryWithLineBreaks(
+      ['VoiceFixer'],
+      '''VoiceFixer by Haohe Liu et al.
+https://github.com/haoheliu/voicefixer
+
+The super-resolution pipeline is a port of VoiceFixer, released under the
+MIT License:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+The downloadable model files are converted to ONNX from the VoiceFixer
+pretrained weights by Haohe Liu, licensed under Creative Commons Attribution
+4.0 International (CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+Original weights: https://zenodo.org/records/5600188
+Changes: exported to ONNX and split into three graphs; the low band of the
+output is replaced with the original audio.''',
+    );
+    yield LicenseEntryWithLineBreaks(
+      ['ONNX Runtime'],
+      await rootBundle.loadString('third_party/onnxruntime/LICENSE'),
+    );
+    yield LicenseEntryWithLineBreaks(
+      ['ONNX Runtime'],
+      await rootBundle.loadString(
+        'third_party/onnxruntime/ThirdPartyNotices.txt',
+      ),
     );
   });
 }

@@ -1,13 +1,14 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import '../core/constants/path_constants.dart';
 import '../l10n/app_localizations.dart';
 import '../models/build_state.dart';
+import '../services/super_resolution/colab_exchange.dart';
 import '../viewmodels/home_viewmodel.dart';
+import '../widgets/colab_wizard_dialog.dart';
 import '../widgets/diablo_button.dart';
 import '../widgets/error_dialog.dart';
 import '../widgets/folder_selector.dart';
@@ -31,6 +32,7 @@ class HomeView extends ConsumerStatefulWidget {
 class _HomeViewState extends ConsumerState<HomeView> {
   late final TextEditingController _assetsPathController;
   late final TextEditingController _outputPathController;
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
@@ -42,6 +44,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
     // Sync text controllers with ViewModel
     _assetsPathController.addListener(_onAssetsPathChanged);
     _outputPathController.addListener(_onOutputPathChanged);
+
+    // Coming back from the browser: look for the downloaded Colab result.
+    _lifecycle = AppLifecycleListener(
+      onResume: () =>
+          ref.read(homeViewModelProvider.notifier).refreshColabStatus(),
+    );
   }
 
   String _getLocalizedError(AppLocalizations l10n, BuildErrorKey errorKey) {
@@ -75,6 +83,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _assetsPathController.removeListener(_onAssetsPathChanged);
     _outputPathController.removeListener(_onOutputPathChanged);
     _assetsPathController.dispose();
@@ -111,6 +120,44 @@ class _HomeViewState extends ConsumerState<HomeView> {
     }
   }
 
+  Future<String?> _pickColabResult() async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final result = await FilePicker.pickFiles(
+        dialogTitle: l10n.colabStep3Title,
+        initialDirectory: ColabExchange.downloadsDir(),
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+      );
+      return result.isEmpty ? null : result.single.path;
+    } catch (e) {
+      _showErrorDialog(l10n.errorFilePicker, e.toString());
+      return null;
+    }
+  }
+
+  Future<void> _openColabWizard() async {
+    final l10n = AppLocalizations.of(context)!;
+    final count = await showDialog<int>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ColabWizardDialog(
+        onOpenColab: _openColabNotebook,
+        onOpenFolder: (dir) => launchUrl(Uri.directory(dir)),
+        pickResultZip: _pickColabResult,
+      ),
+    );
+    if (count != null && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.colabImportDone(count))));
+    }
+  }
+
+  Future<void> _openColabNotebook() async {
+    final info = await PackageInfo.fromPlatform();
+    await launchUrl(Uri.parse(ColabExchange.notebookUrl(info.version)));
+  }
+
   void _openSettings() {
     final currentKey = SettingsDialog.getLocaleKey(widget.currentLocale);
     showDialog(
@@ -124,55 +171,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     );
   }
 
-  Future<void> _startBuild() async {
-    final state = ref.read(homeViewModelProvider);
-    if (!state.useAudioSr) {
-      ref.read(homeViewModelProvider.notifier).startBuild();
-      return;
-    }
-
-    // Check if AudioSR cache exists
-    final cacheDir = Directory(PathConstants.getCacheDir());
-    final hasCache = await cacheDir.exists() &&
-        await cacheDir.list().any((e) => e is Directory || e is File);
-
-    if (!hasCache || !mounted) {
-      ref.read(homeViewModelProvider.notifier).startBuild();
-      return;
-    }
-
-    final l10n = AppLocalizations.of(context)!;
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.cacheFoundTitle),
-        content: Text(l10n.cacheFoundMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(null),
-            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.startFresh),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.continueFromCache),
-          ),
-        ],
-      ),
-    );
-
-    if (result == null || !mounted) return;
-
-    if (!result) {
-      // Clear cache before starting
-      if (await cacheDir.exists()) {
-        await cacheDir.delete(recursive: true);
-      }
-    }
-
+  void _startBuild() {
     ref.read(homeViewModelProvider.notifier).startBuild();
   }
 
@@ -184,7 +183,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
     // Listen for error state changes and show alert
     ref.listen<HomeState>(homeViewModelProvider, (previous, next) {
-      if (next.status == BuildStatus.error && previous?.status != BuildStatus.error) {
+      if (next.status == BuildStatus.error &&
+          previous?.status != BuildStatus.error) {
         final progress = next.progress;
         if (progress != null) {
           String errorMessage;
@@ -246,11 +246,18 @@ class _HomeViewState extends ConsumerState<HomeView> {
               builder: (context, _) {
                 final canBuild =
                     _assetsPathController.text.trim().isNotEmpty &&
-                        _outputPathController.text.trim().isNotEmpty &&
-                        !state.isBuilding;
-                return DiabloButton(
-                  key: const Key('buildButton'),
-                  onPressed: canBuild ? _startBuild : null,
+                    _outputPathController.text.trim().isNotEmpty &&
+                    !state.isBuilding;
+                final colab =
+                    state.useSuperResolution && state.superResolutionOnColab;
+                final colabInput = state.colabInput;
+                final button = DiabloButton(
+                  key: Key(colab ? 'colabStartButton' : 'buildButton'),
+                  onPressed: !canBuild
+                      ? null
+                      : colab
+                      ? _openColabWizard
+                      : _startBuild,
                   height: 40,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -268,9 +275,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       else
                         const Icon(Icons.build, size: 18, color: Colors.white),
                       const SizedBox(width: 8),
-                      Text(state.isBuilding ? l10n.building : l10n.buildMpq),
+                      Text(
+                        state.isBuilding
+                            ? l10n.building
+                            : colab
+                            ? l10n.colabStart
+                            : l10n.buildMpq,
+                      ),
                     ],
                   ),
+                );
+                if (!colab ||
+                    colabInput == null ||
+                    colabInput.total == 0 ||
+                    colabInput.complete) {
+                  return button;
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    button,
+                    Center(
+                      child: TextButton(
+                        onPressed: canBuild ? _startBuild : null,
+                        child: Text(
+                          '${l10n.colabStep3Imported(colabInput.imported, colabInput.total)}'
+                          ' · ${l10n.buildWithoutImport}',
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -284,7 +318,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   logs: state.progress!.logs,
                 ),
               ),
-            ] else
+            ] else if (state.useSuperResolution && state.superResolutionOnColab)
+              const Spacer()
+            else
               Expanded(
                 child: Center(
                   child: Column(

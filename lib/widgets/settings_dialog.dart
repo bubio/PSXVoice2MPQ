@@ -2,15 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../core/constants/app_constants.dart';
 import '../core/constants/path_constants.dart';
 import '../core/constants/stream_constants.dart';
 import '../l10n/app_localizations.dart';
+import '../services/super_resolution/model_downloader.dart';
 import '../viewmodels/home_viewmodel.dart';
-import 'error_dialog.dart';
 
 class SettingsDialog extends ConsumerStatefulWidget {
   final String currentLocaleKey;
@@ -75,6 +73,8 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final state = ref.watch(homeViewModelProvider);
+    final modelMissing =
+        !state.superResolutionOnColab && !state.superResolutionAvailable;
 
     return AlertDialog(
       title: Text(l10n.settings),
@@ -96,147 +96,60 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // AudioSR section (hidden when feature is disabled)
-                        if (AppConstants.enableAudioSr) ...[
-                        Text('AudioSR', style: theme.textTheme.titleSmall),
+                        Text(
+                          l10n.superResolutionSection,
+                          style: theme.textTheme.titleSmall,
+                        ),
                         const SizedBox(height: 4),
                         CheckboxListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text(l10n.enableAudioSr),
+                          title: Text(l10n.enableSuperResolution),
                           subtitle: Text(
-                            l10n.audioSrNote,
+                            modelMissing
+                                ? l10n.superResolutionModelMissing
+                                : state.superResolutionOnColab
+                                ? l10n.superResolutionColabNote
+                                : l10n.superResolutionNote,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.outline,
+                              color: modelMissing
+                                  ? theme.colorScheme.error
+                                  : theme.colorScheme.outline,
                             ),
                           ),
-                          value: state.useAudioSr,
-                          onChanged: state.audioSrAvailable
-                              ? (value) {
-                                  ref
-                                      .read(homeViewModelProvider.notifier)
-                                      .setUseAudioSr(value ?? false);
-                                }
-                              : null,
+                          value: state.useSuperResolution,
+                          onChanged: (value) {
+                            ref
+                                .read(homeViewModelProvider.notifier)
+                                .setUseSuperResolution(value ?? false);
+                          },
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                state.audioSrAvailable
-                                    ? (state.audioSrPath ?? '')
-                                    : l10n.audioSrNotFound,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: state.audioSrAvailable
-                                      ? theme.colorScheme.outline
-                                      : theme.colorScheme.error,
+                        if (state.useSuperResolution)
+                          RadioGroup<bool>(
+                            groupValue: state.superResolutionOnColab,
+                            onChanged: (value) {
+                              ref
+                                  .read(homeViewModelProvider.notifier)
+                                  .setSuperResolutionOnColab(value ?? false);
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  l10n.superResolutionBackend,
+                                  style: theme.textTheme.bodyMedium,
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: TextButton(
-                                  onPressed: () async {
-                                    final PlatformFile? file;
-                                    try {
-                                      file = await FilePicker.pickFile(
-                                        dialogTitle:
-                                            'Select audiosr executable',
-                                        type: FileType.any,
-                                      );
-                                    } catch (e) {
-                                      if (mounted) {
-                                        showErrorDialog(
-                                          context,
-                                          l10n.errorFilePicker,
-                                          e.toString(),
-                                        );
-                                      }
-                                      return;
-                                    }
-                                    final path = file?.path;
-                                    if (path != null && mounted) {
-                                      ref
-                                          .read(homeViewModelProvider.notifier)
-                                          .setAudioSrPath(path);
-                                    }
-                                  },
-                                  child: Text(l10n.browseAudioSr),
-                                ),
-                              ),
-                              CheckboxListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(
-                                  l10n.audioSrUseCpu,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color:
-                                        state.useAudioSr &&
-                                            state.audioSrAvailable
-                                        ? null
-                                        : theme.disabledColor,
-                                  ),
-                                ),
-                                value: state.audioSrUseCpu,
-                                onChanged:
-                                    state.useAudioSr && state.audioSrAvailable
-                                    ? (value) {
-                                        ref
-                                            .read(
-                                              homeViewModelProvider.notifier,
-                                            )
-                                            .setAudioSrUseCpu(value ?? false);
-                                      }
-                                    : null,
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    l10n.audioSrChunkSeconds,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color:
-                                          state.useAudioSr &&
-                                              state.audioSrAvailable
-                                          ? null
-                                          : theme.disabledColor,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  DropdownButton<int>(
-                                    value: state.audioSrChunkSeconds,
-                                    onChanged:
-                                        state.useAudioSr &&
-                                            state.audioSrAvailable
-                                        ? (value) {
-                                            if (value != null) {
-                                              ref
-                                                  .read(
-                                                    homeViewModelProvider
-                                                        .notifier,
-                                                  )
-                                                  .setAudioSrChunkSeconds(
-                                                    value,
-                                                  );
-                                            }
-                                          }
-                                        : null,
-                                    items: [1, 2, 3, 4, 5]
-                                        .map(
-                                          (v) => DropdownMenuItem<int>(
-                                            value: v,
-                                            child: Text('$v'),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                const Radio<bool>(value: false),
+                                Text(l10n.backendLocal),
+                                const SizedBox(width: 8),
+                                const Radio<bool>(value: true),
+                                const Text('Google Colab'),
+                              ],
+                            ),
                           ),
-                        ),
-                        const Divider(height: 24),
-                        ],
+                        if (state.useSuperResolution &&
+                            !state.superResolutionOnColab &&
+                            !state.superResolutionAvailable)
+                          _ModelDownloadControls(state: state),
                         // Cache section
                         TextButton.icon(
                           onPressed: () async {
@@ -329,4 +242,62 @@ class _SettingsDialogState extends ConsumerState<SettingsDialog> {
       ],
     );
   }
+}
+
+/// Download button, or progress and a cancel button while downloading.
+class _ModelDownloadControls extends ConsumerWidget {
+  final HomeState state;
+
+  const _ModelDownloadControls({required this.state});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final notifier = ref.read(homeViewModelProvider.notifier);
+    final progress = state.modelDownloadProgress;
+    final error = state.modelDownloadError;
+    final size = '${(_modelBytes / 1e6).round()} MB';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (progress == null)
+          TextButton.icon(
+            onPressed: notifier.downloadModel,
+            icon: const Icon(Icons.download),
+            label: Text(l10n.downloadModel(size)),
+          )
+        else
+          Row(
+            children: [
+              Expanded(child: LinearProgressIndicator(value: progress)),
+              const SizedBox(width: 8),
+              Text(
+                l10n.downloadingModel((progress * 100).floor()),
+                style: theme.textTheme.bodySmall,
+              ),
+              TextButton(
+                onPressed: notifier.cancelModelDownload,
+                child: Text(
+                  MaterialLocalizations.of(context).cancelButtonLabel,
+                ),
+              ),
+            ],
+          ),
+        if (error != null)
+          Text(
+            l10n.modelDownloadFailed(error),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.error,
+            ),
+          ),
+      ],
+    );
+  }
+
+  static final _modelBytes = ModelDownloader.defaultFiles.fold<int>(
+    0,
+    (n, f) => n + f.size,
+  );
 }

@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -109,17 +110,8 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String enhancingAudio(String streamName) {
-    return '$streamName のオーディオをAudioSRで高音質化中...';
+    return '$streamName の音声をVoiceFixerで高音質化中...';
   }
-
-  @override
-  String get enableAudioSr => 'オーディオ品質を向上 (AudioSR)';
-
-  @override
-  String get audioSrNotFound => 'audiosrの実行ファイルを指定してください。';
-
-  @override
-  String get browseAudioSr => '参照...';
 
   @override
   String get settings => '設定';
@@ -134,22 +126,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cacheCleared => 'キャッシュを削除しました';
 
   @override
-  String get audioSrNote => '処理に非常に時間がかかる場合があります。';
-
-  @override
-  String get cacheFoundTitle => '中断データが見つかりました';
-
-  @override
-  String get cacheFoundMessage =>
-      '前回中断したビルドのデータが見つかりました。続きから再開しますか、それとも最初からやり直しますか？';
-
-  @override
-  String get continueFromCache => '続きから再開';
-
-  @override
-  String get startFresh => '最初からやり直す';
-
-  @override
   String get version => 'バージョン';
 
   @override
@@ -159,8 +135,148 @@ class AppLocalizationsJa extends AppLocalizations {
   String get licensesSection => 'ライセンス';
 
   @override
-  String get audioSrUseCpu => 'CPUで処理';
+  String get superResolutionSection => '音声の高音質化';
 
   @override
-  String get audioSrChunkSeconds => 'チャンク分割秒数';
+  String get enableSuperResolution => '音声を高音質化する (VoiceFixer)';
+
+  @override
+  String get superResolutionNote =>
+      '11kHzの音声を44.1kHzに変換します。処理には時間がかかります（高速なPCで音声の長さの約半分、1言語あたり約1時間）。';
+
+  @override
+  String get superResolutionModelMissing => 'VoiceFixerのモデルがインストールされていません。';
+
+  @override
+  String downloadModel(String size) {
+    return 'モデルをダウンロード（$size）';
+  }
+
+  @override
+  String downloadingModel(int percent) {
+    return 'モデルをダウンロード中... $percent%';
+  }
+
+  @override
+  String modelDownloadFailed(String error) {
+    return 'ダウンロードに失敗しました: $error';
+  }
+
+  @override
+  String get superResolutionBackend => '実行場所:';
+
+  @override
+  String get backendLocal => 'このPC';
+
+  @override
+  String get superResolutionColabNote =>
+      'Google Colab の無料 GPU で処理します。メイン画面の「Colab で高音質化してビルド」を押し、案内に沿って進めてください。';
+
+  @override
+  String colabImportDone(int count) {
+    return '高音質化した音声を $count 件取り込みました。';
+  }
+
+  @override
+  String colabImportFailed(String error) {
+    return 'インポートに失敗しました: $error';
+  }
+
+  @override
+  String get colabStep1Title => '音声を書き出す';
+
+  @override
+  String colabStep1Done(int count, String path) {
+    return '$count 件を書き出しました: $path';
+  }
+
+  @override
+  String get colabStep1Nothing => 'すべて高音質化済みです。手順 3 でビルドしてください。';
+
+  @override
+  String get colabExport => '書き出す';
+
+  @override
+  String get openFolder => 'フォルダを開く';
+
+  @override
+  String get colabStep2Title => 'Colab で変換する';
+
+  @override
+  String get openColab => 'Colab を開く';
+
+  @override
+  String get colabStep3Title => '結果を取り込んでビルド';
+
+  @override
+  String colabStep3Found(String path) {
+    return '見つかりました: $path';
+  }
+
+  @override
+  String colabStep3Imported(int done, int total) {
+    return '取り込み済み: $done / $total 件';
+  }
+
+  @override
+  String get importAndBuild => '取り込んでビルド';
+
+  @override
+  String get chooseFile => 'ファイルを選ぶ…';
+
+  @override
+  String get chooseOtherFile => '別のファイルを選ぶ';
+
+  @override
+  String get buildWithoutImport => '取り込まずにビルド（未処理の音声は元の音質のまま）';
+
+  @override
+  String get colabStart => 'Colab で高音質化してビルド…';
+
+  @override
+  String get colabWizardTitle => 'Google Colab で高音質化';
+
+  @override
+  String colabStepOf(int step) {
+    return '手順 $step / 3';
+  }
+
+  @override
+  String get colabStep1Explain =>
+      'まだ高音質化していない音声を、出力フォルダの sr_input.zip にまとめます。次の手順で、このファイルを Colab にアップロードします。';
+
+  @override
+  String get colabExporting => '書き出し中…';
+
+  @override
+  String get colabReexport => 'もう一度書き出す';
+
+  @override
+  String get colabStep2Open => '下の「Colab を開く」を押します。';
+
+  @override
+  String get colabStep2Run => 'Colab のメニューで「ランタイム → すべてのセルを実行」を選びます。';
+
+  @override
+  String get colabStep2Upload => 'ファイルを選ぶ画面が出たら、出力フォルダの sr_input.zip を選びます。';
+
+  @override
+  String get colabStep2Wait =>
+      '処理が終わると sr_output.zip がダウンロードされます。それまで Colab のタブは閉じないでください。';
+
+  @override
+  String get colabStep2Arrived => 'sr_output.zip がダウンロードされました。「次へ」を押してください。';
+
+  @override
+  String get colabStep3Explain => 'sr_output.zip から高音質化した音声を取り込み、MPQ をビルドします。';
+
+  @override
+  String get colabStep3NotFound =>
+      'ダウンロードフォルダに sr_output.zip が見つかりません。ファイルを選んでください。';
+
+  @override
+  String get wizardBack => '戻る';
+
+  @override
+  String get wizardNext => '次へ';
 }

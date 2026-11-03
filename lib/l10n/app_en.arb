@@ -156,27 +156,15 @@
       }
     }
   },
-  "enhancingAudio": "Enhancing audio with AudioSR from {streamName}...",
+  "enhancingAudio": "Enhancing voices in {streamName} with VoiceFixer...",
   "@enhancingAudio": {
-    "description": "AudioSR enhancement step",
+    "description": "Super-resolution step",
     "placeholders": {
       "streamName": {
         "type": "String",
         "example": "STREAM1"
       }
     }
-  },
-  "enableAudioSr": "Enhance audio quality (AudioSR)",
-  "@enableAudioSr": {
-    "description": "Checkbox label for enabling AudioSR"
-  },
-  "audioSrNotFound": "Please specify the audiosr executable.",
-  "@audioSrNotFound": {
-    "description": "Message when audiosr is not found"
-  },
-  "browseAudioSr": "Browse...",
-  "@browseAudioSr": {
-    "description": "Button to browse for audiosr executable"
   },
   "settings": "Settings",
   "@settings": {
@@ -194,26 +182,6 @@
   "@cacheCleared": {
     "description": "Message shown after cache is cleared"
   },
-  "audioSrNote": "Processing may take a very long time.",
-  "@audioSrNote": {
-    "description": "Note about AudioSR processing time"
-  },
-  "cacheFoundTitle": "Previous data found",
-  "@cacheFoundTitle": {
-    "description": "Title for cache found dialog"
-  },
-  "cacheFoundMessage": "Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?",
-  "@cacheFoundMessage": {
-    "description": "Message for cache found dialog"
-  },
-  "continueFromCache": "Continue",
-  "@continueFromCache": {
-    "description": "Button to continue from cached data"
-  },
-  "startFresh": "Start Fresh",
-  "@startFresh": {
-    "description": "Button to clear cache and start fresh"
-  },
   "version": "Version",
   "@version": {
     "description": "Version label in settings"
@@ -226,12 +194,230 @@
   "@licensesSection": {
     "description": "Section title for licenses in settings"
   },
-  "audioSrUseCpu": "Process on CPU",
-  "@audioSrUseCpu": {
-    "description": "Checkbox label for running AudioSR on CPU"
+  "superResolutionSection": "Voice enhancement",
+  "@superResolutionSection": {
+    "description": "Settings section title for super-resolution"
   },
-  "audioSrChunkSeconds": "Chunk duration (seconds)",
-  "@audioSrChunkSeconds": {
-    "description": "Dropdown label for AudioSR chunk duration in seconds"
+  "enableSuperResolution": "Enhance voice quality (VoiceFixer)",
+  "@enableSuperResolution": {
+    "description": "Checkbox label for enabling super-resolution"
+  },
+  "superResolutionNote": "Converts the 11 kHz voices to 44.1 kHz. This takes a while (about half the audio length on a fast PC; about an hour per language).",
+  "@superResolutionNote": {
+    "description": "Note about what super-resolution does and how long it takes"
+  },
+  "superResolutionModelMissing": "The VoiceFixer model is not installed.",
+  "@superResolutionModelMissing": {
+    "description": "Shown when the super-resolution model files are missing"
+  },
+  "downloadModel": "Download model ({size})",
+  "@downloadModel": {
+    "description": "Button that downloads the super-resolution model",
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "432 MB"
+      }
+    }
+  },
+  "downloadingModel": "Downloading model... {percent}%",
+  "@downloadingModel": {
+    "description": "Progress text while the model downloads",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "modelDownloadFailed": "Download failed: {error}",
+  "@modelDownloadFailed": {
+    "description": "Shown when the model download fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "HTTP 404"
+      }
+    }
+  },
+  "superResolutionBackend": "Run on:",
+  "@superResolutionBackend": {
+    "description": "Label before the choice of where super-resolution runs"
+  },
+  "backendLocal": "This PC",
+  "@backendLocal": {
+    "description": "Option: run super-resolution on this computer"
+  },
+  "superResolutionColabNote": "Runs on a free Google Colab GPU. Press \"Enhance on Colab and build\" on the main screen and follow the steps.",
+  "@superResolutionColabNote": {
+    "description": "Explains the Google Colab workflow"
+  },
+  "colabImportDone": "Imported {count} enhanced voices.",
+  "@colabImportDone": {
+    "description": "Shown after importing Colab results",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "730"
+      }
+    }
+  },
+  "colabImportFailed": "Import failed: {error}",
+  "@colabImportFailed": {
+    "description": "Shown when importing Colab results fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "manifest.json not found"
+      }
+    }
+  },
+  "colabStep1Title": "Export the voices",
+  "@colabStep1Title": {
+    "description": "Colab step 1 title"
+  },
+  "colabStep1Done": "Exported {count} voices: {path}",
+  "@colabStep1Done": {
+    "description": "Colab step 1 result",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "732"
+      },
+      "path": {
+        "type": "String",
+        "example": "/out/sr_input.zip"
+      }
+    }
+  },
+  "colabStep1Nothing": "All voices are already enhanced. Build in step 3.",
+  "@colabStep1Nothing": {
+    "description": "Colab step 1 result when nothing needs Colab"
+  },
+  "colabExport": "Export",
+  "@colabExport": {
+    "description": "Colab step 1 button"
+  },
+  "openFolder": "Open folder",
+  "@openFolder": {
+    "description": "Opens the folder in the file manager"
+  },
+  "colabStep2Title": "Convert on Colab",
+  "@colabStep2Title": {
+    "description": "Colab step 2 title"
+  },
+  "openColab": "Open Colab",
+  "@openColab": {
+    "description": "Colab step 2 button"
+  },
+  "colabStep3Title": "Import the result and build",
+  "@colabStep3Title": {
+    "description": "Colab step 3 title"
+  },
+  "colabStep3Found": "Found: {path}",
+  "@colabStep3Found": {
+    "description": "Colab step 3: result file found in Downloads",
+    "placeholders": {
+      "path": {
+        "type": "String",
+        "example": "~/Downloads/sr_output.zip"
+      }
+    }
+  },
+  "colabStep3Imported": "{done} of {total} voices imported",
+  "@colabStep3Imported": {
+    "description": "Colab step 3: how many exported voices are imported",
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "example": "732"
+      },
+      "total": {
+        "type": "int",
+        "example": "732"
+      }
+    }
+  },
+  "importAndBuild": "Import and build",
+  "@importAndBuild": {
+    "description": "Colab step 3 button"
+  },
+  "chooseFile": "Choose file…",
+  "@chooseFile": {
+    "description": "Colab step 3 button when no result file was found"
+  },
+  "chooseOtherFile": "Choose another file",
+  "@chooseOtherFile": {
+    "description": "Colab step 3 link to pick a different result file"
+  },
+  "buildWithoutImport": "Build without importing (voices not enhanced keep the original quality)",
+  "@buildWithoutImport": {
+    "description": "Colab step 3 link to build with whatever is already imported"
+  },
+  "colabStart": "Enhance on Colab and build…",
+  "@colabStart": {
+    "description": "Main button in Colab mode; opens the step-by-step dialog"
+  },
+  "colabWizardTitle": "Enhance on Google Colab",
+  "@colabWizardTitle": {
+    "description": "Title of the Colab dialog"
+  },
+  "colabStepOf": "Step {step} of 3",
+  "@colabStepOf": {
+    "description": "Position in the Colab dialog",
+    "placeholders": {
+      "step": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "colabStep1Explain": "Collects the voices that still need enhancing into sr_input.zip in the output folder. You will upload this file to Colab in the next step.",
+  "@colabStep1Explain": {
+    "description": "Colab step 1 explanation"
+  },
+  "colabExporting": "Exporting…",
+  "@colabExporting": {
+    "description": "Shown while exporting"
+  },
+  "colabReexport": "Export again",
+  "@colabReexport": {
+    "description": "Button to redo the export"
+  },
+  "colabStep2Open": "Press \"Open Colab\" below.",
+  "@colabStep2Open": {
+    "description": "Colab step 2, item 1"
+  },
+  "colabStep2Run": "In Colab, choose Runtime → Run all.",
+  "@colabStep2Run": {
+    "description": "Colab step 2, item 2"
+  },
+  "colabStep2Upload": "When asked for a file, choose sr_input.zip in the output folder.",
+  "@colabStep2Upload": {
+    "description": "Colab step 2, item 3"
+  },
+  "colabStep2Wait": "When it finishes, sr_output.zip is downloaded. Keep the Colab tab open until then.",
+  "@colabStep2Wait": {
+    "description": "Colab step 2, item 4"
+  },
+  "colabStep2Arrived": "sr_output.zip has been downloaded. Press Next.",
+  "@colabStep2Arrived": {
+    "description": "Colab step 2 when the result was found"
+  },
+  "colabStep3Explain": "Imports the enhanced voices from sr_output.zip and builds the MPQ files.",
+  "@colabStep3Explain": {
+    "description": "Colab step 3 explanation"
+  },
+  "colabStep3NotFound": "sr_output.zip was not found in the Downloads folder. Choose it yourself.",
+  "@colabStep3NotFound": {
+    "description": "Colab step 3 when no result was found"
+  },
+  "wizardBack": "Back",
+  "@wizardBack": {
+    "description": "Dialog button: previous step"
+  },
+  "wizardNext": "Next",
+  "@wizardNext": {
+    "description": "Dialog button: next step"
   }
 }

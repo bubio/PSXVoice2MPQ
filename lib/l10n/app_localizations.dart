@@ -278,29 +278,11 @@ abstract class AppLocalizations {
   /// **'Converting WAV to MP3 from {streamName}...'**
   String convertingToMp3(String streamName);
 
-  /// AudioSR enhancement step
+  /// Super-resolution step
   ///
   /// In en, this message translates to:
-  /// **'Enhancing audio with AudioSR from {streamName}...'**
+  /// **'Enhancing voices in {streamName} with VoiceFixer...'**
   String enhancingAudio(String streamName);
-
-  /// Checkbox label for enabling AudioSR
-  ///
-  /// In en, this message translates to:
-  /// **'Enhance audio quality (AudioSR)'**
-  String get enableAudioSr;
-
-  /// Message when audiosr is not found
-  ///
-  /// In en, this message translates to:
-  /// **'Please specify the audiosr executable.'**
-  String get audioSrNotFound;
-
-  /// Button to browse for audiosr executable
-  ///
-  /// In en, this message translates to:
-  /// **'Browse...'**
-  String get browseAudioSr;
 
   /// Settings dialog title
   ///
@@ -326,36 +308,6 @@ abstract class AppLocalizations {
   /// **'Cache cleared'**
   String get cacheCleared;
 
-  /// Note about AudioSR processing time
-  ///
-  /// In en, this message translates to:
-  /// **'Processing may take a very long time.'**
-  String get audioSrNote;
-
-  /// Title for cache found dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Previous data found'**
-  String get cacheFoundTitle;
-
-  /// Message for cache found dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Data from a previous interrupted build was found. Would you like to continue from where it left off, or start fresh?'**
-  String get cacheFoundMessage;
-
-  /// Button to continue from cached data
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get continueFromCache;
-
-  /// Button to clear cache and start fresh
-  ///
-  /// In en, this message translates to:
-  /// **'Start Fresh'**
-  String get startFresh;
-
   /// Version label in settings
   ///
   /// In en, this message translates to:
@@ -374,17 +326,251 @@ abstract class AppLocalizations {
   /// **'Licenses'**
   String get licensesSection;
 
-  /// Checkbox label for running AudioSR on CPU
+  /// Settings section title for super-resolution
   ///
   /// In en, this message translates to:
-  /// **'Process on CPU'**
-  String get audioSrUseCpu;
+  /// **'Voice enhancement'**
+  String get superResolutionSection;
 
-  /// Dropdown label for AudioSR chunk duration in seconds
+  /// Checkbox label for enabling super-resolution
   ///
   /// In en, this message translates to:
-  /// **'Chunk duration (seconds)'**
-  String get audioSrChunkSeconds;
+  /// **'Enhance voice quality (VoiceFixer)'**
+  String get enableSuperResolution;
+
+  /// Note about what super-resolution does and how long it takes
+  ///
+  /// In en, this message translates to:
+  /// **'Converts the 11 kHz voices to 44.1 kHz. This takes a while (about half the audio length on a fast PC; about an hour per language).'**
+  String get superResolutionNote;
+
+  /// Shown when the super-resolution model files are missing
+  ///
+  /// In en, this message translates to:
+  /// **'The VoiceFixer model is not installed.'**
+  String get superResolutionModelMissing;
+
+  /// Button that downloads the super-resolution model
+  ///
+  /// In en, this message translates to:
+  /// **'Download model ({size})'**
+  String downloadModel(String size);
+
+  /// Progress text while the model downloads
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading model... {percent}%'**
+  String downloadingModel(int percent);
+
+  /// Shown when the model download fails
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed: {error}'**
+  String modelDownloadFailed(String error);
+
+  /// Label before the choice of where super-resolution runs
+  ///
+  /// In en, this message translates to:
+  /// **'Run on:'**
+  String get superResolutionBackend;
+
+  /// Option: run super-resolution on this computer
+  ///
+  /// In en, this message translates to:
+  /// **'This PC'**
+  String get backendLocal;
+
+  /// Explains the Google Colab workflow
+  ///
+  /// In en, this message translates to:
+  /// **'Runs on a free Google Colab GPU. Press \"Enhance on Colab and build\" on the main screen and follow the steps.'**
+  String get superResolutionColabNote;
+
+  /// Shown after importing Colab results
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count} enhanced voices.'**
+  String colabImportDone(int count);
+
+  /// Shown when importing Colab results fails
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed: {error}'**
+  String colabImportFailed(String error);
+
+  /// Colab step 1 title
+  ///
+  /// In en, this message translates to:
+  /// **'Export the voices'**
+  String get colabStep1Title;
+
+  /// Colab step 1 result
+  ///
+  /// In en, this message translates to:
+  /// **'Exported {count} voices: {path}'**
+  String colabStep1Done(int count, String path);
+
+  /// Colab step 1 result when nothing needs Colab
+  ///
+  /// In en, this message translates to:
+  /// **'All voices are already enhanced. Build in step 3.'**
+  String get colabStep1Nothing;
+
+  /// Colab step 1 button
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get colabExport;
+
+  /// Opens the folder in the file manager
+  ///
+  /// In en, this message translates to:
+  /// **'Open folder'**
+  String get openFolder;
+
+  /// Colab step 2 title
+  ///
+  /// In en, this message translates to:
+  /// **'Convert on Colab'**
+  String get colabStep2Title;
+
+  /// Colab step 2 button
+  ///
+  /// In en, this message translates to:
+  /// **'Open Colab'**
+  String get openColab;
+
+  /// Colab step 3 title
+  ///
+  /// In en, this message translates to:
+  /// **'Import the result and build'**
+  String get colabStep3Title;
+
+  /// Colab step 3: result file found in Downloads
+  ///
+  /// In en, this message translates to:
+  /// **'Found: {path}'**
+  String colabStep3Found(String path);
+
+  /// Colab step 3: how many exported voices are imported
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} voices imported'**
+  String colabStep3Imported(int done, int total);
+
+  /// Colab step 3 button
+  ///
+  /// In en, this message translates to:
+  /// **'Import and build'**
+  String get importAndBuild;
+
+  /// Colab step 3 button when no result file was found
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file…'**
+  String get chooseFile;
+
+  /// Colab step 3 link to pick a different result file
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another file'**
+  String get chooseOtherFile;
+
+  /// Colab step 3 link to build with whatever is already imported
+  ///
+  /// In en, this message translates to:
+  /// **'Build without importing (voices not enhanced keep the original quality)'**
+  String get buildWithoutImport;
+
+  /// Main button in Colab mode; opens the step-by-step dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance on Colab and build…'**
+  String get colabStart;
+
+  /// Title of the Colab dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance on Google Colab'**
+  String get colabWizardTitle;
+
+  /// Position in the Colab dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of 3'**
+  String colabStepOf(int step);
+
+  /// Colab step 1 explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Collects the voices that still need enhancing into sr_input.zip in the output folder. You will upload this file to Colab in the next step.'**
+  String get colabStep1Explain;
+
+  /// Shown while exporting
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting…'**
+  String get colabExporting;
+
+  /// Button to redo the export
+  ///
+  /// In en, this message translates to:
+  /// **'Export again'**
+  String get colabReexport;
+
+  /// Colab step 2, item 1
+  ///
+  /// In en, this message translates to:
+  /// **'Press \"Open Colab\" below.'**
+  String get colabStep2Open;
+
+  /// Colab step 2, item 2
+  ///
+  /// In en, this message translates to:
+  /// **'In Colab, choose Runtime → Run all.'**
+  String get colabStep2Run;
+
+  /// Colab step 2, item 3
+  ///
+  /// In en, this message translates to:
+  /// **'When asked for a file, choose sr_input.zip in the output folder.'**
+  String get colabStep2Upload;
+
+  /// Colab step 2, item 4
+  ///
+  /// In en, this message translates to:
+  /// **'When it finishes, sr_output.zip is downloaded. Keep the Colab tab open until then.'**
+  String get colabStep2Wait;
+
+  /// Colab step 2 when the result was found
+  ///
+  /// In en, this message translates to:
+  /// **'sr_output.zip has been downloaded. Press Next.'**
+  String get colabStep2Arrived;
+
+  /// Colab step 3 explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Imports the enhanced voices from sr_output.zip and builds the MPQ files.'**
+  String get colabStep3Explain;
+
+  /// Colab step 3 when no result was found
+  ///
+  /// In en, this message translates to:
+  /// **'sr_output.zip was not found in the Downloads folder. Choose it yourself.'**
+  String get colabStep3NotFound;
+
+  /// Dialog button: previous step
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get wizardBack;
+
+  /// Dialog button: next step
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get wizardNext;
 }
 
 class _AppLocalizationsDelegate

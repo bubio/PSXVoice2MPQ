@@ -35,7 +35,7 @@ PSXVoice2MPQは、PlayStation 1版Diabloのゲームディスクから音声デ�
 - VAG音声をWAVに変換（音楽は変換対象外）
 - LAME、またはFFMPEGが使用可能な場合はMP3に変換
 - DevilutionX互換のMPQアーカイブを作成
-<!-- - **AudioSRによる音声品質向上（オプション）** -->
+- **VoiceFixerによる音声の高音質化（オプション）**: 11kHzの音声を44.1kHzに変換
 
 ### 対応言語（音声）
 
@@ -109,17 +109,19 @@ brew install --cask psxvoice2mpq
 
 DevilutionXを起動したことがあれば、出力先として自動的に設定されます。
 
-<!-- ## AudioSR による音声品質向上
+## 音声の高音質化（VoiceFixer）
 
-PS1版Diabloの音声ファイルは11kHzという低いサンプルレートで収録されています。PSXVoice2MPQは[AudioSR](https://github.com/haoheliu/versatile_audio_super_resolution)を使用して、AIによる音声超解像技術でこれを48kHzに高品質化することができます。
+PS1版Diabloの音声は11kHzで収録されています。設定画面で「音声を高音質化する」をオンにすると、AIによる音声超解像（[VoiceFixer](https://github.com/haoheliu/voicefixer)）で44.1kHzに変換してからMPQを作ります。Pythonなどの準備は不要です。
 
-PSXVoice2MPQの設定画面でAudioSRを有効にできます。実行ファイルのパスを手動で指定してください。 
+実行場所は次の2つから選べます。
 
-### 処理時間の目安
+- **このPC**: 初回にモデル（約430MB）をダウンロードし、アプリ内で処理します。音声の長さの約半分の時間がかかります（Apple M4で1言語あたり約1時間）。
+- **Google Colab**: 無料のGPUで処理します（1言語あたり約40分）。Colabはブラウザで操作する必要があるため、メイン画面の「Colab で高音質化してビルド」を押すと、3つの手順を1つずつ案内します。
+  1. 「書き出す」を押すと、出力フォルダに `sr_input.zip` ができます。
+  2. 「Colab を開く」でColabを開き、すべてのセルを実行して `sr_input.zip` を選びます。終わると `sr_output.zip` がダウンロードされます。
+  3. アプリに戻ると、ダウンロードフォルダの `sr_output.zip` を自動で見つけます。「取り込んでビルド」を押します。
 
-AudioSRによる処理は、ハードウェア性能に大きく依存しますが、いずれにせよ非常に時間がかかります。CPUのみの場合は数十時間かかる可能性があります。
-
-ビルド中にアプリを終了しても、キャッシュされたファイルは保持されるため、次回の変換時に続きから処理できます。 -->
+処理結果はキャッシュされます。ビルドを中断しても、もう一度ビルドすれば続きから処理します。キャッシュは設定画面の「キャッシュを削除」で消せます。
 
 ## ソースからのビルド
 
@@ -156,7 +158,8 @@ flutter build linux --release  # Linux
 - [DevilutionX](https://github.com/diasurgical/devilutionX) - DevilutionXは『ディアブロ』と『ヘルファイア』を多様なプラットフォームで動作
 - [psx-tools](https://github.com/diasurgical/psx-tools) - PS版Diabloデータ変換ツール
 - [StormLib](https://github.com/ladislav-zezula/StormLib) - MPQアーカイブライブラリ
-<!-- - [AudioSR](https://github.com/haoheliu/versatile_audio_super_resolution) - AI音声超解像 -->
+- [VoiceFixer](https://github.com/haoheliu/voicefixer) - AI音声超解像（モデルの重みは CC BY 4.0）
+- [ONNX Runtime](https://github.com/microsoft/onnxruntime) - 推論エンジン
 - PlayStation 1版Diablo - 開発: Climax Studios、販売: Electronic Arts
 
 ## 法的事項

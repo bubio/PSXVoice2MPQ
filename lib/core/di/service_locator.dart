@@ -4,6 +4,7 @@ import '../../services/mpq_builder_service.dart';
 import '../../services/process_runner.dart';
 import '../../services/settings_service.dart';
 import '../../services/stormlib_service.dart';
+import '../../services/super_resolution/super_resolution_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -16,10 +17,15 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton<SettingsService>(() => SettingsService());
 
+  getIt.registerLazySingleton<SuperResolutionService>(
+    () => SuperResolutionService(),
+  );
+
   getIt.registerLazySingleton<MpqBuilderService>(
     () => MpqBuilderService(
       processRunner: getIt<ProcessRunner>(),
       stormLibService: getIt<StormLibService>(),
+      superResolutionService: getIt<SuperResolutionService>(),
     ),
   );
 }

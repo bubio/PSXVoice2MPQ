@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:path/path.dart' as p;
 
 import '../core/constants/path_constants.dart';
@@ -24,51 +25,43 @@ class SettingsService {
   }
 
   Future<void> _writeSettings(Map<String, dynamic> settings) async {
+    _legacyAudioSrKeys.forEach(settings.remove);
     final file = File(_settingsFilePath);
     await Directory(p.dirname(file.path)).create(recursive: true);
     await file.writeAsString(json.encode(settings));
   }
 
-  /// Get the saved audiosr path, or null if not set.
-  Future<String?> getAudioSrPath() async {
+  /// Settings keys left over from the removed AudioSR feature.
+  static const _legacyAudioSrKeys = [
+    'audioSrPath',
+    'audioSrUseCpu',
+    'audioSrChunkSeconds',
+  ];
+
+  /// Whether super-resolution (VoiceFixer) is enabled (default: false).
+  Future<bool> getSuperResolutionEnabled() async {
     final settings = await _readSettings();
-    return settings['audioSrPath'] as String?;
+    return settings['sr.engine'] == 'voicefixer';
   }
 
-  /// Save the audiosr path. Pass null to clear.
-  Future<void> setAudioSrPath(String? path) async {
+  /// Saves the super-resolution setting.
+  Future<void> setSuperResolutionEnabled(bool value) async {
     final settings = await _readSettings();
-    if (path != null) {
-      settings['audioSrPath'] = path;
-    } else {
-      settings.remove('audioSrPath');
-    }
+    settings['sr.engine'] = value ? 'voicefixer' : 'none';
     await _writeSettings(settings);
   }
 
-  /// Get the audioSrUseCpu setting (default: false).
-  Future<bool> getAudioSrUseCpu() async {
+  /// Whether super-resolution runs on Google Colab instead of in the app
+  /// (default: false).
+  Future<bool> getSuperResolutionOnColab() async {
     final settings = await _readSettings();
-    return settings['audioSrUseCpu'] as bool? ?? false;
+    return settings['sr.backend'] == 'colab';
   }
 
-  /// Save the audioSrUseCpu setting.
-  Future<void> setAudioSrUseCpu(bool value) async {
+  /// Saves where super-resolution runs.
+  Future<void> setSuperResolutionOnColab(bool value) async {
     final settings = await _readSettings();
-    settings['audioSrUseCpu'] = value;
-    await _writeSettings(settings);
-  }
-
-  /// Get the audioSrChunkSeconds setting (default: 5).
-  Future<int> getAudioSrChunkSeconds() async {
-    final settings = await _readSettings();
-    return settings['audioSrChunkSeconds'] as int? ?? 5;
-  }
-
-  /// Save the audioSrChunkSeconds setting.
-  Future<void> setAudioSrChunkSeconds(int value) async {
-    final settings = await _readSettings();
-    settings['audioSrChunkSeconds'] = value;
+    settings['sr.backend'] = value ? 'colab' : 'local';
     await _writeSettings(settings);
   }
 

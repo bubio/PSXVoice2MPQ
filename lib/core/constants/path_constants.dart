@@ -107,22 +107,6 @@ class PathConstants {
     return paths;
   }
 
-  /// Get the AudioSR cache directory for a specific stream.
-  /// Cache persists across app restarts to allow resuming.
-  static String getAudioSrCacheDir(String streamName) {
-    if (Platform.isMacOS) {
-      final home = Platform.environment['HOME'] ?? '';
-      return p.join(home, 'Library', 'Caches', tempDirName, 'audiosr', streamName);
-    } else if (Platform.isWindows) {
-      final localAppData = Platform.environment['LOCALAPPDATA'] ?? '';
-      return p.join(localAppData, tempDirName, 'audiosr', streamName);
-    } else {
-      // Linux
-      final home = Platform.environment['HOME'] ?? '';
-      return p.join(home, '.cache', tempDirName, 'audiosr', streamName);
-    }
-  }
-
   /// Get the app cache directory.
   static String getCacheDir() {
     if (Platform.isMacOS) {

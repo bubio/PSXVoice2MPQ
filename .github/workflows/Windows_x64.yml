@@ -19,6 +19,9 @@ env:
 
 jobs:
   build:
+    # Only app releases (v*) get binaries; model-data-* releases only host
+    # the super-resolution model files.
+    if: github.event_name != 'release' || startsWith(github.event.release.tag_name, 'v')
     runs-on: windows-latest
     steps:
       - name: Checkout

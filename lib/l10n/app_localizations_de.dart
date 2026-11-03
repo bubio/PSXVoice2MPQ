@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -112,17 +113,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String enhancingAudio(String streamName) {
-    return 'Audio mit AudioSR von $streamName wird verbessert...';
+    return 'Stimmen in $streamName werden mit VoiceFixer verbessert...';
   }
-
-  @override
-  String get enableAudioSr => 'Audioqualität verbessern (AudioSR)';
-
-  @override
-  String get audioSrNotFound => 'Bitte geben Sie die audiosr-Programmdatei an.';
-
-  @override
-  String get browseAudioSr => 'Durchsuchen...';
 
   @override
   String get settings => 'Einstellungen';
@@ -137,22 +129,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cacheCleared => 'Cache gelöscht';
 
   @override
-  String get audioSrNote => 'Die Verarbeitung kann sehr lange dauern.';
-
-  @override
-  String get cacheFoundTitle => 'Vorherige Daten gefunden';
-
-  @override
-  String get cacheFoundMessage =>
-      'Es wurden Daten eines zuvor abgebrochenen Builds gefunden. Möchten Sie fortfahren oder neu beginnen?';
-
-  @override
-  String get continueFromCache => 'Fortfahren';
-
-  @override
-  String get startFresh => 'Neu beginnen';
-
-  @override
   String get version => 'Version';
 
   @override
@@ -162,8 +138,155 @@ class AppLocalizationsDe extends AppLocalizations {
   String get licensesSection => 'Lizenzen';
 
   @override
-  String get audioSrUseCpu => 'Auf CPU verarbeiten';
+  String get superResolutionSection => 'Sprachverbesserung';
 
   @override
-  String get audioSrChunkSeconds => 'Chunk-Dauer (Sekunden)';
+  String get enableSuperResolution => 'Sprachqualität verbessern (VoiceFixer)';
+
+  @override
+  String get superResolutionNote =>
+      'Wandelt die 11-kHz-Sprachaufnahmen in 44,1 kHz um. Das dauert eine Weile (auf einem schnellen PC etwa die Hälfte der Audiolänge, rund eine Stunde pro Sprache).';
+
+  @override
+  String get superResolutionModelMissing =>
+      'Das VoiceFixer-Modell ist nicht installiert.';
+
+  @override
+  String downloadModel(String size) {
+    return 'Modell herunterladen ($size)';
+  }
+
+  @override
+  String downloadingModel(int percent) {
+    return 'Modell wird heruntergeladen... $percent %';
+  }
+
+  @override
+  String modelDownloadFailed(String error) {
+    return 'Download fehlgeschlagen: $error';
+  }
+
+  @override
+  String get superResolutionBackend => 'Ausführen auf:';
+
+  @override
+  String get backendLocal => 'Diesem PC';
+
+  @override
+  String get superResolutionColabNote =>
+      'Läuft auf einer kostenlosen Google-Colab-GPU. Drücken Sie im Hauptfenster „Mit Colab verbessern und erstellen“ und folgen Sie den Schritten.';
+
+  @override
+  String colabImportDone(int count) {
+    return '$count verbesserte Stimmen importiert.';
+  }
+
+  @override
+  String colabImportFailed(String error) {
+    return 'Import fehlgeschlagen: $error';
+  }
+
+  @override
+  String get colabStep1Title => 'Stimmen exportieren';
+
+  @override
+  String colabStep1Done(int count, String path) {
+    return '$count Stimmen exportiert: $path';
+  }
+
+  @override
+  String get colabStep1Nothing =>
+      'Alle Stimmen sind bereits verbessert. In Schritt 3 erstellen.';
+
+  @override
+  String get colabExport => 'Exportieren';
+
+  @override
+  String get openFolder => 'Ordner öffnen';
+
+  @override
+  String get colabStep2Title => 'In Colab umwandeln';
+
+  @override
+  String get openColab => 'Colab öffnen';
+
+  @override
+  String get colabStep3Title => 'Ergebnis importieren und erstellen';
+
+  @override
+  String colabStep3Found(String path) {
+    return 'Gefunden: $path';
+  }
+
+  @override
+  String colabStep3Imported(int done, int total) {
+    return '$done von $total Stimmen importiert';
+  }
+
+  @override
+  String get importAndBuild => 'Importieren und erstellen';
+
+  @override
+  String get chooseFile => 'Datei wählen…';
+
+  @override
+  String get chooseOtherFile => 'Andere Datei wählen';
+
+  @override
+  String get buildWithoutImport =>
+      'Ohne Import erstellen (nicht verbesserte Stimmen behalten die Originalqualität)';
+
+  @override
+  String get colabStart => 'Mit Colab verbessern und erstellen…';
+
+  @override
+  String get colabWizardTitle => 'Mit Google Colab verbessern';
+
+  @override
+  String colabStepOf(int step) {
+    return 'Schritt $step von 3';
+  }
+
+  @override
+  String get colabStep1Explain =>
+      'Sammelt die noch nicht verbesserten Stimmen in sr_input.zip im Ausgabeordner. Im nächsten Schritt laden Sie diese Datei in Colab hoch.';
+
+  @override
+  String get colabExporting => 'Wird exportiert…';
+
+  @override
+  String get colabReexport => 'Erneut exportieren';
+
+  @override
+  String get colabStep2Open => 'Drücken Sie unten „Colab öffnen“.';
+
+  @override
+  String get colabStep2Run =>
+      'Wählen Sie in Colab „Laufzeit → Alle ausführen“.';
+
+  @override
+  String get colabStep2Upload =>
+      'Wenn nach einer Datei gefragt wird, wählen Sie sr_input.zip im Ausgabeordner.';
+
+  @override
+  String get colabStep2Wait =>
+      'Am Ende wird sr_output.zip heruntergeladen. Lassen Sie den Colab-Tab bis dahin offen.';
+
+  @override
+  String get colabStep2Arrived =>
+      'sr_output.zip wurde heruntergeladen. Drücken Sie „Weiter“.';
+
+  @override
+  String get colabStep3Explain =>
+      'Importiert die verbesserten Stimmen aus sr_output.zip und erstellt die MPQ-Dateien.';
+
+  @override
+  String get colabStep3NotFound =>
+      'sr_output.zip wurde im Download-Ordner nicht gefunden. Wählen Sie die Datei selbst.';
+
+  @override
+  String get wizardBack => 'Zurück';
+
+  @override
+  String get wizardNext => 'Weiter';
 }
