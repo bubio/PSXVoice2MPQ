@@ -103,7 +103,12 @@ zip の中身は、入力も出力も `manifest.json` と `wav/<入力 WAV の S
 ```
 
 - 確認済み: ノートブックをローカルの CPU で実行した結果は、`pipeline.py` の出力と 16bit で完全に一致した（30 秒を超えるファイルを含む 3 ファイル）。アプリはその `sr_output.zip` を正しくインポートできた。
-- 未確認: Colab の GPU 上での実行と処理時間。
+- 確認済み: Colab の無料 GPU（T4）で STREAM5 の 714 ファイルを 38 分（約 3.2 秒/ファイル。ローカルの M4 CPU の約 1.6 倍速）で処理した。取り込んだ 732 ファイルはキャッシュと完全に一致し、ビルドした MPQ の MP3 は 44.1kHz で、6kHz より上にも成分がある（元の 11kHz にはない帯域）。
+- Colab で GPU を使うために必要だった対処（ノートブックに入れてある）:
+  - cuDNN を 9.8 に固定する。Colab に入っている新しい cuDNN（9.27）では、ボコーダの畳み込みが `CUDNN_FE HEURISTIC_QUERY_FAILED` で失敗する。ONNX Runtime 1.23 は cuDNN 9.8 向けにビルドされている。
+  - `disable_fallback()` を指定し、GPU で失敗したら止める。指定しないと黙って CPU で続け、数時間かかる。開始時に 35 秒のノイズで GPU の動作を確かめる。
+  - CUDA のメモリを、要求された分だけ確保し（`kSameAsRequested`）、実行ごとに返す（arena shrinkage）。ファイルごとに長さが違うため、返さないと 150 ファイル目あたりで T4 のメモリが尽きる。
+  - セットアップのセルを再実行したときは、前のセッションを先に解放する（しないと `CUBLAS_STATUS_ALLOC_FAILED`）。
 
 ## 検討した代替案
 
@@ -132,5 +137,4 @@ zip の中身は、入力も出力も `manifest.json` と `wav/<入力 WAV の S
 
 - 処理時間の短縮: FP16 化や量子化の効果と、音質への影響を確認する。ボコーダが処理時間の 78% を占める
 - Windows と Linux の実機で速度とメモリを計測する（現在の数値は M4 の macOS のみ。ONNX Runtime の同梱と推論は CI の e2e で 3 OS とも確認済み）
-- Colab の GPU での動作確認と処理時間の計測
 - FlashSR: ライセンスの確認と、ONNX に変換できるか。できる場合は `sr.engine` に追加する
