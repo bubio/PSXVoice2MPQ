@@ -18,9 +18,14 @@ class ColabExchange {
   static const inputZipName = 'sr_input.zip';
 
   /// Notebook for this app version, opened in Colab straight from GitHub.
-  static String notebookUrl(String appVersion) =>
-      'https://colab.research.google.com/github/bubio/PSXVoice2MPQ/blob/'
-      'v$appVersion/colab/super_resolution.ipynb';
+  ///
+  /// `--dart-define=COLAB_NOTEBOOK_REF=<branch>` opens another revision, for
+  /// trying a notebook before it is released.
+  static String notebookUrl(String appVersion) {
+    const ref = String.fromEnvironment('COLAB_NOTEBOOK_REF');
+    return 'https://colab.research.google.com/github/bubio/PSXVoice2MPQ/blob/'
+        '${ref.isEmpty ? 'v$appVersion' : ref}/colab/super_resolution.ipynb';
+  }
 
   static final _entryName = RegExp(r'^wav/([0-9a-f]{64})\.wav$');
 
@@ -74,6 +79,67 @@ class ColabExchange {
     return files.length;
   }
 
+  /// Reads the `sr_input.zip` at [zipPath] and counts how many of its voices
+  /// are in the cache. Returns null if there is no readable zip.
+  Future<ColabInputStatus?> inspectInput(String zipPath) async {
+    final file = File(zipPath);
+    if (!await file.exists()) return null;
+    final input = InputFileStream(zipPath);
+    try {
+      final manifest = ZipDecoder()
+          .decodeStream(input)
+          .findFile('manifest.json');
+      if (manifest == null) return null;
+      final json = jsonDecode(utf8.decode(manifest.content)) as Map;
+      final hashes = [
+        for (final f in json['files'] as List) (f as Map)['sha256'] as String,
+      ];
+      return ColabInputStatus(
+        path: zipPath,
+        modified: await file.lastModified(),
+        total: hashes.length,
+        imported: hashes
+            .where((h) => File(p.join(cacheDir, '$h.wav')).existsSync())
+            .length,
+      );
+    } on Object {
+      return null;
+    } finally {
+      await input.close();
+    }
+  }
+
+  static final _outputZipName = RegExp(r'^sr_output.*\.zip$');
+
+  /// Finds the newest `sr_output*.zip` (browsers may add " (1)") in [dirs]
+  /// modified after [after]. Returns its path, or null.
+  static String? findOutput(Iterable<String> dirs, {DateTime? after}) {
+    File? newest;
+    DateTime? newestTime;
+    for (final dir in dirs) {
+      final d = Directory(dir);
+      if (!d.existsSync()) continue;
+      for (final f in d.listSync().whereType<File>()) {
+        if (!_outputZipName.hasMatch(p.basename(f.path))) continue;
+        final time = f.lastModifiedSync();
+        if (after != null && !time.isAfter(after)) continue;
+        if (newestTime == null || time.isAfter(newestTime)) {
+          newest = f;
+          newestTime = time;
+        }
+      }
+    }
+    return newest?.path;
+  }
+
+  /// The user's Downloads folder, where the notebook's result usually lands.
+  static String? downloadsDir() {
+    final home = Platform.isWindows
+        ? Platform.environment['USERPROFILE']
+        : Platform.environment['HOME'];
+    return home == null ? null : p.join(home, 'Downloads');
+  }
+
   /// Copies the 44.1kHz results in the notebook's output zip into the cache.
   /// Returns the number of files imported.
   ///
@@ -110,4 +176,25 @@ class ColabExchange {
       await input.close();
     }
   }
+}
+
+/// State of an exported `sr_input.zip`.
+final class ColabInputStatus {
+  final String path;
+  final DateTime modified;
+
+  /// Number of voices in the zip.
+  final int total;
+
+  /// Number of those voices whose result is in the cache.
+  final int imported;
+
+  const ColabInputStatus({
+    required this.path,
+    required this.modified,
+    required this.total,
+    required this.imported,
+  });
+
+  bool get complete => imported >= total;
 }

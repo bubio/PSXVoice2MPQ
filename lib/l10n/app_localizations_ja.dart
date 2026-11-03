@@ -170,24 +170,76 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Google Colab の無料 GPU で処理します。音声をエクスポートし、ノートブックで処理して、結果をインポートしてからビルドしてください。';
-
-  @override
-  String get exportForColab => 'Colab 用にエクスポート';
-
-  @override
-  String get openColabNotebook => 'ノートブックを開く';
-
-  @override
-  String get importColabResult => 'Colab の結果をインポート';
+      'Google Colab の無料 GPU で処理します。メイン画面に表示される 3 つの手順に沿って進めてください。';
 
   @override
   String colabImportDone(int count) {
-    return '高音質化した音声を $count 件取り込みました。ビルドすると使われます。';
+    return '高音質化した音声を $count 件取り込みました。';
   }
 
   @override
   String colabImportFailed(String error) {
     return 'インポートに失敗しました: $error';
   }
+
+  @override
+  String get colabPanelTitle => 'Google Colab で高音質化（3 ステップ）';
+
+  @override
+  String get colabStep1Title => '音声を書き出す';
+
+  @override
+  String get colabStep1Hint => '出力フォルダに sr_input.zip を作ります。';
+
+  @override
+  String colabStep1Done(int count, String path) {
+    return '$count 件を書き出しました: $path';
+  }
+
+  @override
+  String get colabStep1Nothing => 'すべて高音質化済みです。手順 3 でビルドしてください。';
+
+  @override
+  String get colabExport => '書き出す';
+
+  @override
+  String get openFolder => 'フォルダを開く';
+
+  @override
+  String get colabStep2Title => 'Colab で変換する';
+
+  @override
+  String get colabStep2Hint =>
+      'Colab が開いたら「ランタイム → すべてのセルを実行」を押し、sr_input.zip を選びます。終わると sr_output.zip がダウンロードされます。それまでタブは閉じないでください。';
+
+  @override
+  String get openColab => 'Colab を開く';
+
+  @override
+  String get colabStep3Title => '結果を取り込んでビルド';
+
+  @override
+  String get colabStep3Hint => 'ダウンロードした sr_output.zip を選んで取り込みます。';
+
+  @override
+  String colabStep3Found(String path) {
+    return '見つかりました: $path';
+  }
+
+  @override
+  String colabStep3Imported(int done, int total) {
+    return '取り込み済み: $done / $total 件';
+  }
+
+  @override
+  String get importAndBuild => '取り込んでビルド';
+
+  @override
+  String get chooseFile => 'ファイルを選ぶ…';
+
+  @override
+  String get chooseOtherFile => '別のファイルを選ぶ';
+
+  @override
+  String get buildWithoutImport => '取り込まずにビルド（未処理の音声は元の音質のまま）';
 }

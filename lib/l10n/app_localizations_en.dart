@@ -173,24 +173,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Runs on a free Google Colab GPU. Export the voices, process them in the notebook, import the result, then build.';
-
-  @override
-  String get exportForColab => 'Export for Colab';
-
-  @override
-  String get openColabNotebook => 'Open notebook';
-
-  @override
-  String get importColabResult => 'Import Colab result';
+      'Runs on a free Google Colab GPU. Follow the three steps shown on the main screen.';
 
   @override
   String colabImportDone(int count) {
-    return 'Imported $count enhanced voices. Build to use them.';
+    return 'Imported $count enhanced voices.';
   }
 
   @override
   String colabImportFailed(String error) {
     return 'Import failed: $error';
   }
+
+  @override
+  String get colabPanelTitle => 'Enhance on Google Colab (3 steps)';
+
+  @override
+  String get colabStep1Title => 'Export the voices';
+
+  @override
+  String get colabStep1Hint => 'Writes sr_input.zip to the output folder.';
+
+  @override
+  String colabStep1Done(int count, String path) {
+    return 'Exported $count voices: $path';
+  }
+
+  @override
+  String get colabStep1Nothing =>
+      'All voices are already enhanced. Build in step 3.';
+
+  @override
+  String get colabExport => 'Export';
+
+  @override
+  String get openFolder => 'Open folder';
+
+  @override
+  String get colabStep2Title => 'Convert on Colab';
+
+  @override
+  String get colabStep2Hint =>
+      'In Colab, choose Runtime → Run all, then select sr_input.zip. When it finishes, sr_output.zip is downloaded. Keep the tab open until then.';
+
+  @override
+  String get openColab => 'Open Colab';
+
+  @override
+  String get colabStep3Title => 'Import the result and build';
+
+  @override
+  String get colabStep3Hint => 'Choose the downloaded sr_output.zip.';
+
+  @override
+  String colabStep3Found(String path) {
+    return 'Found: $path';
+  }
+
+  @override
+  String colabStep3Imported(int done, int total) {
+    return '$done of $total voices imported';
+  }
+
+  @override
+  String get importAndBuild => 'Import and build';
+
+  @override
+  String get chooseFile => 'Choose file…';
+
+  @override
+  String get chooseOtherFile => 'Choose another file';
+
+  @override
+  String get buildWithoutImport =>
+      'Build without importing (voices not enhanced keep the original quality)';
 }

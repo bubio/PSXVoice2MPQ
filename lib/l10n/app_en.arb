@@ -248,23 +248,11 @@
   "@backendLocal": {
     "description": "Option: run super-resolution on this computer"
   },
-  "superResolutionColabNote": "Runs on a free Google Colab GPU. Export the voices, process them in the notebook, import the result, then build.",
+  "superResolutionColabNote": "Runs on a free Google Colab GPU. Follow the three steps shown on the main screen.",
   "@superResolutionColabNote": {
     "description": "Explains the Google Colab workflow"
   },
-  "exportForColab": "Export for Colab",
-  "@exportForColab": {
-    "description": "Button that writes the voices to a zip for the Colab notebook"
-  },
-  "openColabNotebook": "Open notebook",
-  "@openColabNotebook": {
-    "description": "Button that opens the Colab notebook in the browser"
-  },
-  "importColabResult": "Import Colab result",
-  "@importColabResult": {
-    "description": "Button that imports the zip produced by the Colab notebook"
-  },
-  "colabImportDone": "Imported {count} enhanced voices. Build to use them.",
+  "colabImportDone": "Imported {count} enhanced voices.",
   "@colabImportDone": {
     "description": "Shown after importing Colab results",
     "placeholders": {
@@ -283,5 +271,103 @@
         "example": "manifest.json not found"
       }
     }
+  },
+  "colabPanelTitle": "Enhance on Google Colab (3 steps)",
+  "@colabPanelTitle": {
+    "description": "Title of the step-by-step Colab panel on the main screen"
+  },
+  "colabStep1Title": "Export the voices",
+  "@colabStep1Title": {
+    "description": "Colab step 1 title"
+  },
+  "colabStep1Hint": "Writes sr_input.zip to the output folder.",
+  "@colabStep1Hint": {
+    "description": "Colab step 1 explanation before exporting"
+  },
+  "colabStep1Done": "Exported {count} voices: {path}",
+  "@colabStep1Done": {
+    "description": "Colab step 1 result",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "732"
+      },
+      "path": {
+        "type": "String",
+        "example": "/out/sr_input.zip"
+      }
+    }
+  },
+  "colabStep1Nothing": "All voices are already enhanced. Build in step 3.",
+  "@colabStep1Nothing": {
+    "description": "Colab step 1 result when nothing needs Colab"
+  },
+  "colabExport": "Export",
+  "@colabExport": {
+    "description": "Colab step 1 button"
+  },
+  "openFolder": "Open folder",
+  "@openFolder": {
+    "description": "Opens the folder in the file manager"
+  },
+  "colabStep2Title": "Convert on Colab",
+  "@colabStep2Title": {
+    "description": "Colab step 2 title"
+  },
+  "colabStep2Hint": "In Colab, choose Runtime → Run all, then select sr_input.zip. When it finishes, sr_output.zip is downloaded. Keep the tab open until then.",
+  "@colabStep2Hint": {
+    "description": "Colab step 2 instructions"
+  },
+  "openColab": "Open Colab",
+  "@openColab": {
+    "description": "Colab step 2 button"
+  },
+  "colabStep3Title": "Import the result and build",
+  "@colabStep3Title": {
+    "description": "Colab step 3 title"
+  },
+  "colabStep3Hint": "Choose the downloaded sr_output.zip.",
+  "@colabStep3Hint": {
+    "description": "Colab step 3 explanation when no result file was found"
+  },
+  "colabStep3Found": "Found: {path}",
+  "@colabStep3Found": {
+    "description": "Colab step 3: result file found in Downloads",
+    "placeholders": {
+      "path": {
+        "type": "String",
+        "example": "~/Downloads/sr_output.zip"
+      }
+    }
+  },
+  "colabStep3Imported": "{done} of {total} voices imported",
+  "@colabStep3Imported": {
+    "description": "Colab step 3: how many exported voices are imported",
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "example": "732"
+      },
+      "total": {
+        "type": "int",
+        "example": "732"
+      }
+    }
+  },
+  "importAndBuild": "Import and build",
+  "@importAndBuild": {
+    "description": "Colab step 3 button"
+  },
+  "chooseFile": "Choose file…",
+  "@chooseFile": {
+    "description": "Colab step 3 button when no result file was found"
+  },
+  "chooseOtherFile": "Choose another file",
+  "@chooseOtherFile": {
+    "description": "Colab step 3 link to pick a different result file"
+  },
+  "buildWithoutImport": "Build without importing (voices not enhanced keep the original quality)",
+  "@buildWithoutImport": {
+    "description": "Colab step 3 link to build with whatever is already imported"
   }
 }

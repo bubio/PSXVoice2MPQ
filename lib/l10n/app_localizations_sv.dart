@@ -172,24 +172,78 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Körs på en gratis Google Colab-GPU. Exportera rösterna, bearbeta dem i notebooken, importera resultatet och bygg sedan.';
-
-  @override
-  String get exportForColab => 'Exportera för Colab';
-
-  @override
-  String get openColabNotebook => 'Öppna notebook';
-
-  @override
-  String get importColabResult => 'Importera Colab-resultat';
+      'Körs på en gratis GPU i Google Colab. Följ de tre stegen i huvudfönstret.';
 
   @override
   String colabImportDone(int count) {
-    return 'Importerade $count förbättrade röster. De används när du bygger.';
+    return '$count förbättrade röster importerade.';
   }
 
   @override
   String colabImportFailed(String error) {
     return 'Importen misslyckades: $error';
   }
+
+  @override
+  String get colabPanelTitle => 'Förbättra med Google Colab (3 steg)';
+
+  @override
+  String get colabStep1Title => 'Exportera rösterna';
+
+  @override
+  String get colabStep1Hint => 'Skapar sr_input.zip i utdatamappen.';
+
+  @override
+  String colabStep1Done(int count, String path) {
+    return '$count röster exporterade: $path';
+  }
+
+  @override
+  String get colabStep1Nothing =>
+      'Alla röster är redan förbättrade. Bygg i steg 3.';
+
+  @override
+  String get colabExport => 'Exportera';
+
+  @override
+  String get openFolder => 'Öppna mappen';
+
+  @override
+  String get colabStep2Title => 'Konvertera i Colab';
+
+  @override
+  String get colabStep2Hint =>
+      'Välj Körning → Kör alla i Colab och välj sr_input.zip. När det är klart laddas sr_output.zip ner. Låt fliken vara öppen tills dess.';
+
+  @override
+  String get openColab => 'Öppna Colab';
+
+  @override
+  String get colabStep3Title => 'Importera resultatet och bygg';
+
+  @override
+  String get colabStep3Hint => 'Välj den nedladdade sr_output.zip.';
+
+  @override
+  String colabStep3Found(String path) {
+    return 'Hittad: $path';
+  }
+
+  @override
+  String colabStep3Imported(int done, int total) {
+    return '$done av $total röster importerade';
+  }
+
+  @override
+  String get importAndBuild => 'Importera och bygg';
+
+  @override
+  String get chooseFile => 'Välj fil…';
+
+  @override
+  String get chooseOtherFile => 'Välj en annan fil';
+
+  @override
+  String get buildWithoutImport =>
+      'Bygg utan import (röster som inte förbättrats behåller originalkvaliteten)';
 }

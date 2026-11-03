@@ -104,4 +104,47 @@ void main() {
     await expectLater(exchange.importResult(zipPath), throwsFormatException);
     expect(Directory(exchange.cacheDir).existsSync(), isFalse);
   });
+
+  test('inspectInput counts the exported voices already imported', () async {
+    final a = _wav(0.1, 11025);
+    final b = _wav(0.2, 11025);
+    final zipPath = p.join(dir.path, 'sr_input.zip');
+    await exchange.writeInput(
+      [write('A.WAV', a), write('B.WAV', b)],
+      zipPath,
+      appVersion: '1',
+    );
+    expect(await exchange.inspectInput(p.join(dir.path, 'none.zip')), isNull);
+
+    var status = (await exchange.inspectInput(zipPath))!;
+    expect((status.total, status.imported, status.complete), (2, 0, false));
+
+    File(p.join(exchange.cacheDir, '${sha256.convert(a)}.wav'))
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(_wav(0.1, 44100));
+    status = (await exchange.inspectInput(zipPath))!;
+    expect((status.total, status.imported, status.complete), (2, 1, false));
+  });
+
+  test('findOutput picks the newest result after the export', () {
+    final downloads = Directory(p.join(dir.path, 'dl'))..createSync();
+    final export = DateTime(2026, 1, 1, 12);
+    File touch(String name, DateTime time) => File(p.join(downloads.path, name))
+      ..writeAsStringSync('')
+      ..setLastModifiedSync(time);
+
+    touch('sr_output.zip', export.subtract(const Duration(hours: 1)));
+    expect(ColabExchange.findOutput([downloads.path], after: export), isNull);
+
+    touch('sr_output (1).zip', export.add(const Duration(minutes: 30)));
+    final newest = touch(
+      'sr_output (2).zip',
+      export.add(const Duration(hours: 1)),
+    );
+    touch('other.zip', export.add(const Duration(hours: 2)));
+    expect(
+      ColabExchange.findOutput([downloads.path, '/no/such/dir'], after: export),
+      newest.path,
+    );
+  });
 }

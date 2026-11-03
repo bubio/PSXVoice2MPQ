@@ -383,31 +383,13 @@ abstract class AppLocalizations {
   /// Explains the Google Colab workflow
   ///
   /// In en, this message translates to:
-  /// **'Runs on a free Google Colab GPU. Export the voices, process them in the notebook, import the result, then build.'**
+  /// **'Runs on a free Google Colab GPU. Follow the three steps shown on the main screen.'**
   String get superResolutionColabNote;
-
-  /// Button that writes the voices to a zip for the Colab notebook
-  ///
-  /// In en, this message translates to:
-  /// **'Export for Colab'**
-  String get exportForColab;
-
-  /// Button that opens the Colab notebook in the browser
-  ///
-  /// In en, this message translates to:
-  /// **'Open notebook'**
-  String get openColabNotebook;
-
-  /// Button that imports the zip produced by the Colab notebook
-  ///
-  /// In en, this message translates to:
-  /// **'Import Colab result'**
-  String get importColabResult;
 
   /// Shown after importing Colab results
   ///
   /// In en, this message translates to:
-  /// **'Imported {count} enhanced voices. Build to use them.'**
+  /// **'Imported {count} enhanced voices.'**
   String colabImportDone(int count);
 
   /// Shown when importing Colab results fails
@@ -415,6 +397,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import failed: {error}'**
   String colabImportFailed(String error);
+
+  /// Title of the step-by-step Colab panel on the main screen
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance on Google Colab (3 steps)'**
+  String get colabPanelTitle;
+
+  /// Colab step 1 title
+  ///
+  /// In en, this message translates to:
+  /// **'Export the voices'**
+  String get colabStep1Title;
+
+  /// Colab step 1 explanation before exporting
+  ///
+  /// In en, this message translates to:
+  /// **'Writes sr_input.zip to the output folder.'**
+  String get colabStep1Hint;
+
+  /// Colab step 1 result
+  ///
+  /// In en, this message translates to:
+  /// **'Exported {count} voices: {path}'**
+  String colabStep1Done(int count, String path);
+
+  /// Colab step 1 result when nothing needs Colab
+  ///
+  /// In en, this message translates to:
+  /// **'All voices are already enhanced. Build in step 3.'**
+  String get colabStep1Nothing;
+
+  /// Colab step 1 button
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get colabExport;
+
+  /// Opens the folder in the file manager
+  ///
+  /// In en, this message translates to:
+  /// **'Open folder'**
+  String get openFolder;
+
+  /// Colab step 2 title
+  ///
+  /// In en, this message translates to:
+  /// **'Convert on Colab'**
+  String get colabStep2Title;
+
+  /// Colab step 2 instructions
+  ///
+  /// In en, this message translates to:
+  /// **'In Colab, choose Runtime → Run all, then select sr_input.zip. When it finishes, sr_output.zip is downloaded. Keep the tab open until then.'**
+  String get colabStep2Hint;
+
+  /// Colab step 2 button
+  ///
+  /// In en, this message translates to:
+  /// **'Open Colab'**
+  String get openColab;
+
+  /// Colab step 3 title
+  ///
+  /// In en, this message translates to:
+  /// **'Import the result and build'**
+  String get colabStep3Title;
+
+  /// Colab step 3 explanation when no result file was found
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the downloaded sr_output.zip.'**
+  String get colabStep3Hint;
+
+  /// Colab step 3: result file found in Downloads
+  ///
+  /// In en, this message translates to:
+  /// **'Found: {path}'**
+  String colabStep3Found(String path);
+
+  /// Colab step 3: how many exported voices are imported
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} voices imported'**
+  String colabStep3Imported(int done, int total);
+
+  /// Colab step 3 button
+  ///
+  /// In en, this message translates to:
+  /// **'Import and build'**
+  String get importAndBuild;
+
+  /// Colab step 3 button when no result file was found
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file…'**
+  String get chooseFile;
+
+  /// Colab step 3 link to pick a different result file
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another file'**
+  String get chooseOtherFile;
+
+  /// Colab step 3 link to build with whatever is already imported
+  ///
+  /// In en, this message translates to:
+  /// **'Build without importing (voices not enhanced keep the original quality)'**
+  String get buildWithoutImport;
 }
 
 class _AppLocalizationsDelegate

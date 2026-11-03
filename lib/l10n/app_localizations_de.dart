@@ -174,24 +174,78 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Läuft auf einer kostenlosen Google-Colab-GPU. Stimmen exportieren, im Notebook verarbeiten, Ergebnis importieren und dann erstellen.';
-
-  @override
-  String get exportForColab => 'Für Colab exportieren';
-
-  @override
-  String get openColabNotebook => 'Notebook öffnen';
-
-  @override
-  String get importColabResult => 'Colab-Ergebnis importieren';
+      'Läuft auf einer kostenlosen Google-Colab-GPU. Folgen Sie den drei Schritten im Hauptfenster.';
 
   @override
   String colabImportDone(int count) {
-    return '$count verbesserte Stimmen importiert. Beim Erstellen werden sie verwendet.';
+    return '$count verbesserte Stimmen importiert.';
   }
 
   @override
   String colabImportFailed(String error) {
     return 'Import fehlgeschlagen: $error';
   }
+
+  @override
+  String get colabPanelTitle => 'Mit Google Colab verbessern (3 Schritte)';
+
+  @override
+  String get colabStep1Title => 'Stimmen exportieren';
+
+  @override
+  String get colabStep1Hint => 'Schreibt sr_input.zip in den Ausgabeordner.';
+
+  @override
+  String colabStep1Done(int count, String path) {
+    return '$count Stimmen exportiert: $path';
+  }
+
+  @override
+  String get colabStep1Nothing =>
+      'Alle Stimmen sind bereits verbessert. In Schritt 3 erstellen.';
+
+  @override
+  String get colabExport => 'Exportieren';
+
+  @override
+  String get openFolder => 'Ordner öffnen';
+
+  @override
+  String get colabStep2Title => 'In Colab umwandeln';
+
+  @override
+  String get colabStep2Hint =>
+      'Wählen Sie in Colab „Laufzeit → Alle ausführen“ und dann sr_input.zip. Am Ende wird sr_output.zip heruntergeladen. Lassen Sie den Tab bis dahin offen.';
+
+  @override
+  String get openColab => 'Colab öffnen';
+
+  @override
+  String get colabStep3Title => 'Ergebnis importieren und erstellen';
+
+  @override
+  String get colabStep3Hint => 'Wählen Sie die heruntergeladene sr_output.zip.';
+
+  @override
+  String colabStep3Found(String path) {
+    return 'Gefunden: $path';
+  }
+
+  @override
+  String colabStep3Imported(int done, int total) {
+    return '$done von $total Stimmen importiert';
+  }
+
+  @override
+  String get importAndBuild => 'Importieren und erstellen';
+
+  @override
+  String get chooseFile => 'Datei wählen…';
+
+  @override
+  String get chooseOtherFile => 'Andere Datei wählen';
+
+  @override
+  String get buildWithoutImport =>
+      'Ohne Import erstellen (nicht verbesserte Stimmen behalten die Originalqualität)';
 }

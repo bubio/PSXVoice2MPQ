@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as p;
 
 import '../core/constants/path_constants.dart';
 import '../core/di/service_locator.dart';
@@ -40,6 +41,13 @@ class HomeState {
   /// Error from the last model download, if it failed.
   final String? modelDownloadError;
 
+  /// The `sr_input.zip` in the output folder, if one was exported.
+  final ColabInputStatus? colabInput;
+
+  /// A notebook result (`sr_output*.zip`) newer than [colabInput] that has
+  /// not been imported yet.
+  final String? colabResultPath;
+
   const HomeState({
     required this.assetsPath,
     required this.outputPath,
@@ -51,6 +59,8 @@ class HomeState {
     this.superResolutionOnColab = false,
     this.modelDownloadProgress,
     this.modelDownloadError,
+    this.colabInput,
+    this.colabResultPath,
   });
 
   factory HomeState.initial() {
@@ -92,6 +102,7 @@ class HomeState {
     String? modelDownloadError,
     bool clearProgress = false,
     bool clearModelDownload = false,
+    (ColabInputStatus?, String?)? colab,
   }) {
     return HomeState(
       assetsPath: assetsPath ?? this.assetsPath,
@@ -110,6 +121,8 @@ class HomeState {
       modelDownloadError: clearModelDownload
           ? null
           : (modelDownloadError ?? this.modelDownloadError),
+      colabInput: colab == null ? colabInput : colab.$1,
+      colabResultPath: colab == null ? colabResultPath : colab.$2,
     );
   }
 }
@@ -121,6 +134,9 @@ class HomeViewModel extends Notifier<HomeState> {
   final SuperResolutionService _superResolution;
   StreamSubscription<BuildProgress>? _buildSubscription;
   ModelDownloader? _modelDownloader;
+
+  /// Result zips already imported, so they are not offered again.
+  final _importedResults = <String>{};
 
   HomeViewModel(
     this._builderService,
@@ -143,6 +159,30 @@ class HomeViewModel extends Notifier<HomeState> {
       superResolutionOnColab: onColab,
       superResolutionAvailable: _superResolution.isModelInstalled,
     );
+    await refreshColabStatus();
+  }
+
+  /// Re-reads the exported `sr_input.zip` and looks for a notebook result in
+  /// the Downloads and output folders.
+  Future<void> refreshColabStatus() async {
+    final output = state.outputPath;
+    final exchange = ColabExchange(cacheDir: _superResolution.cacheDir);
+    final input = output.isEmpty
+        ? null
+        : await exchange.inspectInput(
+            p.join(output, ColabExchange.inputZipName),
+          );
+    String? result;
+    if (input != null && !input.complete) {
+      result = ColabExchange.findOutput([
+        ?ColabExchange.downloadsDir(),
+        output,
+      ], after: input.modified);
+      if (_importedResults.contains(result)) result = null;
+    }
+    if (output == state.outputPath) {
+      state = state.copyWith(colab: (input, result));
+    }
   }
 
   /// Re-checks whether the model is installed (e.g. after a download).
@@ -207,10 +247,16 @@ class HomeViewModel extends Notifier<HomeState> {
     );
   }
 
-  /// Copies the results in the notebook's `sr_output.zip` into the cache, so
-  /// the next build uses them. Returns the number of files imported.
-  Future<int> importColabResult(String zipPath) =>
-      ColabExchange(cacheDir: _superResolution.cacheDir).importResult(zipPath);
+  /// Copies the results in the notebook's `sr_output.zip` into the cache and
+  /// starts a build that uses them. Returns the number of files imported.
+  Future<int> importColabResultAndBuild(String zipPath) async {
+    final count = await ColabExchange(cacheDir: _superResolution.cacheDir)
+        .importResult(zipPath);
+    _importedResults.add(zipPath);
+    await refreshColabStatus();
+    await startBuild();
+    return count;
+  }
 
   void setAssetsPath(String path) {
     state = state.copyWith(assetsPath: path);
@@ -218,6 +264,7 @@ class HomeViewModel extends Notifier<HomeState> {
 
   void setOutputPath(String path) {
     state = state.copyWith(outputPath: path);
+    refreshColabStatus();
   }
 
   void setLocale(Locale? locale) {
@@ -256,6 +303,7 @@ class HomeViewModel extends Notifier<HomeState> {
         state = state.copyWith(
           status: hasError ? BuildStatus.error : BuildStatus.completed,
         );
+        refreshColabStatus();
       },
       onError: (error) {
         state = state.copyWith(

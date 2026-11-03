@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/build_state.dart';
 import '../services/super_resolution/colab_exchange.dart';
 import '../viewmodels/home_viewmodel.dart';
+import '../widgets/colab_panel.dart';
 import '../widgets/diablo_button.dart';
 import '../widgets/error_dialog.dart';
 import '../widgets/folder_selector.dart';
@@ -31,6 +33,7 @@ class HomeView extends ConsumerStatefulWidget {
 class _HomeViewState extends ConsumerState<HomeView> {
   late final TextEditingController _assetsPathController;
   late final TextEditingController _outputPathController;
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
@@ -42,6 +45,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
     // Sync text controllers with ViewModel
     _assetsPathController.addListener(_onAssetsPathChanged);
     _outputPathController.addListener(_onOutputPathChanged);
+
+    // Coming back from the browser: look for the downloaded Colab result.
+    _lifecycle = AppLifecycleListener(
+      onResume: () =>
+          ref.read(homeViewModelProvider.notifier).refreshColabStatus(),
+    );
   }
 
   String _getLocalizedError(AppLocalizations l10n, BuildErrorKey errorKey) {
@@ -75,6 +84,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _assetsPathController.removeListener(_onAssetsPathChanged);
     _outputPathController.removeListener(_onOutputPathChanged);
     _assetsPathController.dispose();
@@ -111,12 +121,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
     }
   }
 
-  Future<void> _importColabResult() async {
+  Future<void> _chooseColabResult() async {
     final l10n = AppLocalizations.of(context)!;
     final String? path;
     try {
       final result = await FilePicker.pickFiles(
-        dialogTitle: l10n.importColabResult,
+        dialogTitle: l10n.colabStep3Hint,
+        initialDirectory: ColabExchange.downloadsDir(),
         type: FileType.custom,
         allowedExtensions: ['zip'],
       );
@@ -125,17 +136,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
       _showErrorDialog(l10n.errorFilePicker, e.toString());
       return;
     }
-    if (path == null) return;
+    if (path != null) await _importColabResultAndBuild(path);
+  }
+
+  Future<void> _importColabResultAndBuild(String path) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final count = await ref
           .read(homeViewModelProvider.notifier)
-          .importColabResult(path);
+          .importColabResultAndBuild(path);
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(l10n.colabImportDone(count))));
       }
     } catch (e) {
-      _showErrorDialog(l10n.importColabResult, l10n.colabImportFailed('$e'));
+      _showErrorDialog(l10n.colabStep3Title, l10n.colabImportFailed('$e'));
     }
   }
 
@@ -166,6 +181,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(homeViewModelProvider);
+    final notifier = ref.read(homeViewModelProvider.notifier);
 
     // Listen for error state changes and show alert
     ref.listen<HomeState>(homeViewModelProvider, (previous, next) {
@@ -234,6 +250,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     _assetsPathController.text.trim().isNotEmpty &&
                     _outputPathController.text.trim().isNotEmpty &&
                     !state.isBuilding;
+                if (state.useSuperResolution && state.superResolutionOnColab) {
+                  return ColabPanel(
+                    input: state.colabInput,
+                    resultPath: state.colabResultPath,
+                    enabled: canBuild,
+                    onExport: notifier.exportForColab,
+                    onOpenFolder: () => launchUrl(
+                      Uri.directory(p.dirname(state.colabInput!.path)),
+                    ),
+                    onOpenColab: _openColabNotebook,
+                    onImportAndBuild: () =>
+                        _importColabResultAndBuild(state.colabResultPath!),
+                    onChooseFile: _chooseColabResult,
+                    onBuild: _startBuild,
+                  );
+                }
                 return DiabloButton(
                   key: const Key('buildButton'),
                   onPressed: canBuild ? _startBuild : null,
@@ -260,41 +292,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 );
               },
             ),
-            if (state.useSuperResolution && state.superResolutionOnColab)
-              ListenableBuilder(
-                listenable: Listenable.merge([
-                  _assetsPathController,
-                  _outputPathController,
-                ]),
-                builder: (context, _) => Wrap(
-                  alignment: WrapAlignment.center,
-                  children: [
-                    TextButton.icon(
-                      key: const Key('colabExportButton'),
-                      onPressed:
-                          _assetsPathController.text.trim().isNotEmpty &&
-                              _outputPathController.text.trim().isNotEmpty &&
-                              !state.isBuilding
-                          ? ref
-                                .read(homeViewModelProvider.notifier)
-                                .exportForColab
-                          : null,
-                      icon: const Icon(Icons.upload_file),
-                      label: Text(l10n.exportForColab),
-                    ),
-                    TextButton.icon(
-                      onPressed: _openColabNotebook,
-                      icon: const Icon(Icons.open_in_new),
-                      label: Text(l10n.openColabNotebook),
-                    ),
-                    TextButton.icon(
-                      onPressed: state.isBuilding ? null : _importColabResult,
-                      icon: const Icon(Icons.download),
-                      label: Text(l10n.importColabResult),
-                    ),
-                  ],
-                ),
-              ),
             const SizedBox(height: 16),
             if (state.progress != null) ...[
               BuildProgressIndicator(progress: state.progress!),
@@ -305,7 +302,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   logs: state.progress!.logs,
                 ),
               ),
-            ] else
+            ] else if (state.useSuperResolution && state.superResolutionOnColab)
+              const Spacer()
+            else
               Expanded(
                 child: Center(
                   child: Column(

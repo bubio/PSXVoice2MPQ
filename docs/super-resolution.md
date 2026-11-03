@@ -74,7 +74,7 @@ VoiceFixer は低域まで作り直すので、子音やアタックが欠ける
 | `sr.backend` | `local` / `colab` | `local` |
 
 - 超解像をオンにしたときだけ、実行場所（このPC / Google Colab）を表示する。local でモデルがまだない場合は、ダウンロードボタンとサイズ（3 ファイルで計 432MB）を表示する。
-- colab のときは、メイン画面のビルドボタンの下に「Colab 用にエクスポート」「ノートブックを開く」「Colab の結果をインポート」を表示する。ビルドはキャッシュにある結果だけを使い、モデルは不要。
+- colab のときは、メイン画面のビルドボタンを 3 段の手順パネル（書き出す → Colab を開く → 取り込んでビルド）に置き換える。各段に済み／次にやること／件数を表示する。ビルドはキャッシュにある結果だけを使い、モデルは不要。
 - 所要時間の目安を表示する（ローカル CPU で、音声の長さの約半分。M4 で 1 言語あたり約 1 時間）。
 - 超解像が有効なときの MP3 品質（`-V 4`）は現行のまま。AudioSR 用だった「VAG→WAV 変換時の gain 2.0」は廃止する（VoiceFixer の本家は gain をかけない）。
 
@@ -89,10 +89,12 @@ VoiceFixer は低域まで作り直すので、子音やアタックが欠ける
 
 ## Colab 連携
 
-1. アプリで「Colab 用にエクスポート」を実行する。抽出と WAV 変換だけを行い、まだキャッシュにない音声を出力フォルダの `sr_input.zip` に書き出す。
-2. 「ノートブックを開く」で `https://colab.research.google.com/github/bubio/PSXVoice2MPQ/blob/v<アプリのバージョン>/colab/super_resolution.ipynb` を開く。
+Colab には外部のアプリからノートブックを実行する公開 API がない。そのため、ブラウザでの操作（セルの実行と zip の受け渡し）はユーザーが行い、アプリは手順パネルで次にやることを示す。
+
+1. アプリで「書き出す」を実行する。抽出と WAV 変換だけを行い、まだキャッシュにない音声を出力フォルダの `sr_input.zip` に書き出す。
+2. 「Colab を開く」で `https://colab.research.google.com/github/bubio/PSXVoice2MPQ/blob/v<アプリのバージョン>/colab/super_resolution.ipynb` を開く。リリース前のノートブックを試すときは `--dart-define=COLAB_NOTEBOOK_REF=<ブランチ名>` で参照先を変えられる。
 3. ノートブックは `onnxruntime-gpu`（アプリと同じ 1.23.2）と、アプリと同じ ONNX モデルを Releases から取得し（SHA-256 を検証）、`pipeline.py` と同じ処理を GPU で実行して `sr_output.zip` を返す。`USE_DRIVE` をオンにすると Google Drive 上で入出力し、処理済みのファイルも Drive に残るので、接続が切れても続きから再開できる。
-4. アプリで「Colab の結果をインポート」を実行する。`manifest.json` のモデル ID が一致すること、各ファイルが 44.1kHz の WAV であることを確認してから、キャッシュに入れる。
+4. アプリのウィンドウがアクティブに戻ったとき、ダウンロードフォルダと出力フォルダから `sr_input.zip` より新しい `sr_output*.zip` を探し、見つかれば「取り込んでビルド」を出す（見つからなければファイルを選ばせる）。取り込みでは `manifest.json` のモデル ID が一致すること、各ファイルが 44.1kHz の WAV であることを確認してから、キャッシュに入れ、そのままビルドする。
 
 zip の中身は、入力も出力も `manifest.json` と `wav/<入力 WAV の SHA-256>.wav`。ファイル名がそのままキャッシュのキーになる。同じ音声が複数の STREAM にあっても 1 回だけ送る。
 
