@@ -383,7 +383,7 @@ abstract class AppLocalizations {
   /// Explains the Google Colab workflow
   ///
   /// In en, this message translates to:
-  /// **'Runs on a free Google Colab GPU. Follow the three steps shown on the main screen.'**
+  /// **'Runs on a free Google Colab GPU. Press \"Enhance on Colab and build\" on the main screen and follow the steps.'**
   String get superResolutionColabNote;
 
   /// Shown after importing Colab results
@@ -398,23 +398,11 @@ abstract class AppLocalizations {
   /// **'Import failed: {error}'**
   String colabImportFailed(String error);
 
-  /// Title of the step-by-step Colab panel on the main screen
-  ///
-  /// In en, this message translates to:
-  /// **'Enhance on Google Colab (3 steps)'**
-  String get colabPanelTitle;
-
   /// Colab step 1 title
   ///
   /// In en, this message translates to:
   /// **'Export the voices'**
   String get colabStep1Title;
-
-  /// Colab step 1 explanation before exporting
-  ///
-  /// In en, this message translates to:
-  /// **'Writes sr_input.zip to the output folder.'**
-  String get colabStep1Hint;
 
   /// Colab step 1 result
   ///
@@ -446,12 +434,6 @@ abstract class AppLocalizations {
   /// **'Convert on Colab'**
   String get colabStep2Title;
 
-  /// Colab step 2 instructions
-  ///
-  /// In en, this message translates to:
-  /// **'In Colab, choose Runtime → Run all, then select sr_input.zip. When it finishes, sr_output.zip is downloaded. Keep the tab open until then.'**
-  String get colabStep2Hint;
-
   /// Colab step 2 button
   ///
   /// In en, this message translates to:
@@ -463,12 +445,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import the result and build'**
   String get colabStep3Title;
-
-  /// Colab step 3 explanation when no result file was found
-  ///
-  /// In en, this message translates to:
-  /// **'Choose the downloaded sr_output.zip.'**
-  String get colabStep3Hint;
 
   /// Colab step 3: result file found in Downloads
   ///
@@ -505,6 +481,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Build without importing (voices not enhanced keep the original quality)'**
   String get buildWithoutImport;
+
+  /// Main button in Colab mode; opens the step-by-step dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance on Colab and build…'**
+  String get colabStart;
+
+  /// Title of the Colab dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Enhance on Google Colab'**
+  String get colabWizardTitle;
+
+  /// Position in the Colab dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of 3'**
+  String colabStepOf(int step);
+
+  /// Colab step 1 explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Collects the voices that still need enhancing into sr_input.zip in the output folder. You will upload this file to Colab in the next step.'**
+  String get colabStep1Explain;
+
+  /// Shown while exporting
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting…'**
+  String get colabExporting;
+
+  /// Button to redo the export
+  ///
+  /// In en, this message translates to:
+  /// **'Export again'**
+  String get colabReexport;
+
+  /// Colab step 2, item 1
+  ///
+  /// In en, this message translates to:
+  /// **'Press \"Open Colab\" below.'**
+  String get colabStep2Open;
+
+  /// Colab step 2, item 2
+  ///
+  /// In en, this message translates to:
+  /// **'In Colab, choose Runtime → Run all.'**
+  String get colabStep2Run;
+
+  /// Colab step 2, item 3
+  ///
+  /// In en, this message translates to:
+  /// **'When asked for a file, choose sr_input.zip in the output folder.'**
+  String get colabStep2Upload;
+
+  /// Colab step 2, item 4
+  ///
+  /// In en, this message translates to:
+  /// **'When it finishes, sr_output.zip is downloaded. Keep the Colab tab open until then.'**
+  String get colabStep2Wait;
+
+  /// Colab step 2 when the result was found
+  ///
+  /// In en, this message translates to:
+  /// **'sr_output.zip has been downloaded. Press Next.'**
+  String get colabStep2Arrived;
+
+  /// Colab step 3 explanation
+  ///
+  /// In en, this message translates to:
+  /// **'Imports the enhanced voices from sr_output.zip and builds the MPQ files.'**
+  String get colabStep3Explain;
+
+  /// Colab step 3 when no result was found
+  ///
+  /// In en, this message translates to:
+  /// **'sr_output.zip was not found in the Downloads folder. Choose it yourself.'**
+  String get colabStep3NotFound;
+
+  /// Dialog button: previous step
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get wizardBack;
+
+  /// Dialog button: next step
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get wizardNext;
 }
 
 class _AppLocalizationsDelegate

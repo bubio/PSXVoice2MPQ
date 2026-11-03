@@ -248,7 +248,7 @@
   "@backendLocal": {
     "description": "Option: run super-resolution on this computer"
   },
-  "superResolutionColabNote": "Runs on a free Google Colab GPU. Follow the three steps shown on the main screen.",
+  "superResolutionColabNote": "Runs on a free Google Colab GPU. Press \"Enhance on Colab and build\" on the main screen and follow the steps.",
   "@superResolutionColabNote": {
     "description": "Explains the Google Colab workflow"
   },
@@ -272,17 +272,9 @@
       }
     }
   },
-  "colabPanelTitle": "Enhance on Google Colab (3 steps)",
-  "@colabPanelTitle": {
-    "description": "Title of the step-by-step Colab panel on the main screen"
-  },
   "colabStep1Title": "Export the voices",
   "@colabStep1Title": {
     "description": "Colab step 1 title"
-  },
-  "colabStep1Hint": "Writes sr_input.zip to the output folder.",
-  "@colabStep1Hint": {
-    "description": "Colab step 1 explanation before exporting"
   },
   "colabStep1Done": "Exported {count} voices: {path}",
   "@colabStep1Done": {
@@ -314,10 +306,6 @@
   "@colabStep2Title": {
     "description": "Colab step 2 title"
   },
-  "colabStep2Hint": "In Colab, choose Runtime → Run all, then select sr_input.zip. When it finishes, sr_output.zip is downloaded. Keep the tab open until then.",
-  "@colabStep2Hint": {
-    "description": "Colab step 2 instructions"
-  },
   "openColab": "Open Colab",
   "@openColab": {
     "description": "Colab step 2 button"
@@ -325,10 +313,6 @@
   "colabStep3Title": "Import the result and build",
   "@colabStep3Title": {
     "description": "Colab step 3 title"
-  },
-  "colabStep3Hint": "Choose the downloaded sr_output.zip.",
-  "@colabStep3Hint": {
-    "description": "Colab step 3 explanation when no result file was found"
   },
   "colabStep3Found": "Found: {path}",
   "@colabStep3Found": {
@@ -369,5 +353,71 @@
   "buildWithoutImport": "Build without importing (voices not enhanced keep the original quality)",
   "@buildWithoutImport": {
     "description": "Colab step 3 link to build with whatever is already imported"
+  },
+  "colabStart": "Enhance on Colab and build…",
+  "@colabStart": {
+    "description": "Main button in Colab mode; opens the step-by-step dialog"
+  },
+  "colabWizardTitle": "Enhance on Google Colab",
+  "@colabWizardTitle": {
+    "description": "Title of the Colab dialog"
+  },
+  "colabStepOf": "Step {step} of 3",
+  "@colabStepOf": {
+    "description": "Position in the Colab dialog",
+    "placeholders": {
+      "step": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "colabStep1Explain": "Collects the voices that still need enhancing into sr_input.zip in the output folder. You will upload this file to Colab in the next step.",
+  "@colabStep1Explain": {
+    "description": "Colab step 1 explanation"
+  },
+  "colabExporting": "Exporting…",
+  "@colabExporting": {
+    "description": "Shown while exporting"
+  },
+  "colabReexport": "Export again",
+  "@colabReexport": {
+    "description": "Button to redo the export"
+  },
+  "colabStep2Open": "Press \"Open Colab\" below.",
+  "@colabStep2Open": {
+    "description": "Colab step 2, item 1"
+  },
+  "colabStep2Run": "In Colab, choose Runtime → Run all.",
+  "@colabStep2Run": {
+    "description": "Colab step 2, item 2"
+  },
+  "colabStep2Upload": "When asked for a file, choose sr_input.zip in the output folder.",
+  "@colabStep2Upload": {
+    "description": "Colab step 2, item 3"
+  },
+  "colabStep2Wait": "When it finishes, sr_output.zip is downloaded. Keep the Colab tab open until then.",
+  "@colabStep2Wait": {
+    "description": "Colab step 2, item 4"
+  },
+  "colabStep2Arrived": "sr_output.zip has been downloaded. Press Next.",
+  "@colabStep2Arrived": {
+    "description": "Colab step 2 when the result was found"
+  },
+  "colabStep3Explain": "Imports the enhanced voices from sr_output.zip and builds the MPQ files.",
+  "@colabStep3Explain": {
+    "description": "Colab step 3 explanation"
+  },
+  "colabStep3NotFound": "sr_output.zip was not found in the Downloads folder. Choose it yourself.",
+  "@colabStep3NotFound": {
+    "description": "Colab step 3 when no result was found"
+  },
+  "wizardBack": "Back",
+  "@wizardBack": {
+    "description": "Dialog button: previous step"
+  },
+  "wizardNext": "Next",
+  "@wizardNext": {
+    "description": "Dialog button: next step"
   }
 }

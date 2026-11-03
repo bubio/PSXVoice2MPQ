@@ -170,7 +170,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Google Colab の無料 GPU で処理します。メイン画面に表示される 3 つの手順に沿って進めてください。';
+      'Google Colab の無料 GPU で処理します。メイン画面の「Colab で高音質化してビルド」を押し、案内に沿って進めてください。';
 
   @override
   String colabImportDone(int count) {
@@ -183,13 +183,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get colabPanelTitle => 'Google Colab で高音質化（3 ステップ）';
-
-  @override
   String get colabStep1Title => '音声を書き出す';
-
-  @override
-  String get colabStep1Hint => '出力フォルダに sr_input.zip を作ります。';
 
   @override
   String colabStep1Done(int count, String path) {
@@ -209,17 +203,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get colabStep2Title => 'Colab で変換する';
 
   @override
-  String get colabStep2Hint =>
-      'Colab が開いたら「ランタイム → すべてのセルを実行」を押し、sr_input.zip を選びます。終わると sr_output.zip がダウンロードされます。それまでタブは閉じないでください。';
-
-  @override
   String get openColab => 'Colab を開く';
 
   @override
   String get colabStep3Title => '結果を取り込んでビルド';
-
-  @override
-  String get colabStep3Hint => 'ダウンロードした sr_output.zip を選んで取り込みます。';
 
   @override
   String colabStep3Found(String path) {
@@ -242,4 +229,54 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get buildWithoutImport => '取り込まずにビルド（未処理の音声は元の音質のまま）';
+
+  @override
+  String get colabStart => 'Colab で高音質化してビルド…';
+
+  @override
+  String get colabWizardTitle => 'Google Colab で高音質化';
+
+  @override
+  String colabStepOf(int step) {
+    return '手順 $step / 3';
+  }
+
+  @override
+  String get colabStep1Explain =>
+      'まだ高音質化していない音声を、出力フォルダの sr_input.zip にまとめます。次の手順で、このファイルを Colab にアップロードします。';
+
+  @override
+  String get colabExporting => '書き出し中…';
+
+  @override
+  String get colabReexport => 'もう一度書き出す';
+
+  @override
+  String get colabStep2Open => '下の「Colab を開く」を押します。';
+
+  @override
+  String get colabStep2Run => 'Colab のメニューで「ランタイム → すべてのセルを実行」を選びます。';
+
+  @override
+  String get colabStep2Upload => 'ファイルを選ぶ画面が出たら、出力フォルダの sr_input.zip を選びます。';
+
+  @override
+  String get colabStep2Wait =>
+      '処理が終わると sr_output.zip がダウンロードされます。それまで Colab のタブは閉じないでください。';
+
+  @override
+  String get colabStep2Arrived => 'sr_output.zip がダウンロードされました。「次へ」を押してください。';
+
+  @override
+  String get colabStep3Explain => 'sr_output.zip から高音質化した音声を取り込み、MPQ をビルドします。';
+
+  @override
+  String get colabStep3NotFound =>
+      'ダウンロードフォルダに sr_output.zip が見つかりません。ファイルを選んでください。';
+
+  @override
+  String get wizardBack => '戻る';
+
+  @override
+  String get wizardNext => '次へ';
 }

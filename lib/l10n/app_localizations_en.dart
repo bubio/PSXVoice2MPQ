@@ -173,7 +173,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Runs on a free Google Colab GPU. Follow the three steps shown on the main screen.';
+      'Runs on a free Google Colab GPU. Press \"Enhance on Colab and build\" on the main screen and follow the steps.';
 
   @override
   String colabImportDone(int count) {
@@ -186,13 +186,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get colabPanelTitle => 'Enhance on Google Colab (3 steps)';
-
-  @override
   String get colabStep1Title => 'Export the voices';
-
-  @override
-  String get colabStep1Hint => 'Writes sr_input.zip to the output folder.';
 
   @override
   String colabStep1Done(int count, String path) {
@@ -213,17 +207,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get colabStep2Title => 'Convert on Colab';
 
   @override
-  String get colabStep2Hint =>
-      'In Colab, choose Runtime → Run all, then select sr_input.zip. When it finishes, sr_output.zip is downloaded. Keep the tab open until then.';
-
-  @override
   String get openColab => 'Open Colab';
 
   @override
   String get colabStep3Title => 'Import the result and build';
-
-  @override
-  String get colabStep3Hint => 'Choose the downloaded sr_output.zip.';
 
   @override
   String colabStep3Found(String path) {
@@ -247,4 +234,57 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get buildWithoutImport =>
       'Build without importing (voices not enhanced keep the original quality)';
+
+  @override
+  String get colabStart => 'Enhance on Colab and build…';
+
+  @override
+  String get colabWizardTitle => 'Enhance on Google Colab';
+
+  @override
+  String colabStepOf(int step) {
+    return 'Step $step of 3';
+  }
+
+  @override
+  String get colabStep1Explain =>
+      'Collects the voices that still need enhancing into sr_input.zip in the output folder. You will upload this file to Colab in the next step.';
+
+  @override
+  String get colabExporting => 'Exporting…';
+
+  @override
+  String get colabReexport => 'Export again';
+
+  @override
+  String get colabStep2Open => 'Press \"Open Colab\" below.';
+
+  @override
+  String get colabStep2Run => 'In Colab, choose Runtime → Run all.';
+
+  @override
+  String get colabStep2Upload =>
+      'When asked for a file, choose sr_input.zip in the output folder.';
+
+  @override
+  String get colabStep2Wait =>
+      'When it finishes, sr_output.zip is downloaded. Keep the Colab tab open until then.';
+
+  @override
+  String get colabStep2Arrived =>
+      'sr_output.zip has been downloaded. Press Next.';
+
+  @override
+  String get colabStep3Explain =>
+      'Imports the enhanced voices from sr_output.zip and builds the MPQ files.';
+
+  @override
+  String get colabStep3NotFound =>
+      'sr_output.zip was not found in the Downloads folder. Choose it yourself.';
+
+  @override
+  String get wizardBack => 'Back';
+
+  @override
+  String get wizardNext => 'Next';
 }

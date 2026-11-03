@@ -172,7 +172,7 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Körs på en gratis GPU i Google Colab. Följ de tre stegen i huvudfönstret.';
+      'Körs på en gratis GPU i Google Colab. Tryck på ”Förbättra i Colab och bygg” i huvudfönstret och följ stegen.';
 
   @override
   String colabImportDone(int count) {
@@ -185,13 +185,7 @@ class AppLocalizationsSv extends AppLocalizations {
   }
 
   @override
-  String get colabPanelTitle => 'Förbättra med Google Colab (3 steg)';
-
-  @override
   String get colabStep1Title => 'Exportera rösterna';
-
-  @override
-  String get colabStep1Hint => 'Skapar sr_input.zip i utdatamappen.';
 
   @override
   String colabStep1Done(int count, String path) {
@@ -212,17 +206,10 @@ class AppLocalizationsSv extends AppLocalizations {
   String get colabStep2Title => 'Konvertera i Colab';
 
   @override
-  String get colabStep2Hint =>
-      'Välj Körning → Kör alla i Colab och välj sr_input.zip. När det är klart laddas sr_output.zip ner. Låt fliken vara öppen tills dess.';
-
-  @override
   String get openColab => 'Öppna Colab';
 
   @override
   String get colabStep3Title => 'Importera resultatet och bygg';
-
-  @override
-  String get colabStep3Hint => 'Välj den nedladdade sr_output.zip.';
 
   @override
   String colabStep3Found(String path) {
@@ -246,4 +233,57 @@ class AppLocalizationsSv extends AppLocalizations {
   @override
   String get buildWithoutImport =>
       'Bygg utan import (röster som inte förbättrats behåller originalkvaliteten)';
+
+  @override
+  String get colabStart => 'Förbättra i Colab och bygg…';
+
+  @override
+  String get colabWizardTitle => 'Förbättra med Google Colab';
+
+  @override
+  String colabStepOf(int step) {
+    return 'Steg $step av 3';
+  }
+
+  @override
+  String get colabStep1Explain =>
+      'Samlar rösterna som ännu inte förbättrats i sr_input.zip i utdatamappen. I nästa steg laddar du upp filen till Colab.';
+
+  @override
+  String get colabExporting => 'Exporterar…';
+
+  @override
+  String get colabReexport => 'Exportera igen';
+
+  @override
+  String get colabStep2Open => 'Tryck på ”Öppna Colab” nedan.';
+
+  @override
+  String get colabStep2Run => 'Välj Körning → Kör alla i Colab.';
+
+  @override
+  String get colabStep2Upload =>
+      'När en fil efterfrågas väljer du sr_input.zip i utdatamappen.';
+
+  @override
+  String get colabStep2Wait =>
+      'När det är klart laddas sr_output.zip ner. Låt Colab-fliken vara öppen tills dess.';
+
+  @override
+  String get colabStep2Arrived =>
+      'sr_output.zip har laddats ner. Tryck på Nästa.';
+
+  @override
+  String get colabStep3Explain =>
+      'Importerar de förbättrade rösterna från sr_output.zip och bygger MPQ-filerna.';
+
+  @override
+  String get colabStep3NotFound =>
+      'sr_output.zip hittades inte i mappen Hämtade filer. Välj filen själv.';
+
+  @override
+  String get wizardBack => 'Tillbaka';
+
+  @override
+  String get wizardNext => 'Nästa';
 }

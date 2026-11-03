@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/build_state.dart';
 import '../services/super_resolution/colab_exchange.dart';
 import '../viewmodels/home_viewmodel.dart';
-import '../widgets/colab_panel.dart';
+import '../widgets/colab_wizard_dialog.dart';
 import '../widgets/diablo_button.dart';
 import '../widgets/error_dialog.dart';
 import '../widgets/folder_selector.dart';
@@ -121,36 +120,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
     }
   }
 
-  Future<void> _chooseColabResult() async {
+  Future<String?> _pickColabResult() async {
     final l10n = AppLocalizations.of(context)!;
-    final String? path;
     try {
       final result = await FilePicker.pickFiles(
-        dialogTitle: l10n.colabStep3Hint,
+        dialogTitle: l10n.colabStep3Title,
         initialDirectory: ColabExchange.downloadsDir(),
         type: FileType.custom,
         allowedExtensions: ['zip'],
       );
-      path = result.isEmpty ? null : result.single.path;
+      return result.isEmpty ? null : result.single.path;
     } catch (e) {
       _showErrorDialog(l10n.errorFilePicker, e.toString());
-      return;
+      return null;
     }
-    if (path != null) await _importColabResultAndBuild(path);
   }
 
-  Future<void> _importColabResultAndBuild(String path) async {
+  Future<void> _openColabWizard() async {
     final l10n = AppLocalizations.of(context)!;
-    try {
-      final count = await ref
-          .read(homeViewModelProvider.notifier)
-          .importColabResultAndBuild(path);
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.colabImportDone(count))));
-      }
-    } catch (e) {
-      _showErrorDialog(l10n.colabStep3Title, l10n.colabImportFailed('$e'));
+    final count = await showDialog<int>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ColabWizardDialog(
+        onOpenColab: _openColabNotebook,
+        onOpenFolder: (dir) => launchUrl(Uri.directory(dir)),
+        pickResultZip: _pickColabResult,
+      ),
+    );
+    if (count != null && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.colabImportDone(count))));
     }
   }
 
@@ -181,7 +180,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(homeViewModelProvider);
-    final notifier = ref.read(homeViewModelProvider.notifier);
 
     // Listen for error state changes and show alert
     ref.listen<HomeState>(homeViewModelProvider, (previous, next) {
@@ -250,25 +248,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     _assetsPathController.text.trim().isNotEmpty &&
                     _outputPathController.text.trim().isNotEmpty &&
                     !state.isBuilding;
-                if (state.useSuperResolution && state.superResolutionOnColab) {
-                  return ColabPanel(
-                    input: state.colabInput,
-                    resultPath: state.colabResultPath,
-                    enabled: canBuild,
-                    onExport: notifier.exportForColab,
-                    onOpenFolder: () => launchUrl(
-                      Uri.directory(p.dirname(state.colabInput!.path)),
-                    ),
-                    onOpenColab: _openColabNotebook,
-                    onImportAndBuild: () =>
-                        _importColabResultAndBuild(state.colabResultPath!),
-                    onChooseFile: _chooseColabResult,
-                    onBuild: _startBuild,
-                  );
-                }
-                return DiabloButton(
-                  key: const Key('buildButton'),
-                  onPressed: canBuild ? _startBuild : null,
+                final colab =
+                    state.useSuperResolution && state.superResolutionOnColab;
+                final colabInput = state.colabInput;
+                final button = DiabloButton(
+                  key: Key(colab ? 'colabStartButton' : 'buildButton'),
+                  onPressed: !canBuild
+                      ? null
+                      : colab
+                      ? _openColabWizard
+                      : _startBuild,
                   height: 40,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -286,9 +275,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       else
                         const Icon(Icons.build, size: 18, color: Colors.white),
                       const SizedBox(width: 8),
-                      Text(state.isBuilding ? l10n.building : l10n.buildMpq),
+                      Text(
+                        state.isBuilding
+                            ? l10n.building
+                            : colab
+                            ? l10n.colabStart
+                            : l10n.buildMpq,
+                      ),
                     ],
                   ),
+                );
+                if (!colab ||
+                    colabInput == null ||
+                    colabInput.total == 0 ||
+                    colabInput.complete) {
+                  return button;
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    button,
+                    Center(
+                      child: TextButton(
+                        onPressed: canBuild ? _startBuild : null,
+                        child: Text(
+                          '${l10n.colabStep3Imported(colabInput.imported, colabInput.total)}'
+                          ' · ${l10n.buildWithoutImport}',
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),

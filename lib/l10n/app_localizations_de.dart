@@ -174,7 +174,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get superResolutionColabNote =>
-      'Läuft auf einer kostenlosen Google-Colab-GPU. Folgen Sie den drei Schritten im Hauptfenster.';
+      'Läuft auf einer kostenlosen Google-Colab-GPU. Drücken Sie im Hauptfenster „Mit Colab verbessern und erstellen“ und folgen Sie den Schritten.';
 
   @override
   String colabImportDone(int count) {
@@ -187,13 +187,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get colabPanelTitle => 'Mit Google Colab verbessern (3 Schritte)';
-
-  @override
   String get colabStep1Title => 'Stimmen exportieren';
-
-  @override
-  String get colabStep1Hint => 'Schreibt sr_input.zip in den Ausgabeordner.';
 
   @override
   String colabStep1Done(int count, String path) {
@@ -214,17 +208,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get colabStep2Title => 'In Colab umwandeln';
 
   @override
-  String get colabStep2Hint =>
-      'Wählen Sie in Colab „Laufzeit → Alle ausführen“ und dann sr_input.zip. Am Ende wird sr_output.zip heruntergeladen. Lassen Sie den Tab bis dahin offen.';
-
-  @override
   String get openColab => 'Colab öffnen';
 
   @override
   String get colabStep3Title => 'Ergebnis importieren und erstellen';
-
-  @override
-  String get colabStep3Hint => 'Wählen Sie die heruntergeladene sr_output.zip.';
 
   @override
   String colabStep3Found(String path) {
@@ -248,4 +235,58 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get buildWithoutImport =>
       'Ohne Import erstellen (nicht verbesserte Stimmen behalten die Originalqualität)';
+
+  @override
+  String get colabStart => 'Mit Colab verbessern und erstellen…';
+
+  @override
+  String get colabWizardTitle => 'Mit Google Colab verbessern';
+
+  @override
+  String colabStepOf(int step) {
+    return 'Schritt $step von 3';
+  }
+
+  @override
+  String get colabStep1Explain =>
+      'Sammelt die noch nicht verbesserten Stimmen in sr_input.zip im Ausgabeordner. Im nächsten Schritt laden Sie diese Datei in Colab hoch.';
+
+  @override
+  String get colabExporting => 'Wird exportiert…';
+
+  @override
+  String get colabReexport => 'Erneut exportieren';
+
+  @override
+  String get colabStep2Open => 'Drücken Sie unten „Colab öffnen“.';
+
+  @override
+  String get colabStep2Run =>
+      'Wählen Sie in Colab „Laufzeit → Alle ausführen“.';
+
+  @override
+  String get colabStep2Upload =>
+      'Wenn nach einer Datei gefragt wird, wählen Sie sr_input.zip im Ausgabeordner.';
+
+  @override
+  String get colabStep2Wait =>
+      'Am Ende wird sr_output.zip heruntergeladen. Lassen Sie den Colab-Tab bis dahin offen.';
+
+  @override
+  String get colabStep2Arrived =>
+      'sr_output.zip wurde heruntergeladen. Drücken Sie „Weiter“.';
+
+  @override
+  String get colabStep3Explain =>
+      'Importiert die verbesserten Stimmen aus sr_output.zip und erstellt die MPQ-Dateien.';
+
+  @override
+  String get colabStep3NotFound =>
+      'sr_output.zip wurde im Download-Ordner nicht gefunden. Wählen Sie die Datei selbst.';
+
+  @override
+  String get wizardBack => 'Zurück';
+
+  @override
+  String get wizardNext => 'Weiter';
 }
